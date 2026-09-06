@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aksara UI Example</title>
+    <link rel="stylesheet" href="../../dist/aksara.min.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <a class="navbar-brand" href="#">Aksara UI</a>
+      <ul class="navbar-nav">
+        <li><a class="nav-link" aria-current="page" href="#components">Components</a></li>
+        <li><a class="nav-link" href="../docs/getting-started.md">Docs</a></li>
+      </ul>
+      <button class="btn btn-soft-primary ms-auto" data-offcanvas="#sidebar">Menu</button>
+    </nav>
+
+    <main id="components" class="container py-10">
+      <section class="mb-10">
+        <div class="badge badge-soft-primary mb-3">Static CSS</div>
+        <h1 class="text-40 font-800 leading-48 mb-3">Flat, sleek, soft UI components.</h1>
+        <p class="text-subtle text-18 max-w-720">
+          Aksara UI combines readable component names with utility flexibility and native logical properties.
+        </p>
+      </section>
+
+      <div class="row gap-5">
+        <section class="col-12 lg:col-6">
+          <article class="card card-elevated">
+            <header class="card-header">Buttons and badges</header>
+            <div class="card-body">
+              <div class="flex flex-wrap gap-3 mb-5">
+                <button class="btn btn-primary">Primary</button>
+                <button class="btn btn-outline-primary">Outline</button>
+                <button class="btn btn-soft-primary">Soft</button>
+                <button class="btn btn-danger">Danger</button>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span class="badge badge-primary">Primary</span>
+                <span class="badge badge-soft-success">Live</span>
+                <span class="badge badge-soft-warning">Pending</span>
+                <span class="badge badge-soft-danger">Blocked</span>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="col-12 lg:col-6">
+          <article class="card">
+            <header class="card-header">Alerts</header>
+            <div class="card-body grid-1 gap-3">
+              <div class="alert alert-primary">
+                <p class="alert-title">Soft primary alert</p>
+                <p class="m-0">The palette is semantic, flat, and not Bootstrap-derived.</p>
+              </div>
+              <div class="alert alert-success">Profile settings were saved.</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="col-12 lg:col-6">
+          <article class="card">
+            <header class="card-header">Forms</header>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input id="username" type="text" class="form-control" placeholder="Username" />
+                <p class="form-text">Static CSS, optional JavaScript.</p>
+              </div>
+              <label class="form-check mb-3">
+                <input type="checkbox" />
+                <span>Remember me</span>
+              </label>
+              <label class="form-switch">
+                <input type="checkbox" />
+                <span>Enable notifications</span>
+              </label>
+            </div>
+          </article>
+        </section>
+
+        <section class="col-12 lg:col-6">
+          <article class="card">
+            <header class="card-header">JavaScript components</header>
+            <div class="card-body flex flex-wrap gap-3">
+              <button
+                class="btn btn-primary hover:bg-primary/80 text-light"
+                data-modal="#demoModal"
+                data-tooltip="Open modal"
+                data-tooltip-placement="top"
+              >
+                Open Modal
+              </button>
+              <button
+                class="btn btn-soft-info"
+                data-popover="Popover content stays lightweight."
+                data-popover-placement="bottom"
+              >
+                Popover
+              </button>
+              <button class="btn btn-soft-success" data-toast="#savedToast">Toast</button>
+              <div class="dropdown">
+                <button class="btn btn-soft-secondary" data-dropdown="#demoMenu">Dropdown</button>
+                <div id="demoMenu" class="dropdown-menu">
+                  <button class="dropdown-item">Profile</button>
+                  <button class="dropdown-item">Settings</button>
+                  <div class="dropdown-divider"></div>
+                  <button class="dropdown-item">Sign out</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="col-12 lg:col-6">
+          <article class="card">
+            <header class="card-header">Accordion and tabs</header>
+            <div class="card-body">
+              <div class="accordion mb-5">
+                <div class="accordion-item">
+                  <button class="accordion-button" data-accordion="#panelOne" aria-expanded="false">
+                    Strict variants
+                  </button>
+                  <div id="panelOne" class="accordion-panel" hidden>Use theme, breakpoint, state, then utility.</div>
+                </div>
+                <div class="accordion-item">
+                  <button class="accordion-button" data-accordion="#panelTwo" aria-expanded="false">
+                    RTL utilities
+                  </button>
+                  <div id="panelTwo" class="accordion-panel" hidden>Use start/end logical naming, not left/right.</div>
+                </div>
+              </div>
+
+              <div class="tabs" role="tablist">
+                <button class="tab" data-tabs="#tabOne" aria-selected="true">Utilities</button>
+                <button class="tab" data-tabs="#tabTwo" aria-selected="false">Components</button>
+              </div>
+              <div id="tabOne" class="tab-panel">Prebuilt utilities support dynamic class names without JIT.</div>
+              <div id="tabTwo" class="tab-panel" hidden>Components are plain CSS with optional JS behavior.</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="col-12 lg:col-6">
+          <article class="card">
+            <header class="card-header">Table, breadcrumb, pagination</header>
+            <div class="card-body">
+              <ol class="breadcrumb mb-4">
+                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                <li class="breadcrumb-item">Docs</li>
+              </ol>
+              <table class="table table-striped table-hover mb-4">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Generator</td>
+                    <td><span class="badge badge-soft-success">Ready</span></td>
+                  </tr>
+                  <tr>
+                    <td>Data API</td>
+                    <td><span class="badge badge-soft-primary">Active</span></td>
+                  </tr>
+                </tbody>
+              </table>
+              <ul class="pagination">
+                <li><a class="page-link" href="#">Prev</a></li>
+                <li><a class="page-link" aria-current="page" href="#">1</a></li>
+                <li><a class="page-link" href="#">Next</a></li>
+              </ul>
+            </div>
+          </article>
+        </section>
+
+        <section class="col-12">
+          <div class="carousel card">
+            <div class="carousel-item card-body" data-carousel-item>
+              <h2 class="text-24 mb-2">Slide one</h2>
+              <p class="text-subtle">Carousel uses plain data attributes.</p>
+            </div>
+            <div class="carousel-item card-body" data-carousel-item hidden>
+              <h2 class="text-24 mb-2">Slide two</h2>
+              <p class="text-subtle">No runtime CSS generation is needed.</p>
+            </div>
+            <button class="carousel-control carousel-prev" data-carousel="prev" aria-label="Previous">‹</button>
+            <button class="carousel-control carousel-next" data-carousel="next" aria-label="Next">›</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="demoModal" class="modal" aria-labelledby="demoTitle">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2 id="demoTitle" class="text-20 font-700 m-0">Modal</h2>
+          <button class="modal-close" data-modal-close aria-label="Close">x</button>
+        </div>
+        <div class="modal-body">
+          <p class="m-0">This modal is powered by vanilla JavaScript and keeps focus inside while open.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-modal-close>Close</button>
+          <button class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <aside id="sidebar" class="offcanvas" aria-label="Example menu">
+      <div class="offcanvas-header">
+        <strong>Aksara UI</strong>
+        <button class="modal-close" data-offcanvas-close aria-label="Close">x</button>
+      </div>
+      <div class="offcanvas-body">
+        <a class="nav-link" href="#components">Components</a>
+        <a class="nav-link" href="../docs/components.md">Component docs</a>
+      </div>
+    </aside>
+
+    <div id="savedToast" class="toast fixed bottom-20 end-20" data-toast-delay="3000">
+      <div class="toast-header">Saved</div>
+      <div class="toast-body">Your changes are synced.</div>
+    </div>
+
+    <script src="../../dist/aksara.min.js"></script>
+  </body>
+</html>

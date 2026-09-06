@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aksara UI Documentation</title>
+    <link rel="stylesheet" href="../../dist/aksara.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="./assets/docs.css" />
+  </head>
+  <body>
+    <header class="docs-topbar">
+      <a class="docs-topbar-brand" href="#/">
+        <span class="docs-mark">A</span>
+        <span>Aksara UI</span>
+      </a>
+      <div class="docs-topbar-actions">
+        <button class="docs-theme-button" type="button" data-docs-theme aria-label="Switch color theme">
+          <span data-docs-theme-label>Light</span>
+        </button>
+        <button
+          class="docs-menu-button"
+          type="button"
+          data-docs-menu
+          aria-controls="docs-sidebar"
+          aria-expanded="false"
+        >
+          Menu
+        </button>
+      </div>
+    </header>
+    <div class="docs-backdrop" data-docs-backdrop></div>
+    <div class="docs-shell">
+      <aside id="docs-sidebar" class="docs-sidebar">
+        <a class="docs-brand" href="#/">
+          <span class="docs-mark">A</span>
+          <span>Aksara UI</span>
+        </a>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-start"
+          >
+            <span>Start</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-start" class="docs-nav">
+            <a href="#/" data-doc-link="/">Overview</a>
+            <a href="#/helpers/javascript" data-doc-link="/helpers/javascript">JavaScript API</a>
+          </nav>
+        </div>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-core"
+          >
+            <span>Core Concepts</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-core" class="docs-nav">
+            <a href="#/core/utility-first" data-doc-link="/core/utility-first">Utility First</a>
+            <a href="#/core/variants" data-doc-link="/core/variants">Variants</a>
+            <a href="#/core/dark-mode" data-doc-link="/core/dark-mode">Dark Mode</a>
+            <a href="#/core/static-css" data-doc-link="/core/static-css">Static CSS</a>
+          </nav>
+        </div>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-components"
+          >
+            <span>Components</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-components" class="docs-nav">
+            <a href="#/components/accordion" data-doc-link="/components/accordion">Accordion</a>
+            <a href="#/components/alerts" data-doc-link="/components/alerts">Alerts</a>
+            <a href="#/components/badges" data-doc-link="/components/badges">Badges</a>
+            <a href="#/components/breadcrumb" data-doc-link="/components/breadcrumb">Breadcrumb</a>
+            <a href="#/components/button-group" data-doc-link="/components/button-group">Button Group</a>
+            <a href="#/components/buttons" data-doc-link="/components/buttons">Buttons</a>
+            <a href="#/components/cards" data-doc-link="/components/cards">Cards</a>
+            <a href="#/components/carousel" data-doc-link="/components/carousel">Carousel</a>
+            <a href="#/components/collapse" data-doc-link="/components/collapse">Collapse</a>
+            <a href="#/components/dropdown" data-doc-link="/components/dropdown">Dropdown</a>
+            <a href="#/components/list-group" data-doc-link="/components/list-group">List Group</a>
+            <a href="#/components/modal" data-doc-link="/components/modal">Modal</a>
+            <a href="#/components/navbar" data-doc-link="/components/navbar">Navbar</a>
+            <a href="#/components/offcanvas" data-doc-link="/components/offcanvas">Offcanvas</a>
+            <a href="#/components/pagination" data-doc-link="/components/pagination">Pagination</a>
+            <a href="#/components/placeholders" data-doc-link="/components/placeholders">Placeholders</a>
+            <a href="#/components/popover" data-doc-link="/components/popover">Popover</a>
+            <a href="#/components/progress" data-doc-link="/components/progress">Progress</a>
+            <a href="#/components/scrollspy" data-doc-link="/components/scrollspy">Scrollspy</a>
+            <a href="#/components/spinner" data-doc-link="/components/spinner">Spinner</a>
+            <a href="#/components/table" data-doc-link="/components/table">Table</a>
+            <a href="#/components/tabs" data-doc-link="/components/tabs">Tabs</a>
+            <a href="#/components/toast" data-doc-link="/components/toast">Toast</a>
+            <a href="#/components/tooltip" data-doc-link="/components/tooltip">Tooltip</a>
+          </nav>
+        </div>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-foundations"
+          >
+            <span>Layout</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-foundations" class="docs-nav">
+            <a href="#/layout/grid" data-doc-link="/layout/grid">Layout & Grid</a>
+            <a href="#/layout/container" data-doc-link="/layout/container">Container</a>
+            <a href="#/layout/responsive" data-doc-link="/layout/responsive">Responsive</a>
+            <a href="#/layout/display" data-doc-link="/layout/display">Display</a>
+            <a href="#/layout/flex" data-doc-link="/layout/flex">Flex</a>
+            <a href="#/layout/position" data-doc-link="/layout/position">Position</a>
+          </nav>
+        </div>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-forms"
+          >
+            <span>Forms</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-forms" class="docs-nav">
+            <a href="#/forms/forms" data-doc-link="/forms/forms">Forms</a>
+            <a href="#/forms/validation" data-doc-link="/forms/validation">Validation</a>
+            <a href="#/forms/input-group" data-doc-link="/forms/input-group">Input Group</a>
+          </nav>
+        </div>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-typography"
+          >
+            <span>Typography</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-typography" class="docs-nav">
+            <a href="#/typography/typography" data-doc-link="/typography/typography">Typography</a>
+            <a href="#/typography/text" data-doc-link="/typography/text">Text</a>
+          </nav>
+        </div>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-utilities"
+          >
+            <span>Utilities</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-utilities" class="docs-nav">
+            <a href="#/utilities/utilities" data-doc-link="/utilities/utilities">Utilities</a>
+            <a href="#/utilities/colors" data-doc-link="/utilities/colors">Colors</a>
+            <a href="#/utilities/spacing" data-doc-link="/utilities/spacing">Spacing</a>
+            <a href="#/utilities/sizing" data-doc-link="/utilities/sizing">Sizing</a>
+            <a href="#/utilities/borders" data-doc-link="/utilities/borders">Borders</a>
+            <a href="#/utilities/effects" data-doc-link="/utilities/effects">Effects</a>
+            <a href="#/utilities/transitions" data-doc-link="/utilities/transitions">Transitions</a>
+            <a href="#/utilities/transforms" data-doc-link="/utilities/transforms">Transforms</a>
+            <a href="#/utilities/animations" data-doc-link="/utilities/animations">Animations</a>
+            <a href="#/utilities/states" data-doc-link="/utilities/states">States</a>
+          </nav>
+        </div>
+
+        <div class="docs-group" data-docs-group>
+          <button
+            class="docs-group-toggle"
+            type="button"
+            data-docs-group-toggle
+            aria-expanded="true"
+            aria-controls="docs-group-helpers"
+          >
+            <span>Helpers</span>
+            <span class="docs-group-icon mdi mdi-chevron-down"></span>
+          </button>
+          <nav id="docs-group-helpers" class="docs-nav">
+            <a href="#/helpers/rtl" data-doc-link="/helpers/rtl">RTL & Helpers</a>
+            <a href="#/helpers/ratio" data-doc-link="/helpers/ratio">Ratio</a>
+            <a href="#/helpers/stacks" data-doc-link="/helpers/stacks">Stacks</a>
+            <a href="#/helpers/links" data-doc-link="/helpers/links">Links</a>
+            <a href="#/helpers/visually-hidden" data-doc-link="/helpers/visually-hidden">Visually Hidden</a>
+            <a href="#/helpers/no-jit" data-doc-link="/helpers/no-jit">No JIT</a>
+            <a href="#/helpers/customization" data-doc-link="/helpers/customization">Customization</a>
+          </nav>
+        </div>
+      </aside>
+
+      <main id="docs-content" class="docs-main" tabindex="-1">
+        <div class="docs-loading">Loading documentation...</div>
+      </main>
+    </div>
+
+    <script src="../../dist/aksara.min.js"></script>
+    <script src="./assets/docs-content.js"></script>
+    <script src="./assets/docs.js"></script>
+  </body>
+</html>

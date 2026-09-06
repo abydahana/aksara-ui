@@ -1,0 +1,111 @@
+{
+  "name": "@abydahana/aksara-ui",
+  "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "Bootstrap readability with Tailwind flexibility: a static CSS and vanilla JavaScript frontend framework.",
+  "type": "module",
+  "main": "dist/aksara.js",
+  "module": "dist/aksara.esm.js",
+  "types": "dist/aksara.d.ts",
+  "style": "dist/aksara.css",
+  "exports": {
+    ".": {
+      "types": "./dist/aksara.d.ts",
+      "import": "./dist/aksara.esm.js",
+      "require": "./dist/aksara.js",
+      "default": "./dist/aksara.esm.js"
+    },
+    "./css": "./dist/aksara.css",
+    "./css/min": "./dist/aksara.min.css",
+    "./js": {
+      "types": "./dist/aksara.d.ts",
+      "import": "./dist/aksara.esm.js",
+      "require": "./dist/aksara.js",
+      "default": "./dist/aksara.esm.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "import": "./dist/components/index.js",
+      "default": "./dist/components/index.js"
+    },
+    "./components/form": {
+      "types": "./dist/components/form/index.d.ts",
+      "import": "./dist/components/form/index.js",
+      "default": "./dist/components/form/index.js"
+    },
+    "./components/data": {
+      "types": "./dist/components/data/index.d.ts",
+      "import": "./dist/components/data/index.js",
+      "default": "./dist/components/data/index.js"
+    },
+    "./components/feedback": {
+      "types": "./dist/components/feedback/index.d.ts",
+      "import": "./dist/components/feedback/index.js",
+      "default": "./dist/components/feedback/index.js"
+    },
+    "./components/overlay": {
+      "types": "./dist/components/overlay/index.d.ts",
+      "import": "./dist/components/overlay/index.js",
+      "default": "./dist/components/overlay/index.js"
+    },
+    "./components/navigation": {
+      "types": "./dist/components/navigation/index.d.ts",
+      "import": "./dist/components/navigation/index.js",
+      "default": "./dist/components/navigation/index.js"
+    },
+    "./components/buttons": {
+      "types": "./dist/components/buttons/index.d.ts",
+      "import": "./dist/components/buttons/index.js",
+      "default": "./dist/components/buttons/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "import": "./dist/components/*.js",
+      "default": "./dist/components/*.js"
+    },
+    "./dist/*": "./dist/*"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node --import tsx src/generator/build.ts",
+    "test": "node --import tsx src/tests/run.ts",
+    "check": "tsc --noEmit",
+    "lint": "eslint src eslint.config.js",
+    "lint:fix": "eslint src eslint.config.js --fix",
+    "format": "prettier --write . && eslint src eslint.config.js --fix",
+    "format:check": "prettier --check . && eslint src eslint.config.js",
+    "prepare": "npm run build",
+    "all": "npm run format && npm run lint && npm run test && npm run build",
+    "prepublishOnly": "npm run all"
+  },
+  "keywords": [
+    "css",
+    "frontend",
+    "framework",
+    "utilities",
+    "rtl",
+    "typescript"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@mdi/font": "^7.4.47"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.13.14",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-unicorn": "^65.0.1",
+    "prettier": "^3.9.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.68.0"
+  },
+  "author": "Aby Dahana"
+}

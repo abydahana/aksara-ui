@@ -1,0 +1,7 @@
+dist
+node_modules
+src/docs/assets/docs-content.js
+src/docs/assets/docs.js
+*.min.js
+*.min.css
+package-lock.json
