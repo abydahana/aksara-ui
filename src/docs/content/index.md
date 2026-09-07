@@ -1,15 +1,15 @@
 # Aksara UI
 
-A lightweight, modern CSS + JavaScript frontend framework that blends **Bootstrap readability** with **Tailwind-like utility flexibility**, designed with modern logical properties, native RTL support, and a beautiful, flat, soft visual language.
+A lightweight, modern CSS + TypeScript frontend framework that blends **Bootstrap readability** with **Tailwind-like utility flexibility**, designed with modern logical properties, native RTL support, and a beautiful, flat, soft visual language.
 
 ---
 
 ::html
 <div class="p-8 bg-primary/10 border border-primary/30 rounded-20 mb-8 transition duration-300">
-  <span class="badge badge-soft-primary mb-3">Aksara UI v0.1.0</span>
+  <span class="badge badge-soft-primary mb-3">Aksara UI v1.0.0</span>
   <h2 class="text-32 font-900 leading-38 text-primary mb-2">Bootstrap Readability + Tailwind Flexibility</h2>
   <p class="text-subtle text-md leading-relaxed mb-6" style="max-width:640px;">
-    Build stunning, fully accessible interfaces with prebuilt CSS components, highly flexible logical utility classes, a strict variant grammar, and zero-runtime vanilla JavaScript plugins. Offline-ready and compiled to pure static CSS.
+    Build stunning, fully accessible interfaces with prebuilt CSS components, highly flexible logical utility classes, a strict variant grammar, and zero-runtime TypeScript plugins. Offline-ready and compiled to pure static CSS.
   </p>
   <div class="docs-row flex-wrap">
     <a href="#/core/utility-first" class="btn btn-primary shadow-sm hover:translate-y-[-1px] transition">Get Started</a>

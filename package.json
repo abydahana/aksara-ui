@@ -1,10 +1,10 @@
 {
   "name": "@abydahana/aksara-ui",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "publishConfig": {
     "access": "public"
   },
-  "description": "Bootstrap readability with Tailwind flexibility: a static CSS and vanilla JavaScript frontend framework.",
+  "description": "Bootstrap readability with Tailwind flexibility: a static CSS and TypeScript frontend framework.",
   "type": "module",
   "main": "dist/aksara.js",
   "module": "dist/aksara.esm.js",

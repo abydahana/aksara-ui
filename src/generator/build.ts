@@ -1961,7 +1961,7 @@ function buildCss(): string {
 }
 
 function banner(): string {
-  return "/*! Aksara UI v0.1.0 | Static CSS, no JIT, vanilla JS */\n";
+  return "/*! Aksara UI v1.0.0 | Static CSS, no JIT, TypeScript */\n";
 }
 
 function minifyCss(css: string): string {

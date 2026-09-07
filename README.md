@@ -1,6 +1,6 @@
 # Aksara UI
 
-Bootstrap readability with Tailwind flexibility: a static CSS and vanilla JavaScript frontend framework.
+Bootstrap readability with Tailwind flexibility: a static CSS and TypeScript frontend framework.
 
 Aksara UI is built around one promise: users can ship a modern interface with static files only. No Node.js, bundler, compiler, JIT server, runtime style injection, or framework adapter is required in production.
 
@@ -11,7 +11,7 @@ Aksara UI is built around one promise: users can ship a modern interface with st
 - **Static CSS Ahead-of-Time**: Predictable utility ranges and component classes precompiled into pure CSS. Dynamic class names are safe because utilities already exist in the stylesheet.
 - **Strict Variant Ordering**: Clean, enforceable modifier hierarchy (`theme -> breakpoint -> state -> utility`, e.g. `dark:md:hover:border-primary`).
 - **RTL-First Architecture**: Built on CSS logical properties (`ms`, `me`, `ps`, `pe`, `text-start`, `text-end`) ensuring seamless bidirectional layout support.
-- **Zero-Dependency Vanilla JS**: Modular, lightweight interactive components (Modal, Dropdown, Tooltip, Toast, Offcanvas, Accordion, Tab) accessible globally via `Aksara` or modular imports.
+- **Zero-Dependency TypeScript**: Modular, lightweight interactive components written in pure TypeScript with first-class type declarations, accessible globally via `Aksara` or modular imports.
 - **Icon Integration**: Bundled with Material Design Icons (`@mdi/font`).
 
 ---

@@ -1,6 +1,6 @@
 # Components
 
-Aksara UI components are plain CSS classes with optional vanilla JavaScript enhancements. The visual direction is flat, sleek, and soft: gentle surfaces, semantic color accents, modest radius, and restrained shadows.
+Aksara UI components are plain CSS classes with optional TypeScript enhancements. The visual direction is flat, sleek, and soft: gentle surfaces, semantic color accents, modest radius, and restrained shadows.
 
 ## Buttons
 

@@ -54,7 +54,7 @@ The framework does not generate `ml-*`, `mr-*`, `pl-*`, `pr-*`, `text-left`, or 
 
 ## JavaScript
 
-The JavaScript package is optional and uses vanilla JavaScript.
+The JavaScript package is optional, written in TypeScript with zero external runtime dependencies.
 
 ```js
 Aksara.init();

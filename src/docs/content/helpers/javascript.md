@@ -1,6 +1,6 @@
 # JavaScript API Reference
 
-Aksara UI features a modular, zero-dependency, ultra-lightweight vanilla JavaScript library. It provides high-performance accessibility handlers, keyboard triggers, focus traps, and interactive transitions for components.
+Aksara UI features a modular, zero-dependency, ultra-lightweight TypeScript library. It provides high-performance accessibility handlers, keyboard triggers, focus traps, and interactive transitions for components.
 
 ---
 
@@ -108,7 +108,7 @@ Experience Aksara UI's zero-dependency programmatic API. Click any button below 
 
 ## Architecture & Bootstrapping
 
-The vanilla layer is exposed through the global `Aksara` namespace.
+The library is exposed through the global `Aksara` namespace.
 
 ### Automatic Initialization
 
