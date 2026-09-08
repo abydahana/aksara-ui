@@ -8,10 +8,10 @@ Override variables after loading Aksara CSS:
 
 ```css
 :root {
-  --aksara-primary: 92 106 255;
-  --aksara-bg-body: #fbfcff;
-  --aksara-text-base: #172033;
-  --aksara-radius-md: 0.625rem;
+  --aksara-primary: 15 23 42;
+  --aksara-bg-body: #ffffff;
+  --aksara-text-base: #0f172a;
+  --aksara-radius-md: 0.75rem;
 }
 ```
 

@@ -17,7 +17,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
         <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-primary));"></div>
         <div>
           <span class="block font-800 text-sm">Primary</span>
-          <span class="text-subtle text-xs">92 106 255</span>
+          <span class="text-subtle text-xs">15 23 42</span>
         </div>
       </div>
     </div>
@@ -29,6 +29,17 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
         <div>
           <span class="block font-800 text-sm">Secondary</span>
           <span class="text-subtle text-xs">100 116 139</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tertiary -->
+    <div class="col-12 sm:col-6 md:col-3">
+      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-tertiary));"></div>
+        <div>
+          <span class="block font-800 text-sm">Tertiary</span>
+          <span class="text-subtle text-xs">148 163 184</span>
         </div>
       </div>
     </div>
@@ -147,8 +158,9 @@ All colors are controlled using CSS variables declared under the `:root` scope. 
 ```css
 :root {
   /* Hex value equivalents written as comma-separated RGB values */
-  --aksara-primary: 92 106 255;
+  --aksara-primary: 15 23 42;
   --aksara-secondary: 100 116 139;
+  --aksara-tertiary: 148 163 184;
   --aksara-success: 34 197 94;
   --aksara-danger: 244 63 94;
   --aksara-warning: 245 158 11;

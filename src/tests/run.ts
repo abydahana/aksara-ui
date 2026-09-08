@@ -292,11 +292,11 @@ function hasExactClassRule(name: string): boolean {
 
 assert(!css.includes("data-bs-toggle"), "Forbidden data-bs-toggle token generated");
 assert(!css.includes("--aksara-primary:13 110 253"), "Bootstrap-like primary token should not be used");
-assert(css.includes("--aksara-primary:92 106 255"), "Soft Aksara primary token missing");
+assert(css.includes("--aksara-primary:15 23 42"), "Slate Aksara primary token missing");
 assert(css.includes(':root,[data-theme="light"],.light'), "Light theme selector should be explicit");
 assert(css.includes('[data-theme="dark"],.dark'), "Dark theme selector should be explicit");
 assert(
-  css.includes("--aksara-text-base:#172033"),
+  css.includes("--aksara-text-base:#0f172a"),
   "Light theme and base root must define dark text for --aksara-text-base"
 );
 assert(css.includes("--aksara-text-base:#f8fafc"), "Dark theme must define light text for --aksara-text-base");
@@ -615,8 +615,8 @@ assert(!/^\s*import\b/m.test(docsLoader), "Docs loader docs.js must not contain 
   }
 }
 
-assert(docsCss.includes("Ubuntu"), "Docs CSS must use Ubuntu font");
-assert(css.includes("Ubuntu"), "Base CSS must include Ubuntu in font stack");
+assert(docsCss.includes("Inter"), "Docs CSS must use Inter font");
+assert(css.includes("Inter"), "Base CSS must include Inter in font stack");
 assert(js.includes("setTheme"), "Aksara runtime must export setTheme");
 assert(js.includes("getTheme"), "Aksara runtime must export getTheme");
 assert(js.includes("initTheme"), "Aksara runtime must export initTheme");

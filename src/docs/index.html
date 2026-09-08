@@ -14,10 +14,25 @@
         <span class="docs-mark">A</span>
         <span>Aksara UI</span>
       </a>
+
+      <div class="docs-search" data-docs-search-trigger tabindex="0" role="button" aria-label="Search documentation">
+        <span class="mdi mdi-magnify docs-search-icon"></span>
+        <span class="docs-search-placeholder">Search documentation...</span>
+        <kbd>⌘K</kbd>
+      </div>
+
       <div class="docs-topbar-actions">
-        <button class="docs-theme-button" type="button" data-docs-theme aria-label="Switch color theme">
-          <span class="mdi mdi-theme-light-dark"></span>
-          <span data-docs-theme-label>Light</span>
+        <a href="https://github.com/abydahana/aksara-ui" target="_blank" rel="noreferrer" class="docs-topbar-link">
+          <span class="mdi mdi-github"></span> GitHub
+        </a>
+        <a href="#/core/utility-first" class="docs-btn-install">
+          Install Aksara <span class="mdi mdi-chevron-right"></span>
+        </a>
+        <button class="docs-icon-button" type="button" data-docs-theme aria-label="Switch color theme">
+          <span class="mdi mdi-weather-night"></span>
+        </button>
+        <button class="docs-icon-button docs-rtl-btn" type="button" data-docs-rtl aria-label="Toggle text direction">
+          RTL
         </button>
         <button
           class="docs-menu-button"
@@ -30,6 +45,15 @@
         </button>
       </div>
     </header>
+
+    <nav class="docs-tabs" aria-label="Documentation categories">
+      <a href="#/" class="docs-tab active" data-docs-tab="start">Aksara UI</a>
+      <a href="#/core/utility-first" class="docs-tab" data-docs-tab="core">Core Concepts</a>
+      <a href="#/components/accordion" class="docs-tab" data-docs-tab="components">Components</a>
+      <a href="#/utilities/utilities" class="docs-tab" data-docs-tab="utilities">Utilities</a>
+      <a href="#/helpers/rtl" class="docs-tab" data-docs-tab="helpers">Helpers</a>
+    </nav>
+
     <div class="docs-backdrop" data-docs-backdrop></div>
     <div class="docs-shell">
       <aside id="docs-sidebar" class="docs-sidebar">
@@ -218,6 +242,29 @@
       <main id="docs-content" class="docs-main" tabindex="-1">
         <div class="docs-loading">Loading documentation...</div>
       </main>
+
+      <aside id="docs-toc" class="docs-toc" aria-label="On this page">
+        <div class="docs-toc-header"><span class="mdi mdi-format-list-bulleted"></span> ON THIS PAGE</div>
+        <nav id="docs-toc-nav" class="docs-toc-nav"></nav>
+      </aside>
+    </div>
+
+    <!-- Search Modal Dialog (Cmd+K) -->
+    <div class="docs-search-modal" id="docs-search-modal" data-docs-search-modal hidden>
+      <div class="docs-search-backdrop" data-docs-search-backdrop></div>
+      <div class="docs-search-dialog">
+        <div class="docs-search-input-wrap">
+          <span class="mdi mdi-magnify docs-search-icon"></span>
+          <input
+            type="text"
+            class="docs-search-input"
+            placeholder="Search documentation, components, utilities..."
+            data-docs-search-input
+          />
+          <kbd>ESC</kbd>
+        </div>
+        <div class="docs-search-results" data-docs-search-results></div>
+      </div>
     </div>
 
     <script src="../../dist/aksara.min.js"></script>

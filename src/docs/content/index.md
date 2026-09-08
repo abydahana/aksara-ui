@@ -5,15 +5,15 @@ A lightweight, modern CSS + TypeScript frontend framework that blends **Bootstra
 ---
 
 ::html
-<div class="p-5 bg-primary/10 border border-primary/30 rounded-2xl mb-5 transition duration-300">
-  <span class="badge badge-soft-primary mb-3">Aksara UI v1.1.0</span>
-  <h2 class="text-32 font-900 leading-38 text-primary mb-2">Bootstrap Readability + Tailwind Flexibility</h2>
+<div class="p-5 bg-subtle border border-subtle rounded-2xl mb-5">
+  <span class="badge bg-body-tertiary text-body mb-3 font-700">Aksara UI v1.1.0</span>
+  <h2 class="text-32 font-900 leading-38 text-body mb-2">Bootstrap Readability + Tailwind Flexibility</h2>
   <p class="text-subtle text-md leading-relaxed mb-4" style="max-width:640px;">
     Build stunning, fully accessible interfaces with prebuilt CSS components, highly flexible logical utility classes, a strict variant grammar, and zero-runtime TypeScript plugins. Offline-ready and compiled to pure static CSS.
   </p>
-  <div class="docs-row flex-wrap">
-    <a href="#/core/utility-first" class="btn btn-primary shadow-sm transition">Get Started</a>
-    <a href="#/helpers/javascript" class="btn btn-soft-primary">JavaScript API Reference</a>
+  <div class="docs-row flex-wrap gap-3">
+    <a href="#/core/utility-first" class="btn btn-primary shadow-sm">Get Started</a>
+    <a href="#/helpers/javascript" class="btn btn-soft-secondary">JavaScript API Reference</a>
     <span class="badge badge-soft-success font-700 hstack gap-2">
       <span class="mdi mdi-shield-check-outline mdi-18px"></span> Static CSS (No JIT)
     </span>

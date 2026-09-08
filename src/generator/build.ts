@@ -20,8 +20,9 @@ const docsTs = path.join(root, "src/docs/assets/docs.ts");
 const docsJsOutput = path.join(root, "src/docs/assets/docs.js");
 
 const colors: Record<string, string> = {
-  primary: "92 106 255",
+  primary: "15 23 42",
   secondary: "100 116 139",
+  tertiary: "148 163 184",
   success: "34 197 94",
   danger: "244 63 94",
   warning: "245 158 11",
@@ -31,8 +32,9 @@ const colors: Record<string, string> = {
 };
 
 const hexColors: Record<string, string> = {
-  primary: "#5c6aff",
+  primary: "#0f172a",
   secondary: "#64748b",
+  tertiary: "#94a3b8",
   success: "#22c55e",
   danger: "#f43f5e",
   warning: "#f59e0b",
@@ -63,55 +65,55 @@ const baseTokens: Record<string, string> = {
   "--aksara-modal-y": "0px",
   "--aksara-modal-width": "32rem",
   "--aksara-surface": "#ffffff",
-  "--aksara-surface-hover": "#f4f7fb",
-  "--aksara-surface-muted": "#f4f7fb",
+  "--aksara-surface-hover": "#f8fafc",
+  "--aksara-surface-muted": "#f1f5f9",
   "--aksara-bg-surface": "#ffffff",
-  "--aksara-bg-body": "#fbfcff",
-  "--aksara-bg-body-secondary": "#f4f7fb",
-  "--aksara-bg-body-tertiary": "#edf2f7",
-  "--aksara-bg-subtle": "#f4f7fb",
+  "--aksara-bg-body": "#ffffff",
+  "--aksara-bg-body-secondary": "#f8fafc",
+  "--aksara-bg-body-tertiary": "#f1f5f9",
+  "--aksara-bg-subtle": "#f1f5f9",
   "--aksara-bg-invert": "#0f172a",
   "--aksara-bg": "var(--aksara-bg-body)",
-  "--aksara-text-body": "#172033",
-  "--aksara-text-base": "#172033",
+  "--aksara-text-body": "#0f172a",
+  "--aksara-text-base": "#0f172a",
   "--aksara-text-body-secondary": "#64748b",
   "--aksara-text-body-tertiary": "#94a3b8",
   "--aksara-text-subtle": "#64748b",
   "--aksara-text-invert": "#f8fafc",
-  "--aksara-border": "#d7deea",
-  "--aksara-border-secondary": "#e6ebf3",
+  "--aksara-border": "#e2e8f0",
+  "--aksara-border-secondary": "#f1f5f9",
   "--aksara-border-tertiary": "#e2e8f0",
-  "--aksara-border-subtle": "#e6ebf3",
-  "--aksara-border-invert": "#94a3b8",
+  "--aksara-border-subtle": "#e2e8f0",
+  "--aksara-border-invert": "#475569",
   "--aksara-border-color": "var(--aksara-border)"
 };
 
 const lightTheme: Record<string, string> = {
   "--aksara-surface": "#ffffff",
-  "--aksara-surface-hover": "#f4f7fb",
-  "--aksara-surface-muted": "#f4f7fb",
+  "--aksara-surface-hover": "#f8fafc",
+  "--aksara-surface-muted": "#f1f5f9",
   "--aksara-bg-surface": "#ffffff",
-  "--aksara-bg-body": "#fbfcff",
-  "--aksara-bg-body-secondary": "#f4f7fb",
-  "--aksara-bg-body-tertiary": "#edf2f7",
-  "--aksara-bg-subtle": "#f4f7fb",
+  "--aksara-bg-body": "#ffffff",
+  "--aksara-bg-body-secondary": "#f8fafc",
+  "--aksara-bg-body-tertiary": "#f1f5f9",
+  "--aksara-bg-subtle": "#f1f5f9",
   "--aksara-bg-invert": "#0f172a",
   "--aksara-bg": "var(--aksara-bg-body)",
-  "--aksara-text-body": "#172033",
-  "--aksara-text-base": "#172033",
+  "--aksara-text-body": "#0f172a",
+  "--aksara-text-base": "#0f172a",
   "--aksara-text-body-secondary": "#64748b",
   "--aksara-text-body-tertiary": "#94a3b8",
   "--aksara-text-subtle": "#64748b",
   "--aksara-text-invert": "#f8fafc",
-  "--aksara-border": "#d7deea",
-  "--aksara-border-secondary": "#e6ebf3",
+  "--aksara-border": "#e2e8f0",
+  "--aksara-border-secondary": "#f1f5f9",
   "--aksara-border-tertiary": "#e2e8f0",
-  "--aksara-border-subtle": "#e6ebf3",
-  "--aksara-border-invert": "#94a3b8",
+  "--aksara-border-subtle": "#e2e8f0",
+  "--aksara-border-invert": "#475569",
   "--aksara-border-color": "var(--aksara-border)",
-  "--aksara-shadow-sm": "0 1px 2px rgb(15 23 42/.06)",
-  "--aksara-shadow-md": "0 12px 30px rgb(15 23 42/.10)",
-  "--aksara-shadow-lg": "0 24px 70px rgb(15 23 42/.20)",
+  "--aksara-shadow-sm": "0 1px 2px rgb(15 23 42/.05)",
+  "--aksara-shadow-md": "0 10px 25px rgb(15 23 42/.08)",
+  "--aksara-shadow-lg": "0 20px 50px rgb(15 23 42/.12)",
   "--aksara-overlay-bg": "rgb(15 23 42/.46)",
   "--aksara-tooltip-bg": "rgb(15 23 42)",
   "--aksara-tooltip-text": "rgb(var(--aksara-light))",
@@ -146,8 +148,8 @@ const darkTheme: Record<string, string> = {
   "--aksara-text-body-tertiary": "#64748b",
   "--aksara-text-subtle": "#94a3b8",
   "--aksara-text-invert": "#0f172a",
-  "--aksara-border": "#334155",
-  "--aksara-border-secondary": "#1e293b",
+  "--aksara-border": "#1e293b",
+  "--aksara-border-secondary": "#0f172a",
   "--aksara-border-tertiary": "#334155",
   "--aksara-border-subtle": "#1e293b",
   "--aksara-border-invert": "#cbd5e1",
@@ -305,7 +307,7 @@ function readableText(name: string): string {
 }
 
 function solidForeground(name: string): string {
-  return name === "light" ? "rgb(var(--aksara-dark))" : "rgb(var(--aksara-light))";
+  return name === "light" || name === "tertiary" ? "rgb(var(--aksara-dark))" : "rgb(var(--aksara-light))";
 }
 
 const bootstrapSpacers: Record<number, string> = {
@@ -786,7 +788,7 @@ function addTypography(): void {
   }).forEach(([name, declarations]) => add(name, declarations));
   for (let n = 100; n <= 900; n += 100) add(`font-${n}`, `font-weight:${n}`);
   Object.entries({
-    "font-sans": "font-family:Ubuntu,Inter,ui-sans-serif,system-ui,-apple-system,sans-serif",
+    "font-sans": 'font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif',
     "font-serif": "font-family:ui-serif,Georgia,Cambria,serif",
     "font-mono": "font-family:var(--docs-font-mono,ui-monospace,SFMono-Regular,Menlo,monospace)",
     "font-monospace": "font-family:var(--docs-font-mono,ui-monospace,SFMono-Regular,Menlo,monospace)",
@@ -1826,7 +1828,7 @@ function preflight(): string {
       return `--aksara-${name}:${value};--aksara-${name}-rgb:${commaSeparated};${hex ? `--aksara-${name}-hex:${hex};` : ""}`;
     })
     .join("");
-  return `:root{${vars}${cssVars(baseTokens)}font-size:1rem}:root,[data-theme="light"],.light{${cssVars(lightTheme)}color-scheme:light}[data-theme="dark"],.dark{${cssVars(darkTheme)}color-scheme:dark}*,*::before,*::after{box-sizing:border-box}html{font-size:1rem}body{margin:0;font-family:Ubuntu,Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1rem;background:var(--aksara-bg-body);color:var(--aksara-text-body);line-height:1.5}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:600;line-height:1.25;color:inherit}h1{font-size:2rem}h2{font-size:1.75rem}h3{font-size:1.5rem}h4{font-size:1.25rem}h5{font-size:1.125rem}h6{font-size:1rem}form{margin:0}button,input,textarea,select{font:inherit}button:disabled,.disabled{pointer-events:none;opacity:.58}img,svg,video{max-width:100%;height:auto}.row>*{box-sizing:border-box;flex-shrink:0;width:100%;max-width:100%;padding-inline:calc(var(--aksara-gutter-x,1rem)/2);margin-top:var(--aksara-gutter-y,0)}[hidden]{display:none!important}@keyframes aksara-fade{from{opacity:0}to{opacity:1}}@keyframes aksara-zoom{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}@keyframes aksara-slide{from{opacity:0;transform:translateY(.5rem)}to{opacity:1;transform:translateY(0)}}@keyframes aksara-spin{to{transform:rotate(360deg)}}@keyframes aksara-progress-stripes{from{background-position-x:1rem}to{background-position-x:0}}@keyframes aksara-bounce{0%,100%{transform:translateY(-15%)}50%{transform:translateY(0)}}@keyframes aksara-pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes aksara-placeholder-wave{100%{transform:translateX(100%)}}`;
+  return `:root{${vars}${cssVars(baseTokens)}font-size:1rem}:root,[data-theme="light"],.light{${cssVars(lightTheme)}color-scheme:light}[data-theme="dark"],.dark{${cssVars(darkTheme)}color-scheme:dark}*,*::before,*::after{box-sizing:border-box}html{font-size:1rem}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:1rem;background:var(--aksara-bg-body);color:var(--aksara-text-body);line-height:1.5}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:600;line-height:1.25;color:inherit}h1{font-size:2rem}h2{font-size:1.75rem}h3{font-size:1.5rem}h4{font-size:1.25rem}h5{font-size:1.125rem}h6{font-size:1rem}form{margin:0}button,input,textarea,select{font:inherit}button:disabled,.disabled{pointer-events:none;opacity:.58}img,svg,video{max-width:100%;height:auto}.row>*{box-sizing:border-box;flex-shrink:0;width:100%;max-width:100%;padding-inline:calc(var(--aksara-gutter-x,1rem)/2);margin-top:var(--aksara-gutter-y,0)}[hidden]{display:none!important}@keyframes aksara-fade{from{opacity:0}to{opacity:1}}@keyframes aksara-zoom{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}@keyframes aksara-slide{from{opacity:0;transform:translateY(.5rem)}to{opacity:1;transform:translateY(0)}}@keyframes aksara-spin{to{transform:rotate(360deg)}}@keyframes aksara-progress-stripes{from{background-position-x:1rem}to{background-position-x:0}}@keyframes aksara-bounce{0%,100%{transform:translateY(-15%)}50%{transform:translateY(0)}}@keyframes aksara-pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes aksara-placeholder-wave{100%{transform:translateX(100%)}}`;
 }
 
 interface ParsedClass {
