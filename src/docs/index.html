@@ -15,10 +15,23 @@
         <span>Aksara UI</span>
       </a>
 
-      <div class="docs-search" data-docs-search-trigger tabindex="0" role="button" aria-label="Search documentation">
-        <span class="mdi mdi-magnify docs-search-icon"></span>
-        <span class="docs-search-placeholder">Search documentation...</span>
-        <kbd>⌘K</kbd>
+      <div class="docs-search-wrapper" data-docs-search-wrapper>
+        <div class="docs-search">
+          <span class="mdi mdi-magnify docs-search-icon"></span>
+          <input
+            type="text"
+            class="docs-search-input"
+            placeholder="Search documentation..."
+            data-docs-search-input
+            aria-label="Search documentation"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <kbd>⌘K</kbd>
+        </div>
+        <div class="docs-search-dropdown" data-docs-search-dropdown hidden>
+          <div class="docs-search-results" data-docs-search-results></div>
+        </div>
       </div>
 
       <div class="docs-topbar-actions">
@@ -247,24 +260,6 @@
         <div class="docs-toc-header"><span class="mdi mdi-format-list-bulleted"></span> ON THIS PAGE</div>
         <nav id="docs-toc-nav" class="docs-toc-nav"></nav>
       </aside>
-    </div>
-
-    <!-- Search Modal Dialog (Cmd+K) -->
-    <div class="docs-search-modal" id="docs-search-modal" data-docs-search-modal hidden>
-      <div class="docs-search-backdrop" data-docs-search-backdrop></div>
-      <div class="docs-search-dialog">
-        <div class="docs-search-input-wrap">
-          <span class="mdi mdi-magnify docs-search-icon"></span>
-          <input
-            type="text"
-            class="docs-search-input"
-            placeholder="Search documentation, components, utilities..."
-            data-docs-search-input
-          />
-          <kbd>ESC</kbd>
-        </div>
-        <div class="docs-search-results" data-docs-search-results></div>
-      </div>
     </div>
 
     <script src="../../dist/aksara.min.js"></script>

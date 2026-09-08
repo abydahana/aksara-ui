@@ -80,12 +80,12 @@ const themeButton = document.querySelector<HTMLElement>("[data-docs-theme]");
 const rtlButton = document.querySelector<HTMLElement>("[data-docs-rtl]");
 const groupToggles = Array.from(document.querySelectorAll<HTMLElement>("[data-docs-group-toggle]"));
 
-// Search Modal elements
-const searchTrigger = document.querySelector<HTMLElement>("[data-docs-search-trigger]");
-const searchModal = document.querySelector<HTMLElement>("#docs-search-modal");
-const searchBackdrop = document.querySelector<HTMLElement>("[data-docs-search-backdrop]");
+// Search elements
+const searchWrapper = document.querySelector<HTMLElement>("[data-docs-search-wrapper]");
 const searchInput = document.querySelector<HTMLInputElement>("[data-docs-search-input]");
+const searchDropdown = document.querySelector<HTMLElement>("[data-docs-search-dropdown]");
 const searchResults = document.querySelector<HTMLElement>("[data-docs-search-results]");
+let activeSearchIndex = -1;
 
 applyStoredTheme();
 
@@ -472,53 +472,83 @@ function escapeHtml(value: string): string {
   return value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
-// Search Modal functions
-function openSearch(): void {
-  if (!searchModal) return;
-  searchModal.removeAttribute("hidden");
-  if (searchInput) {
-    searchInput.value = "";
-    renderSearchResults("");
-    setTimeout(() => searchInput.focus(), 50);
+// Search dropdown functions
+function openSearchDropdown(): void {
+  if (!searchDropdown || !searchInput) return;
+  const query = searchInput.value.trim();
+  if (query) {
+    renderSearchResults(query);
+    searchDropdown.removeAttribute("hidden");
   }
 }
 
-function closeSearch(): void {
-  if (!searchModal) return;
-  searchModal.setAttribute("hidden", "");
+function closeSearchDropdown(): void {
+  if (!searchDropdown) return;
+  searchDropdown.setAttribute("hidden", "");
+  activeSearchIndex = -1;
 }
 
 function renderSearchResults(query: string): void {
   if (!searchResults) return;
   if (!query) {
-    searchResults.innerHTML = `<div class="docs-search-empty">Type to search documentation...</div>`;
+    searchResults.innerHTML = "";
+    closeSearchDropdown();
     return;
   }
   const lower = query.toLowerCase();
   const matches = Object.keys(routes).filter((route) => {
-    return route.toLowerCase().includes(lower);
+    const lastPart = route.split("/").pop() || "";
+    return route.toLowerCase().includes(lower) || lastPart.replace(/-/g, " ").toLowerCase().includes(lower);
   });
 
   if (matches.length === 0) {
     searchResults.innerHTML = `<div class="docs-search-empty">No results found for "${escapeHtml(query)}"</div>`;
+    activeSearchIndex = -1;
     return;
   }
 
+  activeSearchIndex = 0;
   searchResults.innerHTML = matches
-    .map((route) => {
-      const label = route === "/" ? "Overview" : route.split("/").pop()?.replace(/-/g, " ") || route;
-      const capitalized = label.charAt(0).toUpperCase() + label.slice(1);
-      return `<a href="#${route}" class="docs-search-item" data-search-link>
-        <span class="docs-search-item-title">${escapeHtml(capitalized)}</span>
-        <span class="docs-search-item-route">${escapeHtml(route)}</span>
+    .slice(0, 8)
+    .map((route, index) => {
+      const parts = route.split("/").filter(Boolean);
+      const category = parts.length > 1 ? parts[0] : "General";
+      const name = parts.length > 0 ? parts[parts.length - 1].replace(/-/g, " ") : "Overview";
+      const title = name.charAt(0).toUpperCase() + name.slice(1);
+      const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+      return `<a href="#${route}" class="docs-search-item${index === 0 ? " active" : ""}" data-search-link data-search-index="${index}">
+        <div class="docs-search-item-header">
+          <span class="docs-search-item-title">${escapeHtml(title)}</span>
+          <span class="docs-search-item-badge">${escapeHtml(categoryLabel)}</span>
+        </div>
+        <span class="docs-search-item-route">#${escapeHtml(route)}</span>
       </a>`;
     })
     .join("");
 
   searchResults.querySelectorAll<HTMLAnchorElement>("[data-search-link]").forEach((item) => {
     item.addEventListener("click", () => {
-      closeSearch();
+      closeSearchDropdown();
     });
+  });
+}
+
+function updateActiveSearchItem(index: number): void {
+  if (!searchResults) return;
+  const items = searchResults.querySelectorAll<HTMLAnchorElement>("[data-search-link]");
+  if (items.length === 0) return;
+
+  if (index < 0) index = items.length - 1;
+  if (index >= items.length) index = 0;
+  activeSearchIndex = index;
+
+  items.forEach((item, i) => {
+    if (i === activeSearchIndex) {
+      item.classList.add("active");
+      item.scrollIntoView({ block: "nearest" });
+    } else {
+      item.classList.remove("active");
+    }
   });
 }
 
@@ -539,23 +569,71 @@ rtlButton?.addEventListener("click", () => {
   }
 });
 
-searchTrigger?.addEventListener("click", openSearch);
-searchBackdrop?.addEventListener("click", closeSearch);
 searchInput?.addEventListener("input", () => {
-  renderSearchResults(searchInput.value.trim());
+  const query = searchInput.value.trim();
+  if (query) {
+    renderSearchResults(query);
+    searchDropdown?.removeAttribute("hidden");
+  } else {
+    closeSearchDropdown();
+  }
+});
+
+searchInput?.addEventListener("focus", () => {
+  if (searchInput.value.trim()) {
+    openSearchDropdown();
+  }
+});
+
+searchInput?.addEventListener("keydown", (event: KeyboardEvent) => {
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    if (searchDropdown?.hasAttribute("hidden")) {
+      openSearchDropdown();
+    } else {
+      updateActiveSearchItem(activeSearchIndex + 1);
+    }
+  } else if (event.key === "ArrowUp") {
+    event.preventDefault();
+    if (searchDropdown?.hasAttribute("hidden")) {
+      openSearchDropdown();
+    } else {
+      updateActiveSearchItem(activeSearchIndex - 1);
+    }
+  } else if (event.key === "Enter") {
+    if (searchDropdown && !searchDropdown.hasAttribute("hidden")) {
+      const activeItem = searchResults?.querySelector<HTMLAnchorElement>(".docs-search-item.active");
+      if (activeItem) {
+        event.preventDefault();
+        activeItem.click();
+        searchInput.blur();
+      }
+    }
+  } else if (event.key === "Escape") {
+    closeSearchDropdown();
+    searchInput.blur();
+  }
+});
+
+document.addEventListener("click", (event: MouseEvent) => {
+  const target = event.target as Node | null;
+  if (searchWrapper && !searchWrapper.contains(target)) {
+    closeSearchDropdown();
+  }
 });
 
 document.addEventListener("keydown", (event: KeyboardEvent) => {
   if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
     event.preventDefault();
-    if (searchModal && !searchModal.hasAttribute("hidden")) {
-      closeSearch();
-    } else {
-      openSearch();
+    searchInput?.focus();
+    searchInput?.select();
+    if (searchInput?.value.trim()) {
+      openSearchDropdown();
     }
   } else if (event.key === "Escape") {
-    if (searchModal && !searchModal.hasAttribute("hidden")) {
-      closeSearch();
+    if (searchDropdown && !searchDropdown.hasAttribute("hidden")) {
+      closeSearchDropdown();
+      searchInput?.blur();
     } else {
       closeMenu();
     }
