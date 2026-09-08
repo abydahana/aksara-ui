@@ -31,10 +31,10 @@ Experience Aksara UI's zero-dependency programmatic API. Click any button below 
       <!-- Programmatic Target Dropdown Menu -->
       <div class="dropdown-menu p-2 rounded-12 border border-subtle bg-body shadow-md mt-2" style="position: absolute; top: 100%; start: 0; z-index: 1050; min-width: 200px;">
         <span class="text-xs text-subtle font-800 uppercase tracking-widest block p-2">Programmatic Menu</span>
-        <a href="#/helpers/javascript" class="dropdown-item rounded-8 p-2 hstack gap-2 text-sm text-base">
+        <a href="#/helpers/javascript" class="dropdown-item rounded-8 p-2 hstack gap-2 text-sm">
           <span class="mdi mdi-book-open-outline"></span> Documentation
         </a>
-        <a href="#/" class="dropdown-item rounded-8 p-2 hstack gap-2 text-sm text-base">
+        <a href="#/" class="dropdown-item rounded-8 p-2 hstack gap-2 text-sm">
           <span class="mdi mdi-home-outline"></span> Overview Home
         </a>
         <hr class="my-2" style="border:0; height:1px; background:var(--aksara-border-subtle)">

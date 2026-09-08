@@ -85,6 +85,10 @@ async function loadRoute() {
             window.Aksara.destroy();
         content.innerHTML = renderMarkdown(markdown);
         content.focus({ preventScroll: true });
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        content.scrollTop = 0;
         bindDocsScrollspy(content);
         if (window.Aksara)
             window.Aksara.init(content);
@@ -93,6 +97,10 @@ async function loadRoute() {
     catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         content.innerHTML = `<h1>Page unavailable</h1><p class="docs-lead">${escapeHtml(message)}</p>`;
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        content.scrollTop = 0;
     }
 }
 function openMenu() {
@@ -347,7 +355,16 @@ menuButton?.addEventListener("click", toggleMenu);
 backdrop?.addEventListener("click", closeMenu);
 themeButton?.addEventListener("click", toggleTheme);
 groupToggles.forEach((toggle) => toggle.addEventListener("click", toggleGroup));
-links.forEach((link) => link.addEventListener("click", closeMenu));
+links.forEach((link) => {
+    link.addEventListener("click", () => {
+        closeMenu();
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        if (content)
+            content.scrollTop = 0;
+    });
+});
 document.addEventListener("keydown", (event) => {
     if (event.key === "Escape")
         closeMenu();

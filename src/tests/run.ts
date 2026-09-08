@@ -295,6 +295,13 @@ assert(!css.includes("--aksara-primary:13 110 253"), "Bootstrap-like primary tok
 assert(css.includes("--aksara-primary:92 106 255"), "Soft Aksara primary token missing");
 assert(css.includes(':root,[data-theme="light"],.light'), "Light theme selector should be explicit");
 assert(css.includes('[data-theme="dark"],.dark'), "Dark theme selector should be explicit");
+assert(
+  css.includes("--aksara-text-base:#172033"),
+  "Light theme and base root must define dark text for --aksara-text-base"
+);
+assert(css.includes("--aksara-text-base:#f8fafc"), "Dark theme must define light text for --aksara-text-base");
+assert(hasExactClassRule("bg-base"), "Missing bg-base utility class");
+assert(hasExactClassRule("border-base"), "Missing border-base utility class");
 assert(css.includes("--aksara-overlay-bg:rgb(15 23 42/.46)"), "Light overlay token missing");
 assert(css.includes("--aksara-overlay-bg:rgb(0 0 0/.62)"), "Dark overlay token missing");
 assert(css.includes("--aksara-radius:1rem"), "Base rounded theme radius token missing");

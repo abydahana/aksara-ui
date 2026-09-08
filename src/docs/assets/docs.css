@@ -4,14 +4,14 @@
   --docs-font-sans: "Ubuntu", system-ui, -apple-system, sans-serif;
   --docs-font-display: "Ubuntu", system-ui, -apple-system, sans-serif;
   --docs-font-mono: "Ubuntu Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-  --aksara-text-base: var(--aksara-text-body);
+  --aksara-text-base: var(--aksara-text-body, #172033);
 }
 
 body {
   font-family: var(--docs-font-sans);
   letter-spacing: -0.011em;
   background: var(--aksara-bg-body);
-  color: var(--aksara-text-base);
+  color: var(--aksara-text-base, var(--aksara-text-body, #172033));
   overflow-x: hidden;
   margin: 0;
   -webkit-font-smoothing: antialiased;

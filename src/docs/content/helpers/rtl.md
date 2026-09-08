@@ -13,7 +13,7 @@ Below are two identical card containers. The right card is wrapped inside a `dir
   <div class="row gap-4">
     <!-- Left-to-Right Sandbox -->
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-16 border bg-body text-base" dir="ltr">
+      <div class="p-4 rounded-16 border bg-body text-body" dir="ltr">
         <div class="hstack justify-between mb-3">
           <span class="badge badge-soft-primary">LTR Container</span>
           <span class="text-xs text-subtle">dir="ltr"</span>
@@ -28,7 +28,7 @@ Below are two identical card containers. The right card is wrapped inside a `dir
 
     <!-- Right-to-Left Sandbox -->
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-16 border bg-body text-base" dir="rtl">
+      <div class="p-4 rounded-16 border bg-body text-body" dir="rtl">
         <div class="hstack justify-between mb-3">
           <span class="badge badge-soft-primary">RTL Container</span>
           <span class="text-xs text-subtle">dir="rtl"</span>

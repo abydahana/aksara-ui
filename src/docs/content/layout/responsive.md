@@ -97,7 +97,7 @@ Theme, breakpoint, and state variants must stay in order.
 
 ::html
 <div class="docs-preview">
-  <article class="card p-5 bg-body text-base border border-subtle rounded-12 dark:md:hover:border-primary transition duration-200">
+  <article class="card p-5 bg-body text-body border border-subtle rounded-12 dark:md:hover:border-primary transition duration-200">
     <h2 class="card-title">Responsive card</h2>
     <p class="card-text">The hover border variant only applies from md screens in dark mode.</p>
   </article>
@@ -106,7 +106,7 @@ Theme, breakpoint, and state variants must stay in order.
 
 ```html
 <article
-  class="card p-5 bg-body text-base border border-subtle rounded-12 dark:md:hover:border-primary transition duration-200"
+  class="card p-5 bg-body text-body border border-subtle rounded-12 dark:md:hover:border-primary transition duration-200"
 >
   ...
 </article>

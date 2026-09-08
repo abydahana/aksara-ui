@@ -15,7 +15,7 @@ Use utility classes to compose bespoke, highly interactive layouts directly in y
       </span>
       <span class="text-xs text-subtle font-600">Active Concept</span>
     </div>
-    <h2 class="text-28 font-800 leading-34 mb-2 text-base">Compose directly in HTML</h2>
+    <h2 class="text-28 font-800 leading-34 mb-2 text-body">Compose directly in HTML</h2>
     <p class="text-subtle leading-24 mb-5 text-sm">
       Seamlessly combine layout grids, spacing offsets, adaptive color schemes, premium border properties, and CSS animations.
     </p>

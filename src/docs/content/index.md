@@ -113,7 +113,7 @@ Experience the flat, soft design aesthetics and modular components of Aksara UI.
           <div class="col-6">
             <div class="p-4 rounded-12 bg-subtle">
               <span class="text-subtle text-xs uppercase tracking-wider block mb-1">Core CSS Size</span>
-              <strong class="text-xl font-900 text-base">24.8 KB</strong>
+              <strong class="text-xl font-900 text-body">24.8 KB</strong>
               <span class="text-success text-xs block font-600 mt-1">
                 <span class="mdi mdi-arrow-down-bold"></span> -14% Gzipped
               </span>
@@ -122,7 +122,7 @@ Experience the flat, soft design aesthetics and modular components of Aksara UI.
           <div class="col-6">
             <div class="p-4 rounded-12 bg-subtle">
               <span class="text-subtle text-xs uppercase tracking-wider block mb-1">JS Footprint</span>
-              <strong class="text-xl font-900 text-base">4.2 KB</strong>
+              <strong class="text-xl font-900 text-body">4.2 KB</strong>
               <span class="text-success text-xs block font-600 mt-1">
                 <span class="mdi mdi-flash"></span> Pure Vanilla
               </span>

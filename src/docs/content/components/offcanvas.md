@@ -29,9 +29,9 @@ Click the button below to toggle a live offcanvas drawer sheet sliding from the 
 
       <!-- Sample Navigation Links -->
       <nav class="vstack gap-2 mb-4">
-        <a href="#/core/utility-first" class="p-3 rounded bg-subtle text-base font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-home-outline"></span> Overview Dashboard</a>
-        <a href="#/helpers/javascript" class="p-3 rounded bg-subtle text-base font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-flash-outline"></span> JavaScript API</a>
-        <a href="#/utilities/colors" class="p-3 rounded bg-subtle text-base font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-palette-outline"></span> Visual Colors</a>
+        <a href="#/core/utility-first" class="p-3 rounded bg-subtle text-body font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-home-outline"></span> Overview Dashboard</a>
+        <a href="#/helpers/javascript" class="p-3 rounded bg-subtle text-body font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-flash-outline"></span> JavaScript API</a>
+        <a href="#/utilities/colors" class="p-3 rounded bg-subtle text-body font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-palette-outline"></span> Visual Colors</a>
       </nav>
 
       <button class="btn btn-sm btn-ghost btn-block" data-offcanvas-close>Close Panel</button>

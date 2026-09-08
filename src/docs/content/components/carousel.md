@@ -36,11 +36,11 @@ Click the prev/next arrow controls (`‹` and `›`) below to transition slides.
     </div>
 
     <!-- Prev / Next Controller Actions -->
-    <button class="carousel-control carousel-prev hstack justify-center" data-carousel="prev" aria-label="Previous slide" style="position: absolute; top: 50%; start: 16px; transform: translateY(-50%); border: 0; background: rgba(var(--aksara-dark)/.16); color: var(--aksara-text-base); width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">
+    <button class="carousel-control carousel-prev hstack justify-center" data-carousel="prev" aria-label="Previous slide" style="position: absolute; top: 50%; start: 16px; transform: translateY(-50%); border: 0; background: rgba(var(--aksara-dark)/.16); color: var(--aksara-text-body); width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">
       <span class="mdi mdi-chevron-left mdi-24px" style="line-height: 1;"></span>
     </button>
 
-    <button class="carousel-control carousel-next hstack justify-center" data-carousel="next" aria-label="Next slide" style="position: absolute; top: 50%; end: 16px; transform: translateY(-50%); border: 0; background: rgba(var(--aksara-dark)/.16); color: var(--aksara-text-base); width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">
+    <button class="carousel-control carousel-next hstack justify-center" data-carousel="next" aria-label="Next slide" style="position: absolute; top: 50%; end: 16px; transform: translateY(-50%); border: 0; background: rgba(var(--aksara-dark)/.16); color: var(--aksara-text-body); width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">
       <span class="mdi mdi-chevron-right mdi-24px" style="line-height: 1;"></span>
     </button>
 

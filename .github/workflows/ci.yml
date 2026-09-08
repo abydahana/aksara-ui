@@ -1,0 +1,53 @@
+name: CI & Code Quality
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20.x, 22.x]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Type Check (tsc)
+        run: npm run check
+
+      - name: Check Formatting (Prettier)
+        run: npx prettier --check .
+
+      - name: Lint Code (ESLint)
+        run: npm run lint
+
+      - name: Run Test Suite
+        run: npm run test
+
+      - name: Build CSS & Assets
+        run: npm run build
+
+      - name: Verify Clean Working Tree
+        if: matrix.node-version == '22.x'
+        run: |
+          git diff --stat --exit-code || (echo "Error: Uncommitted changes detected after build. Run 'npm run all' locally and commit the changes." && exit 1)

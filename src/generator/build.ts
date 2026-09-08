@@ -61,7 +61,29 @@ const baseTokens: Record<string, string> = {
   "--aksara-stack-gap": "1rem",
   "--aksara-modal-x": "0px",
   "--aksara-modal-y": "0px",
-  "--aksara-modal-width": "32rem"
+  "--aksara-modal-width": "32rem",
+  "--aksara-surface": "#ffffff",
+  "--aksara-surface-hover": "#f4f7fb",
+  "--aksara-surface-muted": "#f4f7fb",
+  "--aksara-bg-surface": "#ffffff",
+  "--aksara-bg-body": "#fbfcff",
+  "--aksara-bg-body-secondary": "#f4f7fb",
+  "--aksara-bg-body-tertiary": "#edf2f7",
+  "--aksara-bg-subtle": "#f4f7fb",
+  "--aksara-bg-invert": "#0f172a",
+  "--aksara-bg": "var(--aksara-bg-body)",
+  "--aksara-text-body": "#172033",
+  "--aksara-text-base": "#172033",
+  "--aksara-text-body-secondary": "#64748b",
+  "--aksara-text-body-tertiary": "#94a3b8",
+  "--aksara-text-subtle": "#64748b",
+  "--aksara-text-invert": "#f8fafc",
+  "--aksara-border": "#d7deea",
+  "--aksara-border-secondary": "#e6ebf3",
+  "--aksara-border-tertiary": "#e2e8f0",
+  "--aksara-border-subtle": "#e6ebf3",
+  "--aksara-border-invert": "#94a3b8",
+  "--aksara-border-color": "var(--aksara-border)"
 };
 
 const lightTheme: Record<string, string> = {
@@ -76,7 +98,7 @@ const lightTheme: Record<string, string> = {
   "--aksara-bg-invert": "#0f172a",
   "--aksara-bg": "var(--aksara-bg-body)",
   "--aksara-text-body": "#172033",
-  "--aksara-text-base": "var(--aksara-text-body)",
+  "--aksara-text-base": "#172033",
   "--aksara-text-body-secondary": "#64748b",
   "--aksara-text-body-tertiary": "#94a3b8",
   "--aksara-text-subtle": "#64748b",
@@ -119,7 +141,7 @@ const darkTheme: Record<string, string> = {
   "--aksara-bg-invert": "#f8fafc",
   "--aksara-bg": "var(--aksara-bg-body)",
   "--aksara-text-body": "#f8fafc",
-  "--aksara-text-base": "var(--aksara-text-body)",
+  "--aksara-text-base": "#f8fafc",
   "--aksara-text-body-secondary": "#94a3b8",
   "--aksara-text-body-tertiary": "#64748b",
   "--aksara-text-subtle": "#94a3b8",
@@ -460,6 +482,8 @@ function addColors(): void {
   });
 
   // Bootstrap body variants
+  add("bg-base", "background-color:var(--aksara-surface,var(--aksara-bg-body,#ffffff))");
+  add("border-base", "border-color:var(--aksara-border,#d7deea)");
   add("bg-body-secondary", "background-color:var(--aksara-bg-body-secondary,var(--aksara-bg-subtle))");
   add(
     "bg-body-tertiary",

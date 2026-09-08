@@ -12,7 +12,7 @@ Aksara UI provides a fully static, highly optimized, and pre-compiled CSS build 
     <div class="col-12 md:col-4">
       <div class="p-5 bg-body border border-subtle rounded-12 h-100% hover:border-primary/50 transition">
         <span class="mdi mdi-flash text-28 text-warning mb-3 d-block"></span>
-        <h4 class="font-700 mb-2 mt-0 text-base">Instant Setup</h4>
+        <h4 class="font-700 mb-2 mt-0 text-body">Instant Setup</h4>
         <p class="text-subtle text-xs mb-0 mt-0 leading-18">
           Add simple CDN links directly to your HTML files. No npm install, no compiler, and no bundler required.
         </p>
@@ -21,7 +21,7 @@ Aksara UI provides a fully static, highly optimized, and pre-compiled CSS build 
     <div class="col-12 md:col-4">
       <div class="p-5 bg-body border border-subtle rounded-12 h-100% hover:border-primary/50 transition">
         <span class="mdi mdi-shield-check text-28 text-success mb-3 d-block"></span>
-        <h4 class="font-700 mb-2 mt-0 text-base">100% Safe JIT-Free</h4>
+        <h4 class="font-700 mb-2 mt-0 text-body">100% Safe JIT-Free</h4>
         <p class="text-subtle text-xs mb-0 mt-0 leading-18">
           Never worry about build utilities failing to parse your javascript or missing classes during production builds.
         </p>
@@ -30,7 +30,7 @@ Aksara UI provides a fully static, highly optimized, and pre-compiled CSS build 
     <div class="col-12 md:col-4">
       <div class="p-5 bg-body border border-subtle rounded-12 h-100% hover:border-primary/50 transition">
         <span class="mdi mdi-server-network text-28 text-primary mb-3 d-block"></span>
-        <h4 class="font-700 mb-2 mt-0 text-base">CDN-Ready & Cached</h4>
+        <h4 class="font-700 mb-2 mt-0 text-body">CDN-Ready & Cached</h4>
         <p class="text-subtle text-xs mb-0 mt-0 leading-18">
           Highly optimized, gzipped, and minified stylesheet easily distributed and cached globally.
         </p>
@@ -57,7 +57,7 @@ To start building beautiful, high-performance dashboards, simply copy and paste 
     <!-- Aksara UI CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aksara-ui@latest/dist/aksara.min.css" />
   </head>
-  <body class="bg-subtle text-base font-normal">
+  <body class="bg-subtle text-body font-normal">
     <!-- Aksara UI Javascript -->
     <script src="https://cdn.jsdelivr.net/npm/aksara-ui@latest/dist/aksara.min.js"></script>
   </body>
