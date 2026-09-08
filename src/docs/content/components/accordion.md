@@ -7,7 +7,7 @@ Accordions display stacked drawers that expand and collapse upon click, allowing
 Aksara UI features **Auto-Collapse Sibling Panels** natively. When a drawer panel is clicked and expanded, all other sibling drawers inside the same accordion container automatically collapse:
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <div class="accordion">
     <!-- Item 1 -->
     <div class="accordion-item">
@@ -87,7 +87,7 @@ Aksara UI features **Auto-Collapse Sibling Panels** natively. When a drawer pane
 Use `parent` as a selector when multiple accordion columns should behave like one group. Expanding a panel in the right column collapses any active panel in the left column because both instances point to the same parent scope.
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <div id="billingFaqGroup" class="row gap-5">
     <div class="col-12 md:col-6">
       <div class="accordion" data-accordion-parent="#billingFaqGroup">

@@ -13,7 +13,7 @@ No Node.js, bundler, compiler, JIT server, runtime style injection, or framework
 
 Aksara UI uses prebuilt static CSS. The project generator creates predictable utility ranges and component classes ahead of time, including responsive grid utilities, state utilities, adaptive theme tokens, RTL-friendly logical spacing, and Bootstrap-like components.
 
-Dynamic class names are safe because utilities such as `m-15`, `w-100`, `w-1/2`, `text-primary/20`, and `md:col-4` already exist in the generated CSS. There is no runtime CSS generation.
+Dynamic class names are safe because utilities such as `m-4`, `w-100`, `w-1/2`, `text-primary/20`, and `md:col-4` already exist in the generated CSS. There is no runtime CSS generation.
 
 ## Strict Variant Order
 
@@ -47,7 +47,7 @@ The generator validates variant order before emitting CSS.
 Aksara UI uses logical properties. Use `ms`, `me`, `ps`, and `pe` instead of left/right names.
 
 ```html
-<div class="ms-10 me-10 ps-20 pe-20 text-start"></div>
+<div class="ms-3 me-3 ps-4 pe-4 text-start"></div>
 ```
 
 The framework does not generate `ml-*`, `mr-*`, `pl-*`, `pr-*`, `text-left`, or `text-right`.

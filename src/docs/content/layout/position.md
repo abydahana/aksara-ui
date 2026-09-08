@@ -16,9 +16,9 @@ Position utilities use logical inset names for RTL-friendly placement.
 
 ::html
 <div class="docs-preview">
-  <div class="relative h-160 bg-subtle rounded-12">
-    <div class="absolute top-20 start-20 p-3 bg-primary/10 rounded-12">top start</div>
-    <div class="absolute bottom-20 end-20 p-3 bg-success/10 rounded-12">bottom end</div>
+  <div class="relative bg-subtle rounded-md" style="height: 10rem;">
+    <div class="absolute top-20 start-20 p-3 bg-primary/10 rounded-md">top start</div>
+    <div class="absolute bottom-20 end-20 p-3 bg-success/10 rounded-md">bottom end</div>
   </div>
 </div>
 ::end

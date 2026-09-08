@@ -20,8 +20,9 @@ This modern layout features a **rounded image embedded directly inside the padde
     <div class="col-12 md:col-6">
       <article class="card border border-subtle bg-body">
         <div class="card-body">
-          <!-- Rounded image placed inside padded body -->
-          <img class="w-full rounded-12 mb-4" src="https://picsum.photos/id/48/600/350" alt="Next-Gen Workspace" style="aspect-ratio: 16/10; object-fit: cover;">
+          <div class="w-full rounded-12 mb-4 bg-subtle border border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+            <span class="mdi mdi-laptop text-5xl opacity-80"></span>
+          </div>
 
           <span class="text-xs text-primary font-800 uppercase tracking-widest block mb-2">Workspace Innovation</span>
           <h4 class="card-title mt-0 mb-2 text-xl font-800">Next-Gen Developer Studio</h4>
@@ -40,8 +41,9 @@ This modern layout features a **rounded image embedded directly inside the padde
     <div class="col-12 md:col-6">
       <article class="card border border-subtle bg-body">
         <div class="card-body">
-          <!-- Rounded image placed inside padded body -->
-          <img class="w-full rounded-12 mb-4" src="https://picsum.photos/id/60/600/350" alt="Interior architectural design" style="aspect-ratio: 16/10; object-fit: cover;">
+          <div class="w-full rounded-12 mb-4 bg-subtle border border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+            <span class="mdi mdi-palette-outline text-5xl opacity-80"></span>
+          </div>
 
           <span class="text-xs text-success font-800 uppercase tracking-widest block mb-2">Minimalist Design</span>
           <h4 class="card-title mt-0 mb-2 text-xl font-800">Architectural Spatial Balance</h4>
@@ -85,7 +87,9 @@ This modern layout features a **rounded image embedded directly inside the padde
     <!-- 1. Rich Card with Top Image Header -->
     <div class="col-12 md:col-6">
       <article class="card border border-subtle bg-body h-100%">
-        <img class="card-img" src="https://picsum.photos/id/10/600/350" alt="Mountain landscape" style="aspect-ratio: 16/10; object-fit: cover;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-info" style="aspect-ratio: 16/10;">
+          <span class="mdi mdi-image-area text-5xl opacity-80"></span>
+        </div>
 
         <div class="card-body">
           <div class="hstack gap-2 mb-2 flex-wrap">
@@ -150,7 +154,9 @@ By default, card heights adapt dynamically to their specific text content, resul
     <!-- Uneven Card 1 -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body">
-        <img class="card-img" src="https://picsum.photos/id/26/600/350" alt="Code editor" style="aspect-ratio: 16/10; object-fit: cover;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+          <span class="mdi mdi-xml text-4xl opacity-80"></span>
+        </div>
         <div class="card-body">
           <h4 class="card-title mt-0 mb-2 font-800">Web Engineering</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-0">
@@ -166,7 +172,9 @@ By default, card heights adapt dynamically to their specific text content, resul
     <!-- Uneven Card 2 -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body">
-        <img class="card-img" src="https://picsum.photos/id/48/600/350" alt="Abstract gradient" style="aspect-ratio: 16/10; object-fit: cover;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+          <span class="mdi mdi-layers-triple-outline text-4xl opacity-80"></span>
+        </div>
         <div class="card-body">
           <h4 class="card-title mt-0 mb-2 font-800">Logical Frameworks</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-0">
@@ -182,7 +190,9 @@ By default, card heights adapt dynamically to their specific text content, resul
     <!-- Uneven Card 3 (Tallest content) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body">
-        <img class="card-img" src="https://picsum.photos/id/60/600/350" alt="Minimalist room" style="aspect-ratio: 16/10; object-fit: cover;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-warning" style="aspect-ratio: 16/10;">
+          <span class="mdi mdi-speedometer text-4xl opacity-80"></span>
+        </div>
         <div class="card-body">
           <h4 class="card-title mt-0 mb-2 font-800">Static Compile Runtimes</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-0">
@@ -220,7 +230,9 @@ By applying the **`h-100%`** (or `h-full`) class to each card container inside t
     <!-- Equal Card 1 (Stretched) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100%">
-        <img class="card-img" src="https://picsum.photos/id/26/600/350" alt="Code editor" style="aspect-ratio: 16/10; object-fit: cover;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+          <span class="mdi mdi-xml text-4xl opacity-80"></span>
+        </div>
         <div class="card-body">
           <h4 class="card-title mt-0 mb-2 font-800">Web Engineering</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-0">
@@ -236,7 +248,9 @@ By applying the **`h-100%`** (or `h-full`) class to each card container inside t
     <!-- Equal Card 2 (Stretched) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100%">
-        <img class="card-img" src="https://picsum.photos/id/48/600/350" alt="Abstract gradient" style="aspect-ratio: 16/10; object-fit: cover;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+          <span class="mdi mdi-layers-triple-outline text-4xl opacity-80"></span>
+        </div>
         <div class="card-body">
           <h4 class="card-title mt-0 mb-2 font-800">Logical Frameworks</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-0">
@@ -252,7 +266,9 @@ By applying the **`h-100%`** (or `h-full`) class to each card container inside t
     <!-- Equal Card 3 (Tallest content) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100%">
-        <img class="card-img" src="https://picsum.photos/id/60/600/350" alt="Minimalist room" style="aspect-ratio: 16/10; object-fit: cover;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-warning" style="aspect-ratio: 16/10;">
+          <span class="mdi mdi-speedometer text-4xl opacity-80"></span>
+        </div>
         <div class="card-body">
           <h4 class="card-title mt-0 mb-2 font-800">Static Compile Runtimes</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-0">
@@ -299,7 +315,9 @@ Inside a `d-flex flex-col grow` card body, placing **`mt-auto`** on the button p
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100% d-flex flex-col">
         <div class="card-body d-flex flex-col grow">
-          <img class="w-full rounded-12 mb-4" src="https://picsum.photos/id/26/600/350" alt="Code editor" style="aspect-ratio: 16/10; object-fit: cover;">
+          <div class="w-full rounded-12 mb-4 bg-subtle border border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+            <span class="mdi mdi-code-braces text-4xl opacity-80"></span>
+          </div>
           <h4 class="card-title mt-0 mb-2 font-800">Web Engineering</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-4">
             Master logical spacing coordinates.
@@ -316,7 +334,9 @@ Inside a `d-flex flex-col grow` card body, placing **`mt-auto`** on the button p
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100% d-flex flex-col">
         <div class="card-body d-flex flex-col grow">
-          <img class="w-full rounded-12 mb-4" src="https://picsum.photos/id/48/600/350" alt="Abstract gradient" style="aspect-ratio: 16/10; object-fit: cover;">
+          <div class="w-full rounded-12 mb-4 bg-subtle border border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+            <span class="mdi mdi-swap-horizontal text-4xl opacity-80"></span>
+          </div>
           <h4 class="card-title mt-0 mb-2 font-800">Logical Frameworks</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-4">
             Discover the layout mirroring power of direction-agnostic boundaries. Supports RTL natively in a single click.
@@ -333,7 +353,9 @@ Inside a `d-flex flex-col grow` card body, placing **`mt-auto`** on the button p
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100% d-flex flex-col">
         <div class="card-body d-flex flex-col grow">
-          <img class="w-full rounded-12 mb-4" src="https://picsum.photos/id/60/600/350" alt="Minimalist room" style="aspect-ratio: 16/10; object-fit: cover;">
+          <div class="w-full rounded-12 mb-4 bg-subtle border border-subtle hstack justify-center items-center text-warning" style="aspect-ratio: 16/10;">
+            <span class="mdi mdi-flash text-4xl opacity-80"></span>
+          </div>
           <h4 class="card-title mt-0 mb-2 font-800">Static Compile Runtimes</h4>
           <p class="card-text text-subtle text-sm mt-0 mb-4">
             Eliminate all dynamic compilation lags, heavy runtime stylesheet injection cycles, and node bundle bloats. Prebuilt static CSS stylesheets deliver instant paints and immediate performance out-of-the-box, ensuring layouts load within a single refresh loop.

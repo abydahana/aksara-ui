@@ -1,6 +1,6 @@
 {
   "name": "@abydahana/aksara-ui",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "publishConfig": {
     "access": "public"
   },
@@ -73,6 +73,7 @@
     "LICENSE"
   ],
   "scripts": {
+    "dev": "node --import tsx src/generator/dev.ts",
     "build": "node --import tsx src/generator/build.ts",
     "test": "node --import tsx src/tests/run.ts",
     "check": "tsc --noEmit",

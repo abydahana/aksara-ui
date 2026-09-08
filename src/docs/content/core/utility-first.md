@@ -7,8 +7,8 @@ Aksara UI supports a premium, high-performance utility-first workflow while keep
 Use utility classes to compose bespoke, highly interactive layouts directly in your HTML without writing a single line of custom CSS.
 
 ::html
-<div class="docs-preview py-8 flex justify-center">
-  <article class="w-full p-6 bg-body border border-subtle rounded-16 shadow-md hover:border-primary/50 transition duration-300" style="max-width:520px;">
+<div class="docs-preview py-5 flex justify-center">
+  <article class="w-full p-4 bg-body border border-subtle rounded-16 shadow-md hover:border-primary/50 transition duration-300" style="max-width:520px;">
     <div class="hstack justify-between items-center mb-4">
       <span class="badge badge-soft-primary hstack gap-2 text-xs px-3 py-1 rounded-full font-700">
         <span class="mdi mdi-cube-outline"></span> Utility-first
@@ -28,7 +28,7 @@ Use utility classes to compose bespoke, highly interactive layouts directly in y
 
 ```html
 <article
-  class="w-full p-6 bg-body border border-subtle rounded-16 shadow-md hover:border-primary/50 transition duration-300"
+  class="w-full p-4 bg-body border border-subtle rounded-16 shadow-md hover:border-primary/50 transition duration-300"
   style="max-width:520px;"
 >
   <div class="hstack justify-between items-center mb-4">
@@ -50,18 +50,18 @@ Use utility classes to compose bespoke, highly interactive layouts directly in y
 Components provide a stable, standard, accessible base. Utilities let you customize spacing, colors, layouts, and interactive behaviors on top without code bloat.
 
 ::html
-<div class="docs-preview py-6 flex gap-3 flex-wrap items-center">
-  <button class="btn btn-outline-primary px-6 py-3 rounded-100 hstack gap-2 hover:bg-primary/10 transition">
+<div class="docs-preview py-4 flex gap-3 flex-wrap items-center">
+  <button class="btn btn-outline-primary px-4 py-3 rounded-100 hstack gap-2 hover:bg-primary/10 transition">
     <span class="mdi mdi-filter-variant"></span> Filter Results
   </button>
-  <button class="btn btn-soft-danger px-6 py-3 rounded-100 hstack gap-2 hover:bg-danger/20 transition">
+  <button class="btn btn-soft-danger px-4 py-3 rounded-100 hstack gap-2 hover:bg-danger/20 transition">
     <span class="mdi mdi-trash-can-outline"></span> Delete Account
   </button>
 </div>
 ::end
 
 ```html
-<button class="btn btn-outline-primary px-6 py-3 rounded-100 hstack gap-2 hover:bg-primary/10 transition">
+<button class="btn btn-outline-primary px-4 py-3 rounded-100 hstack gap-2 hover:bg-primary/10 transition">
   <span class="mdi mdi-filter-variant"></span> Filter Results
 </button>
 ```

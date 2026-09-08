@@ -118,7 +118,7 @@ Aksara UI replaces legacy browser styling with beautifully curated checkbox togg
 
 ::html
 <div class="docs-preview">
-  <div class="hstack gap-6 flex-wrap">
+  <div class="hstack gap-4 flex-wrap">
     <!-- Checkbox -->
     <label class="form-check">
       <input type="checkbox" checked>

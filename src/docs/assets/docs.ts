@@ -16,6 +16,7 @@ const routes: Record<string, string> = {
   "/components/accordion": "content/components/accordion.md",
   "/components/alerts": "content/components/alerts.md",
   "/components/badges": "content/components/badges.md",
+  "/components/bento-card": "content/components/bento-card.md",
   "/components/breadcrumb": "content/components/breadcrumb.md",
   "/components/button-group": "content/components/button-group.md",
   "/components/buttons": "content/components/buttons.md",
@@ -32,9 +33,11 @@ const routes: Record<string, string> = {
   "/components/popover": "content/components/popover.md",
   "/components/progress": "content/components/progress.md",
   "/components/scrollspy": "content/components/scrollspy.md",
+  "/components/skeleton": "content/components/skeleton.md",
   "/components/spinner": "content/components/spinner.md",
   "/components/table": "content/components/table.md",
   "/components/tabs": "content/components/tabs.md",
+  "/components/timeline": "content/components/timeline.md",
   "/components/toast": "content/components/toast.md",
   "/components/tooltip": "content/components/tooltip.md",
   "/layout/grid": "content/layout/grid.md",
@@ -77,7 +80,6 @@ const themeLabel = document.querySelector<HTMLElement>("[data-docs-theme-label]"
 const groupToggles = Array.from(document.querySelectorAll<HTMLElement>("[data-docs-group-toggle]"));
 
 applyStoredTheme();
-applyStoredGroups();
 
 function currentRoute(): string {
   const hash = window.location.hash.replace(/^#/, "");
@@ -119,18 +121,38 @@ function toggleMenu(): void {
 }
 
 function currentTheme(): "dark" | "light" {
-  return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  if (window.Aksara?.getTheme) {
+    const t = window.Aksara.getTheme();
+    if (t === "dark" || t === "light") return t;
+  }
+  return document.documentElement.getAttribute("data-theme") === "dark" ||
+    document.documentElement.classList.contains("dark")
+    ? "dark"
+    : "light";
 }
 
 function applyStoredTheme(): void {
-  const stored = localStorage.getItem("aksara-docs-theme") as "dark" | "light" | null;
+  const stored = (localStorage.getItem("aksara-theme") || localStorage.getItem("aksara-docs-theme")) as
+    "dark" | "light" | null;
   const preferred = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   setTheme(stored || preferred);
 }
 
 function setTheme(theme: "dark" | "light" | string): void {
-  const next = theme === "dark" ? "dark" : "light";
-  document.documentElement.dataset.theme = next;
+  const next: "dark" | "light" = theme === "dark" ? "dark" : "light";
+  if (window.Aksara?.setTheme) {
+    window.Aksara.setTheme(next);
+  } else {
+    document.documentElement.setAttribute("data-theme", next);
+    if (next === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+    } else {
+      document.documentElement.classList.add("light");
+      document.documentElement.classList.remove("dark");
+    }
+  }
+  localStorage.setItem("aksara-theme", next);
   localStorage.setItem("aksara-docs-theme", next);
   if (themeLabel) themeLabel.textContent = next === "dark" ? "Dark" : "Light";
   themeButton?.setAttribute("aria-label", `Switch to ${next === "dark" ? "light" : "dark"} theme`);
@@ -140,30 +162,34 @@ function toggleTheme(): void {
   setTheme(currentTheme() === "dark" ? "light" : "dark");
 }
 
-function groupStorageKey(group: HTMLElement): string {
-  return `aksara-docs-group-${group.id || group.querySelector(".docs-group-toggle")?.textContent?.trim()}`;
-}
-
 function setGroupCollapsed(group: HTMLElement, collapsed: boolean): void {
   group.dataset.collapsed = collapsed ? "true" : "false";
   const toggle = group.querySelector("[data-docs-group-toggle]");
   toggle?.setAttribute("aria-expanded", String(!collapsed));
-  localStorage.setItem(groupStorageKey(group), collapsed ? "true" : "false");
 }
 
-function applyStoredGroups(): void {
+function openOnlyGroup(targetGroup: HTMLElement): void {
   document.querySelectorAll<HTMLElement>("[data-docs-group]").forEach((group) => {
-    const stored = localStorage.getItem(groupStorageKey(group));
-    if (stored === "true") setGroupCollapsed(group, true);
-    if (stored === "false") setGroupCollapsed(group, false);
+    if (group === targetGroup) {
+      setGroupCollapsed(group, false);
+    } else {
+      setGroupCollapsed(group, true);
+    }
   });
 }
 
 function toggleGroup(event: Event): void {
   const currentTarget = event.currentTarget as HTMLElement | null;
-  const group = currentTarget?.closest<HTMLElement>("[data-docs-group]");
-  if (!group) return;
-  setGroupCollapsed(group, group.dataset.collapsed !== "true");
+  const targetGroup = currentTarget?.closest<HTMLElement>("[data-docs-group]");
+  if (!targetGroup) return;
+
+  const isCurrentlyCollapsed = targetGroup.dataset.collapsed === "true";
+  if (isCurrentlyCollapsed) {
+    // Accordion: opening one group closes all other groups
+    openOnlyGroup(targetGroup);
+  } else {
+    setGroupCollapsed(targetGroup, true);
+  }
 }
 
 async function loadMarkdown(route: string): Promise<string> {
@@ -174,10 +200,20 @@ async function loadMarkdown(route: string): Promise<string> {
 }
 
 function setActiveLink(route: string): void {
+  let activeGroup: HTMLElement | null = null;
   links.forEach((link) => {
-    if (link.dataset.docLink === route) link.setAttribute("aria-current", "page");
-    else link.removeAttribute("aria-current");
+    if (link.dataset.docLink === route) {
+      link.setAttribute("aria-current", "page");
+      activeGroup = link.closest<HTMLElement>("[data-docs-group]");
+    } else {
+      link.removeAttribute("aria-current");
+    }
   });
+
+  // Ensure accordion opens the active section and closes all others
+  if (activeGroup) {
+    openOnlyGroup(activeGroup);
+  }
 }
 
 function bindDocsScrollspy(root: HTMLElement): void {

@@ -1636,6 +1636,10 @@ export interface AksaraNamespace {
     target?: TargetElements | (OffcanvasOptions & { target?: TargetElements; selector?: TargetElements }),
     options?: OffcanvasOptions
   ): Offcanvas;
+  setTheme(theme: "light" | "dark" | "system"): "light" | "dark" | "system";
+  getTheme(): "light" | "dark" | "system";
+  initTheme(): "light" | "dark" | "system";
+  clipboard(target: string | HTMLElement, text?: string): Promise<boolean>;
   init(root?: ParentNode | Document | HTMLElement): AksaraNamespace;
   destroy(): AksaraNamespace;
 }
@@ -1847,6 +1851,74 @@ function setupArbitraryObserver(): void {
   });
 }
 
+let currentTheme: "light" | "dark" | "system" = "system";
+
+function getSystemTheme(): "light" | "dark" {
+  if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "light";
+}
+
+function applyTheme(theme: "light" | "dark" | "system"): void {
+  if (typeof document === "undefined") return;
+  const root = document.documentElement;
+  const effectiveTheme = theme === "system" ? getSystemTheme() : theme;
+  root.setAttribute("data-theme", effectiveTheme);
+  if (effectiveTheme === "dark") {
+    root.classList.add("dark");
+    root.classList.remove("light");
+  } else {
+    root.classList.add("light");
+    root.classList.remove("dark");
+  }
+}
+
+function setupClipboard(root: ParentNode = document): void {
+  if (typeof document === "undefined") return;
+  root.querySelectorAll<HTMLElement>("[data-clipboard]").forEach((trigger) => {
+    if (trigger.dataset.aksaraClipboardBound) return;
+    trigger.dataset.aksaraClipboardBound = "true";
+    trigger.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const targetSelector = trigger.getAttribute("data-clipboard");
+      let textToCopy = "";
+      if (targetSelector && targetSelector.startsWith("#")) {
+        const targetEl = document.querySelector(targetSelector);
+        if (targetEl) {
+          textToCopy = (targetEl as HTMLInputElement).value ?? targetEl.textContent ?? "";
+        }
+      } else if (targetSelector) {
+        textToCopy = targetSelector;
+      } else {
+        textToCopy = trigger.getAttribute("data-clipboard-text") || trigger.textContent || "";
+      }
+
+      if (navigator.clipboard && textToCopy) {
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          const originalText = trigger.getAttribute("data-clipboard-original") || trigger.innerHTML;
+          const successText = trigger.getAttribute("data-clipboard-success");
+          if (successText) {
+            if (!trigger.hasAttribute("data-clipboard-original")) {
+              trigger.setAttribute("data-clipboard-original", originalText);
+            }
+            trigger.innerHTML = successText;
+            setTimeout(() => {
+              trigger.innerHTML = originalText;
+            }, 2000);
+          }
+          trigger.classList.add("is-copied");
+          setTimeout(() => trigger.classList.remove("is-copied"), 2000);
+          emit(trigger, "clipboard:copy", { text: textToCopy });
+        } catch {
+          // ignore error
+        }
+      }
+    });
+  });
+}
+
 export const Aksara: AksaraNamespace = {
   Modal,
   Tooltip,
@@ -1893,7 +1965,68 @@ export const Aksara: AksaraNamespace = {
     const args = resolveArgs(target, options, ".offcanvas");
     return createAll(args.target, Offcanvas, args.options);
   },
+  setTheme(theme: "light" | "dark" | "system") {
+    currentTheme = theme;
+    if (typeof localStorage !== "undefined") {
+      try {
+        localStorage.setItem("aksara-theme", theme);
+      } catch {
+        // ignore storage errors
+      }
+    }
+    applyTheme(theme);
+    if (typeof document !== "undefined") {
+      emit(document.documentElement, "theme:change", { theme });
+    }
+    return theme;
+  },
+  getTheme() {
+    return currentTheme;
+  },
+  initTheme() {
+    if (typeof localStorage !== "undefined") {
+      try {
+        const saved = (localStorage.getItem("aksara-theme") || localStorage.getItem("aksara-docs-theme")) as
+          "light" | "dark" | "system" | null;
+        if (saved && (saved === "light" || saved === "dark" || saved === "system")) {
+          currentTheme = saved;
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+    applyTheme(currentTheme);
+    if (typeof window !== "undefined" && window.matchMedia) {
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+        if (currentTheme === "system") {
+          applyTheme("system");
+        }
+      });
+    }
+    return currentTheme;
+  },
+  async clipboard(target: string | HTMLElement, text?: string): Promise<boolean> {
+    if (typeof navigator === "undefined" || !navigator.clipboard) return false;
+    let textToCopy = text ?? "";
+    if (!textToCopy && typeof document !== "undefined") {
+      const el = typeof target === "string" ? document.querySelector(target) : target;
+      if (el) {
+        textToCopy = (el as HTMLInputElement).value ?? el.textContent ?? "";
+      }
+    }
+    if (!textToCopy) return false;
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      return true;
+    } catch {
+      return false;
+    }
+  },
   init(root: ParentNode = document) {
+    if (root === document) {
+      this.initTheme();
+    }
+    setupClipboard(root);
     scanArbitraryDom(root);
     setupArbitraryObserver();
 

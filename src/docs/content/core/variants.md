@@ -96,7 +96,7 @@ Aksara UI uses a mobile-first responsive architecture. Unprefixed utilities appl
       <tr>
         <td><code>2xl</code></td>
         <td><code>1400px</code></td>
-        <td><code>2xl:p-8</code></td>
+        <td><code>2xl:p-5</code></td>
       </tr>
       <tr>
         <td><code>3xl</code></td>
@@ -193,7 +193,7 @@ Hover and focus the elements below to witness responsive, state-based, and theme
 
 ::html
 <div class="docs-preview">
-  <div class="p-6 rounded-16 border border-subtle bg-body transition duration-200 dark:md:hover:border-primary/80 hover:shadow-md">
+  <div class="p-4 rounded-16 border border-subtle bg-body transition duration-200 dark:md:hover:border-primary hover:border-primary">
     <h4 class="mt-0 mb-2 font-700 hstack gap-2"><span class="mdi mdi-layers-outline text-primary"></span> Responsive Hover Wrapper</h4>
     <p class="text-subtle text-sm mb-4 mt-0">
       This box transitions its border color on hover when viewed on viewports <code>md</code> and larger.
@@ -207,7 +207,7 @@ Hover and focus the elements below to witness responsive, state-based, and theme
 
 ```html
 <!-- Border changes on hover at medium viewports, with a transition -->
-<div class="border border-subtle dark:md:hover:border-primary/80 transition duration-200">...</div>
+<div class="border border-subtle dark:md:hover:border-primary transition duration-200">...</div>
 
 <!-- Button changes text & background colors smoothly on hover -->
 <button

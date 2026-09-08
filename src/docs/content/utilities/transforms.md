@@ -5,9 +5,9 @@ Transform utilities cover scale, rotate, translate, and skew.
 ::html
 <div class="docs-preview">
   <div class="docs-row">
-    <div class="h-80 rounded-12 bg-primary/10 scale-95" style="width:80px;"></div>
-    <div class="h-80 rounded-12 bg-success/10 rotate-45" style="width:80px;"></div>
-    <div class="h-80 rounded-12 bg-warning/10 translate-x-10" style="width:80px;"></div>
+    <div class="rounded-12 bg-primary/10 scale-95" style="width:80px;height:80px;"></div>
+    <div class="rounded-12 bg-success/10 rotate-45" style="width:80px;height:80px;"></div>
+    <div class="rounded-12 bg-warning/10 translate-x-10" style="width:80px;height:80px;"></div>
   </div>
 </div>
 ::end

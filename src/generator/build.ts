@@ -76,6 +76,7 @@ const lightTheme: Record<string, string> = {
   "--aksara-bg-invert": "#0f172a",
   "--aksara-bg": "var(--aksara-bg-body)",
   "--aksara-text-body": "#172033",
+  "--aksara-text-base": "var(--aksara-text-body)",
   "--aksara-text-body-secondary": "#64748b",
   "--aksara-text-body-tertiary": "#94a3b8",
   "--aksara-text-subtle": "#64748b",
@@ -118,6 +119,7 @@ const darkTheme: Record<string, string> = {
   "--aksara-bg-invert": "#f8fafc",
   "--aksara-bg": "var(--aksara-bg-body)",
   "--aksara-text-body": "#f8fafc",
+  "--aksara-text-base": "var(--aksara-text-body)",
   "--aksara-text-body-secondary": "#94a3b8",
   "--aksara-text-body-tertiary": "#64748b",
   "--aksara-text-subtle": "#94a3b8",
@@ -448,7 +450,9 @@ function addColors(): void {
     add(`border-${name}`, `border-color:${colorValue(name)}`);
     add(`decoration-${name}`, `text-decoration-color:${colorValue(name)}`);
     add(`ring-${name}`, `--aksara-ring-color:${colorValue(name)}`);
+    add(`accent-${name}`, `accent-color:${colorValue(name)}`);
   }
+  add("accent-auto", "accent-color:auto");
   ["body", "subtle", "invert"].forEach((name) => {
     add(`bg-${name}`, `background-color:var(--aksara-bg-${name})`);
     add(`text-${name}`, `color:var(--aksara-text-${name})`);
@@ -741,6 +745,10 @@ function addTypography(): void {
     "break-words": "overflow-wrap:break-word",
     "break-all": "word-break:break-all",
     truncate: "overflow:hidden;text-overflow:ellipsis;white-space:nowrap",
+    "text-balance": "text-wrap:balance",
+    "text-pretty": "text-wrap:pretty",
+    "text-wrap": "text-wrap:wrap",
+    "text-nowrap": "text-wrap:nowrap",
     "leading-none": "line-height:1",
     "leading-tight": "line-height:1.25",
     "leading-normal": "line-height:1.5",
@@ -754,6 +762,10 @@ function addTypography(): void {
   }).forEach(([name, declarations]) => add(name, declarations));
   for (let n = 100; n <= 900; n += 100) add(`font-${n}`, `font-weight:${n}`);
   Object.entries({
+    "font-sans": "font-family:Ubuntu,Inter,ui-sans-serif,system-ui,-apple-system,sans-serif",
+    "font-serif": "font-family:ui-serif,Georgia,Cambria,serif",
+    "font-mono": "font-family:var(--docs-font-mono,ui-monospace,SFMono-Regular,Menlo,monospace)",
+    "font-monospace": "font-family:var(--docs-font-mono,ui-monospace,SFMono-Regular,Menlo,monospace)",
     "font-thin": "font-weight:100",
     "font-light": "font-weight:300",
     "font-normal": "font-weight:400",
@@ -833,9 +845,32 @@ function addMotionEffectsLayout(): void {
     "animate-slide": "animation:aksara-slide .25s ease-in-out",
     "animate-spin": "animation:aksara-spin 1s linear infinite",
     "animate-bounce": "animation:aksara-bounce 1s infinite",
-    "animate-pulse": "animation:aksara-pulse 1.5s ease-in-out infinite"
+    "animate-pulse": "animation:aksara-pulse 1.5s ease-in-out infinite",
+    "backdrop-blur-none": "backdrop-filter:blur(0)",
+    "backdrop-blur-sm": "backdrop-filter:blur(4px)",
+    "backdrop-blur": "backdrop-filter:blur(8px)",
+    "backdrop-blur-md": "backdrop-filter:blur(12px)",
+    "backdrop-blur-lg": "backdrop-filter:blur(16px)",
+    "backdrop-blur-xl": "backdrop-filter:blur(24px)",
+    "backdrop-blur-2xl": "backdrop-filter:blur(40px)",
+    "backdrop-saturate-50": "backdrop-filter:saturate(50%)",
+    "backdrop-saturate-100": "backdrop-filter:saturate(100%)",
+    "backdrop-saturate-150": "backdrop-filter:saturate(150%)",
+    "backdrop-saturate-200": "backdrop-filter:saturate(200%)",
+    "blur-none": "filter:blur(0)",
+    "blur-sm": "filter:blur(4px)",
+    blur: "filter:blur(8px)",
+    "blur-md": "filter:blur(12px)",
+    "blur-lg": "filter:blur(16px)",
+    "blur-xl": "filter:blur(24px)",
+    "scrollbar-none": "scrollbar-width:none;-ms-overflow-style:none",
+    "scrollbar-thin": "scrollbar-width:thin",
+    "container-inline": "container-type:inline-size",
+    "container-normal": "container-type:normal",
+    "@container": "container-type:inline-size"
   }).forEach(([name, declarations]) => add(name, declarations));
-  [100, 200, 300, 500, 700, 1000].forEach((n) => add(`duration-${n}`, `transition-duration:${n}ms`));
+  addRaw(".scrollbar-none::-webkit-scrollbar", "display:none");
+  [75, 100, 150, 200, 300, 500, 700, 1000].forEach((n) => add(`duration-${n}`, `transition-duration:${n}ms`));
   for (let n = 50; n <= 150; n += 1) add(`scale-${n}`, `transform:scale(${n / 100})`);
   [0, 45, 90, 180].forEach((n) => add(`rotate-${n}`, `transform:rotate(${n}deg)`));
   for (let n = 0; n <= 100; n += 1) {
@@ -951,6 +986,46 @@ function addComponents(): void {
   add("card-header", "padding:1rem;font-weight:700");
   add("card-body", "padding:1rem");
   add("card-footer", "padding:1rem");
+  add("bento-grid", "display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:1.25rem");
+  add("bento-grid-2", "display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:1.25rem");
+  add("bento-grid-3", "display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:1.25rem");
+  add("bento-grid-4", "display:grid;grid-template-columns:repeat(1,minmax(0,1fr));gap:1.25rem");
+  addRaw(
+    "@media(min-width:48rem)",
+    ".bento-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bento-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.bento-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.bento-grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}"
+  );
+  add(
+    "bento-card",
+    "position:relative;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;background:var(--aksara-surface);color:var(--aksara-text-body);border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius-2xl);padding:1.5rem;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease"
+  );
+  addRaw(
+    ".bento-card:hover",
+    "box-shadow:var(--aksara-shadow-md);border-color:var(--aksara-border);transform:translateY(-2px)"
+  );
+  add("bento-col-1", "grid-column:span 1/span 1");
+  add("bento-col-2", "grid-column:span 1/span 1");
+  add("bento-col-3", "grid-column:span 1/span 1");
+  add("bento-col-4", "grid-column:span 1/span 1");
+  add("bento-row-1", "grid-row:span 1/span 1");
+  add("bento-row-2", "grid-row:span 1/span 1");
+  add("bento-row-3", "grid-row:span 1/span 1");
+  addRaw(
+    "@media(min-width:48rem)",
+    ".bento-col-2{grid-column:span 2/span 2}.bento-col-3{grid-column:span 3/span 3}.bento-col-4{grid-column:span 4/span 4}.bento-row-2{grid-row:span 2/span 2}.bento-row-3{grid-row:span 3/span 3}"
+  );
+  add(
+    "bento-featured",
+    "background:linear-gradient(135deg,var(--aksara-surface),var(--aksara-bg-subtle));border-color:rgb(var(--aksara-primary)/.35);box-shadow:0 0 30px rgb(var(--aksara-primary)/.08)"
+  );
+  add("bento-header", "display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1rem");
+  add("bento-title", "margin:0;font-size:1.25rem;font-weight:700;line-height:1.3");
+  add("bento-subtitle", "margin:.25rem 0 0;font-size:.875rem;color:var(--aksara-text-subtle);line-height:1.4");
+  add("bento-body", "flex:1 1 auto");
+  add("bento-footer", "display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-top:1.25rem");
+  add(
+    "bento-visual",
+    "display:flex;align-items:center;justify-content:center;border-radius:var(--aksara-radius);overflow:hidden;background:var(--aksara-bg-subtle);margin-top:1rem;min-height:120px"
+  );
   add(
     "alert",
     "position:relative;padding:1rem;border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius);background:var(--aksara-bg-subtle);color:var(--aksara-text-body)"
@@ -989,6 +1064,20 @@ function addComponents(): void {
   addRaw(".list-group-item.active .list-group-title,.list-group-item.active .list-group-subtitle", "color:inherit");
   addRaw(".list-group-item-action:hover,.list-group-item-action:focus", "background:var(--aksara-bg-subtle);outline:0");
   addRaw(".list-group-item.disabled,.list-group-item:disabled", "opacity:.56;pointer-events:none");
+  add("timeline", "position:relative;padding:0;margin:0;list-style:none");
+  addRaw(
+    ".timeline::before",
+    'content:"";position:absolute;inset-block:0;inset-inline-start:.875rem;width:2px;background:var(--aksara-border-subtle)'
+  );
+  add("timeline-item", "position:relative;display:flex;gap:1rem;margin-bottom:1.5rem");
+  addRaw(".timeline-item:last-child", "margin-bottom:0");
+  add(
+    "timeline-point",
+    "position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:1.75rem;height:1.75rem;border-radius:9999px;background:var(--aksara-surface);border:2px solid rgb(var(--aksara-primary));color:rgb(var(--aksara-primary));flex-shrink:0;box-shadow:0 0 0 3px var(--aksara-surface)"
+  );
+  add("timeline-content", "flex:1 1 auto;padding-top:.125rem");
+  add("timeline-title", "margin:0 0 .25rem;font-size:1rem;font-weight:700;line-height:1.3");
+  add("timeline-time", "display:block;font-size:.75rem;color:var(--aksara-text-subtle);margin-bottom:.5rem");
   add(
     "navbar",
     "display:flex;align-items:center;gap:1rem;min-height:3.5rem;padding:.75rem 1rem;border-block-end:1px solid var(--aksara-border-subtle);background:var(--aksara-surface)"
@@ -1106,6 +1195,10 @@ function addComponents(): void {
   add(
     "modal-header",
     "display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem;border-block-end:1px solid var(--aksara-border-subtle)"
+  );
+  add(
+    "modal-title",
+    "margin-block-start:0;margin-block-end:0;margin-inline-start:0;margin-inline-end:0;font-size:1.25rem;font-weight:600;line-height:1.5"
   );
   add("modal-body", "min-height:0;overflow:auto;overscroll-behavior:contain;padding:1rem");
   add(
@@ -1339,10 +1432,25 @@ function addComponents(): void {
     "placeholder",
     "display:inline-block;min-height:1em;vertical-align:middle;cursor:wait;background:currentColor;opacity:.16"
   );
+  add("placeholder-xs", "min-height:.6em");
+  add("placeholder-sm", "min-height:.8em");
+  add("placeholder-lg", "min-height:1.2em");
   add("placeholder-glow", "animation:aksara-pulse 1.5s ease-in-out infinite");
   add("placeholder-wave", "position:relative;overflow:hidden");
   addRaw(
     ".placeholder-wave::after",
+    'position:absolute;inset:0;content:"";transform:translateX(-100%);background:linear-gradient(90deg,transparent,var(--aksara-placeholder-shine),transparent);animation:aksara-placeholder-wave 1.6s linear infinite'
+  );
+  add(
+    "skeleton",
+    "display:block;background:var(--aksara-bg-subtle);border-radius:var(--aksara-radius-sm);position:relative;overflow:hidden;animation:aksara-pulse 1.5s ease-in-out infinite"
+  );
+  add("skeleton-text", "height:.875rem;margin-bottom:.5rem;border-radius:var(--aksara-radius-2xs);width:100%");
+  add("skeleton-circle", "border-radius:9999px;flex-shrink:0");
+  add("skeleton-rect", "width:100%;height:100%");
+  add("skeleton-wave", "position:relative;overflow:hidden");
+  addRaw(
+    ".skeleton-wave::after",
     'position:absolute;inset:0;content:"";transform:translateX(-100%);background:linear-gradient(90deg,transparent,var(--aksara-placeholder-shine),transparent);animation:aksara-placeholder-wave 1.6s linear infinite'
   );
   add("carousel", "position:relative;overflow:hidden");
@@ -1694,7 +1802,7 @@ function preflight(): string {
       return `--aksara-${name}:${value};--aksara-${name}-rgb:${commaSeparated};${hex ? `--aksara-${name}-hex:${hex};` : ""}`;
     })
     .join("");
-  return `:root{${vars}${cssVars(baseTokens)}font-size:1rem}:root,[data-theme="light"],.light{${cssVars(lightTheme)}color-scheme:light}[data-theme="dark"],.dark{${cssVars(darkTheme)}color-scheme:dark}*,*::before,*::after{box-sizing:border-box}html{font-size:1rem}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1rem;background:var(--aksara-bg-body);color:var(--aksara-text-body);line-height:1.5}form{margin:0}button,input,textarea,select{font:inherit}button:disabled,.disabled{pointer-events:none;opacity:.58}img,svg,video{max-width:100%;height:auto}.row>*{box-sizing:border-box;flex-shrink:0;width:100%;max-width:100%;padding-inline:calc(var(--aksara-gutter-x,1rem)/2);margin-top:var(--aksara-gutter-y,0)}[hidden]{display:none!important}@keyframes aksara-fade{from{opacity:0}to{opacity:1}}@keyframes aksara-zoom{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}@keyframes aksara-slide{from{opacity:0;transform:translateY(.5rem)}to{opacity:1;transform:translateY(0)}}@keyframes aksara-spin{to{transform:rotate(360deg)}}@keyframes aksara-progress-stripes{from{background-position-x:1rem}to{background-position-x:0}}@keyframes aksara-bounce{0%,100%{transform:translateY(-15%)}50%{transform:translateY(0)}}@keyframes aksara-pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes aksara-placeholder-wave{100%{transform:translateX(100%)}}`;
+  return `:root{${vars}${cssVars(baseTokens)}font-size:1rem}:root,[data-theme="light"],.light{${cssVars(lightTheme)}color-scheme:light}[data-theme="dark"],.dark{${cssVars(darkTheme)}color-scheme:dark}*,*::before,*::after{box-sizing:border-box}html{font-size:1rem}body{margin:0;font-family:Ubuntu,Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1rem;background:var(--aksara-bg-body);color:var(--aksara-text-body);line-height:1.5}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:600;line-height:1.25;color:inherit}h1{font-size:2rem}h2{font-size:1.75rem}h3{font-size:1.5rem}h4{font-size:1.25rem}h5{font-size:1.125rem}h6{font-size:1rem}form{margin:0}button,input,textarea,select{font:inherit}button:disabled,.disabled{pointer-events:none;opacity:.58}img,svg,video{max-width:100%;height:auto}.row>*{box-sizing:border-box;flex-shrink:0;width:100%;max-width:100%;padding-inline:calc(var(--aksara-gutter-x,1rem)/2);margin-top:var(--aksara-gutter-y,0)}[hidden]{display:none!important}@keyframes aksara-fade{from{opacity:0}to{opacity:1}}@keyframes aksara-zoom{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}@keyframes aksara-slide{from{opacity:0;transform:translateY(.5rem)}to{opacity:1;transform:translateY(0)}}@keyframes aksara-spin{to{transform:rotate(360deg)}}@keyframes aksara-progress-stripes{from{background-position-x:1rem}to{background-position-x:0}}@keyframes aksara-bounce{0%,100%{transform:translateY(-15%)}50%{transform:translateY(0)}}@keyframes aksara-pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes aksara-placeholder-wave{100%{transform:translateX(100%)}}`;
 }
 
 interface ParsedClass {
@@ -2083,14 +2191,19 @@ function buildJs(): { esm: string; iife: string; dts: string } {
 function buildDocsJs(): void {
   if (fs.existsSync(docsTs)) {
     const tsContent = fs.readFileSync(docsTs, "utf8");
-    const transpiled = transpileModule(tsContent, {
+    const strippedTs = tsContent.replace(/^import\s+type\s+.*?;?\s*$/gm, "");
+    const transpiled = transpileModule(strippedTs, {
       compilerOptions: {
         target: ScriptTarget.ES2022,
-        module: ModuleKind.ESNext,
+        module: ModuleKind.None,
         removeComments: false
       }
     }).outputText;
-    write(docsJsOutput, transpiled);
+    const cleanJs = transpiled
+      .replace(/Object\.defineProperty\(exports,\s*"__esModule",\s*\{[^}]*\}\);?/g, "")
+      .replace(/export\s*\{\s*\};?/g, "")
+      .trim();
+    write(docsJsOutput, cleanJs);
   }
 }
 
@@ -2161,6 +2274,25 @@ function buildComponents(): void {
   program.emit();
 }
 
+function copyMdiAssets(): void {
+  const mdiNodeModules = path.join(root, "node_modules/@mdi/font");
+  if (!fs.existsSync(mdiNodeModules)) return;
+  const docsVendorMdi = path.join(root, "src/docs/assets/vendor/mdi");
+  fs.mkdirSync(path.join(docsVendorMdi, "css"), { recursive: true });
+  fs.mkdirSync(path.join(docsVendorMdi, "fonts"), { recursive: true });
+  fs.copyFileSync(
+    path.join(mdiNodeModules, "css/materialdesignicons.min.css"),
+    path.join(docsVendorMdi, "css/materialdesignicons.min.css")
+  );
+  const fontsDir = path.join(mdiNodeModules, "fonts");
+  if (fs.existsSync(fontsDir)) {
+    for (const font of fs.readdirSync(fontsDir)) {
+      fs.copyFileSync(path.join(fontsDir, font), path.join(docsVendorMdi, "fonts", font));
+    }
+  }
+}
+
+copyMdiAssets();
 write(docsContentOutput, buildDocsContent());
 buildDocsJs();
 buildComponents();

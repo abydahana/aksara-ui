@@ -11,7 +11,7 @@ Aksara UI ships prebuilt static utilities. There is no JIT compiler and no runti
 Examples:
 
 ```html
-<div class="dark:md:hover:border-primary bg-primary/10 text-primary/80 p-20 rounded-12"></div>
+<div class="dark:md:hover:border-primary bg-primary/10 text-primary/80 p-4 rounded-md"></div>
 ```
 
 Variant order is strict:
@@ -52,18 +52,18 @@ Adaptive theme utilities use CSS variables:
 
 ## Spacing
 
-Spacing utilities use pixels from `0` to `100`.
+Spacing utilities use a Bootstrap-compatible scale from `0` to `5` (`0`, `1`, `2`, `3`, `4`, `5`).
 
 ```html
-<div class="m-15 mt-10 mb-20 ms-10 me-10 mx-20 my-30"></div>
-<div class="p-20 pt-10 pb-10 ps-20 pe-20 px-30 py-40"></div>
-<div class="gap-20 row-gap-10 col-gap-10"></div>
+<div class="m-3 mt-2 mb-4 ms-2 me-2 mx-3 my-4"></div>
+<div class="p-4 pt-2 pb-2 ps-3 pe-3 px-4 py-5"></div>
+<div class="gap-3 row-gap-2 col-gap-2"></div>
 ```
 
-Negative spacing uses a leading dash:
+Negative margin uses a leading dash (`-m-1` through `-m-5`):
 
 ```html
-<div class="-m-10 -mx-10 -ms-5"></div>
+<div class="-m-3 -mx-2 -ms-1"></div>
 ```
 
 ## RTL Logical Naming
@@ -71,35 +71,25 @@ Negative spacing uses a leading dash:
 Use logical start/end utilities:
 
 ```html
-<div class="ms-10 me-10 ps-20 pe-20 text-start"></div>
+<div class="ms-3 me-3 ps-4 pe-4 text-start"></div>
 ```
 
 Do not use left/right utility names. Aksara UI does not generate `ml-*`, `mr-*`, `pl-*`, or `pr-*`.
 
 ## Sizing
 
-Numeric sizing is pixel-based from `0` to `1000`. Use fraction width utilities when you need percentages.
+Sizing utilities include percentage and fraction classes:
 
 ```html
-<div class="w-320 h-180 min-w-120 max-w-640"></div>
-```
-
-Fraction width and percent height sizing:
-
-```html
-<div class="w-1/2 h-100%"></div>
-```
-
-Aliases:
-
-```html
-<div class="w-full h-full w-screen h-screen"></div>
+<div class="w-25 w-50 w-75 w-100"></div>
+<div class="w-1/2 w-1/3 w-2/3 w-1/4 w-3/4"></div>
+<div class="mw-100 mh-100 vh-100 vw-100"></div>
 ```
 
 ## Border And Radius
 
 ```html
-<div class="border border-primary/30 rounded-12"></div>
+<div class="border border-primary/30 rounded-md"></div>
 <div class="border-top border-bottom border-start border-end"></div>
 <div class="rounded-sm rounded-md rounded-lg rounded-xl rounded-full"></div>
 ```
@@ -110,7 +100,7 @@ Directional border names use full words. Aksara UI does not generate `border-t`,
 
 ```html
 <div class="container">
-  <div class="row gap-20">
+  <div class="row gap-4">
     <div class="col-12 md:col-6 lg:col-4"></div>
   </div>
 </div>
@@ -119,7 +109,7 @@ Directional border names use full words. Aksara UI does not generate `border-t`,
 CSS grid utilities:
 
 ```html
-<div class="grid-3 gap-20">
+<div class="grid-3 gap-4">
   <div class="span-2"></div>
 </div>
 ```

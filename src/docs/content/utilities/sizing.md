@@ -1,60 +1,92 @@
 # Sizing
 
-Sizing utilities cover pixel widths, pixel heights, min/max constraints, fraction widths, and viewport aliases. Numeric utilities such as `w-100`, `max-w-100`, `h-100`, and `max-h-100` use pixels. Percent widths use fractions such as `w-1/2`, `w-1/3`, or `w-2/5`.
+Aksara UI provides clean, semantic sizing utilities combining Bootstrap's standard percentage widths with modern fraction and viewport helpers.
+
+---
+
+## Interactive Sizing Showcase
 
 ::html
 <div class="docs-preview">
-  <div class="w-240 h-80 bg-primary/10 border border-primary/20 rounded-12"></div>
-  <div class="w-1/2 h-60 bg-success/10 border border-success/20 rounded-12"></div>
+  <div class="vstack gap-3">
+    <div class="w-100 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-100 (100%)</div>
+    <div class="w-75 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-75 (75%)</div>
+    <div class="w-50 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-50 (50%)</div>
+    <div class="w-25 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-25 (25%)</div>
+  </div>
 </div>
 ::end
 
 ```html
-<div class="w-240 h-80">240px width, 80px height</div>
-<div class="min-w-160 max-w-640">Min/max width in pixels</div>
-<div class="w-1/2 h-100%">50% width, 100% height</div>
-<div class="w-full h-full">Full parent</div>
-<div class="w-screen h-screen">Viewport</div>
+<div class="w-100">100% width</div>
+<div class="w-75">75% width</div>
+<div class="w-50">50% width</div>
+<div class="w-25">25% width</div>
 ```
 
-## Width Scale
+---
+
+## Percentage Sizing (Bootstrap Compatible)
+
+Easily make an element as wide or tall as its parent container:
+
+| Width Utility | Height Utility | Computed Value |
+| ------------- | -------------- | -------------- |
+| `w-25`        | `h-25`         | `25%`          |
+| `w-50`        | `h-50`         | `50%`          |
+| `w-75`        | `h-75`         | `75%`          |
+| `w-100`       | `h-100`        | `100%`         |
+| `w-auto`      | `h-auto`       | `auto`         |
+| `w-full`      | `h-full`       | `100%`         |
 
 ```html
-<div class="w-0">0px</div>
-<div class="w-100">100px</div>
-<div class="w-320">320px</div>
-<div class="w-1000">1000px</div>
+<div class="w-50 h-100">50% width, 100% height</div>
+<div class="w-full h-auto">Full container width</div>
 ```
+
+---
 
 ## Fraction Widths
 
+For modular layouts, Aksara provides intuitive fraction widths:
+
+| Class   | Percentage |
+| ------- | ---------- |
+| `w-1/2` | `50%`      |
+| `w-1/3` | `33.333%`  |
+| `w-2/3` | `66.667%`  |
+| `w-1/4` | `25%`      |
+| `w-3/4` | `75%`      |
+| `w-1/5` | `20%`      |
+| `w-2/5` | `40%`      |
+| `w-3/5` | `60%`      |
+| `w-4/5` | `80%`      |
+
 ```html
-<div class="w-1/2">50%</div>
-<div class="w-1/3">33.333%</div>
-<div class="w-2/3">66.667%</div>
-<div class="w-2/5">40%</div>
-<div class="w-3/4">75%</div>
+<div class="w-1/3">One third (33.333%)</div>
+<div class="w-2/3">Two thirds (66.667%)</div>
+<div class="w-3/4">Three quarters (75%)</div>
 ```
 
-## Height Scale
+---
+
+## Max & Min Constraints
+
+Use standard constraints to control responsive boundaries:
+
+- `mw-100`: `max-width: 100%`
+- `mh-100`: `max-height: 100%`
+- `min-vw-100`: `min-width: 100vw`
+- `min-vh-100`: `min-height: 100vh`
+- `vw-100`: `width: 100vw`
+- `vh-100`: `height: 100vh`
+- `w-screen`: `width: 100vw`
+- `h-screen`: `height: 100vh`
 
 ```html
-<div class="h-0">0px</div>
-<div class="h-80">80px</div>
-<div class="h-320">320px</div>
-<div class="h-1000">1000px</div>
-```
+<!-- Prevent image from overflowing its parent -->
+<img src="banner.jpg" class="mw-100 h-auto" alt="Banner" />
 
-## Min And Max
-
-```html
-<div class="min-w-160 max-w-640">Width constrained</div>
-<div class="min-h-120 max-h-320">Height constrained</div>
-```
-
-Use fraction widths when you want a percentage relationship to the parent:
-
-```html
-<div class="w-1/2">Half width</div>
-<div class="w-2/5">Two fifths</div>
+<!-- Full viewport hero container -->
+<div class="min-vh-100 d-flex items-center justify-center">Centered Content</div>
 ```

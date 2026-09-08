@@ -14,7 +14,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Primary -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm" style="width:36px;background-color: rgb(var(--aksara-primary));"></div>
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-primary));"></div>
         <div>
           <span class="block font-800 text-sm">Primary</span>
           <span class="text-subtle text-xs">92 106 255</span>
@@ -25,7 +25,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Secondary -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm" style="width:36px;background-color: rgb(var(--aksara-secondary));"></div>
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-secondary));"></div>
         <div>
           <span class="block font-800 text-sm">Secondary</span>
           <span class="text-subtle text-xs">100 116 139</span>
@@ -36,7 +36,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Success -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm" style="width:36px;background-color: rgb(var(--aksara-success));"></div>
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-success));"></div>
         <div>
           <span class="block font-800 text-sm">Success</span>
           <span class="text-subtle text-xs">34 197 94</span>
@@ -47,7 +47,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Danger -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm" style="width:36px;background-color: rgb(var(--aksara-danger));"></div>
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-danger));"></div>
         <div>
           <span class="block font-800 text-sm">Danger</span>
           <span class="text-subtle text-xs">244 63 94</span>
@@ -58,7 +58,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Warning -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm" style="width:36px;background-color: rgb(var(--aksara-warning));"></div>
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-warning));"></div>
         <div>
           <span class="block font-800 text-sm">Warning</span>
           <span class="text-subtle text-xs">245 158 11</span>
@@ -69,7 +69,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Info -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm" style="width:36px;background-color: rgb(var(--aksara-info));"></div>
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-info));"></div>
         <div>
           <span class="block font-800 text-sm">Info</span>
           <span class="text-subtle text-xs">6 182 212</span>
@@ -80,7 +80,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Dark -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm" style="width:36px;background-color: rgb(var(--aksara-dark));"></div>
+        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-dark));"></div>
         <div>
           <span class="block font-800 text-sm">Dark</span>
           <span class="text-subtle text-xs">15 23 42</span>
@@ -91,7 +91,7 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
     <!-- Light -->
     <div class="col-12 sm:col-6 md:col-3">
       <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="h-36 rounded-8 shadow-sm border border-subtle" style="width:36px;background-color: rgb(var(--aksara-light));"></div>
+        <div class="rounded-8 shadow-sm border border-subtle" style="width:36px;height:36px;background-color: rgb(var(--aksara-light));"></div>
         <div>
           <span class="block font-800 text-sm">Light</span>
           <span class="text-subtle text-xs">248 250 252</span>

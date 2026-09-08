@@ -54,7 +54,15 @@ import {
   MediaGrid,
   mediaPreviewModal,
   Avatar,
-  AvatarGroup
+  AvatarGroup,
+  bentoGrid,
+  BentoGrid,
+  bentoCard,
+  BentoCard,
+  skeleton,
+  Skeleton,
+  timeline,
+  Timeline
 } from "../components/index";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -139,10 +147,21 @@ function hasExactClassRule(name: string): boolean {
   "border-start",
   "border-end",
   "text-14",
-  "font-700",
   "underline",
   "uppercase",
   "truncate",
+  "modal-title",
+  "bento-grid",
+  "bento-card",
+  "bento-col-2",
+  "bento-featured",
+  "text-balance",
+  "text-pretty",
+  "backdrop-blur",
+  "accent-primary",
+  "scrollbar-none",
+  "skeleton",
+  "timeline",
   "leading-24",
   "tracking-2",
   "transition",
@@ -549,6 +568,51 @@ assert(
   "Docs body should prevent horizontal page overflow"
 );
 assert(docsLoader.includes("window.AksaraDocsContent"), "Docs loader must support local embedded markdown");
+assert(!docsLoader.includes("exports"), "Docs loader docs.js must not reference CommonJS 'exports'");
+assert(!/\bexport\s*\{/.test(docsLoader), "Docs loader docs.js must not contain 'export {' statements");
+assert(!/\bexport\s+default\b/.test(docsLoader), "Docs loader docs.js must not contain 'export default'");
+assert(!/^\s*import\b/m.test(docsLoader), "Docs loader docs.js must not contain 'import' statements");
+
+// Verify sandbox execution of docs.js without exports/module
+{
+  const dummyWindow = {
+    addEventListener: () => {},
+    matchMedia: () => ({ matches: false, addEventListener: () => {} }),
+    location: { hash: "" }
+  };
+  const dummyDoc = {
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    documentElement: {
+      dataset: {},
+      classList: { add: () => {}, remove: () => {}, contains: () => false },
+      setAttribute: () => {},
+      getAttribute: () => null
+    },
+    addEventListener: () => {}
+  };
+  const dummyStorage = {
+    getItem: () => null,
+    setItem: () => {}
+  };
+  try {
+    new Function("window", "document", "localStorage", "exports", "module", `"use strict";\n${docsLoader}`)(
+      dummyWindow,
+      dummyDoc,
+      dummyStorage,
+      undefined,
+      undefined
+    );
+  } catch (error) {
+    throw new Error(`Docs loader execution failed in browser sandbox: ${error}`, { cause: error });
+  }
+}
+
+assert(docsCss.includes("Ubuntu"), "Docs CSS must use Ubuntu font");
+assert(css.includes("Ubuntu"), "Base CSS must include Ubuntu in font stack");
+assert(js.includes("setTheme"), "Aksara runtime must export setTheme");
+assert(js.includes("getTheme"), "Aksara runtime must export getTheme");
+assert(js.includes("initTheme"), "Aksara runtime must export initTheme");
 assert(docsContent.includes("window.AksaraDocsContent"), "Docs content manifest missing");
 assert(docsContent.includes('"/components/buttons"'), "Docs content manifest missing button route");
 assert(docsContent.includes("Anchor Buttons"), "Docs content manifest missing anchor button sample");
@@ -655,22 +719,22 @@ assert(docsContent.includes("Search users"), "Docs content manifest missing CRUD
 assert(docsContent.includes("mdi-pencil-outline"), "Docs content manifest missing CRUD table update action");
 assert(docsContent.includes("Showing 1-3 of 24 users"), "Docs content manifest missing CRUD table pagination footer");
 assert(
-  docsContent.includes("placeholder placeholder-wave block h-48") && docsContent.includes("width:48px"),
+  docsContent.includes("placeholder placeholder-wave block") && docsContent.includes("width:48px"),
   "Docs content manifest missing placeholder wave variation sample"
 );
 assert(docsContent.includes("Text Skeleton"), "Docs content manifest missing placeholder text skeleton sample");
 assert(docsContent.includes("Table Skeleton"), "Docs content manifest missing placeholder table skeleton sample");
 assert(docsContent.includes("Form Skeleton"), "Docs content manifest missing placeholder form skeleton sample");
 assert(
-  docsContent.includes("placeholder text-primary block h-36") && docsContent.includes("width:96px"),
+  docsContent.includes("placeholder text-primary block") && docsContent.includes("width:96px"),
   "Docs content manifest missing tinted placeholder sample"
 );
 assert(
-  docsContent.includes("Numeric utilities such as `w-100`, `max-w-100`, `h-100`, and `max-h-100` use pixels"),
-  "Docs content manifest missing updated numeric pixel sizing documentation"
+  docsContent.includes("Percentage Sizing (Bootstrap Compatible)"),
+  "Docs content manifest missing updated sizing documentation"
 );
 assert(
-  docsContent.includes("Percent widths use fractions such as `w-1/2`, `w-1/3`, or `w-2/5`"),
+  docsContent.includes("Fraction Widths") && docsContent.includes("w-1/2"),
   "Docs content manifest missing fraction width documentation"
 );
 assert(docsContent.includes('"/components/progress"'), "Docs content manifest missing progress route");
@@ -836,10 +900,47 @@ assert(MediaGrid({ items: [{ src: "1.jpg" }] }).includes("media-grid"), "MediaGr
 assert(Avatar({ initials: "AB", size: "lg", status: "online" }).includes("avatar avatar-lg"), "Avatar failed");
 assert(AvatarGroup({ avatars: [{ initials: "A" }, { initials: "B" }] }).includes("avatar-group"), "AvatarGroup failed");
 
+assert(bentoGrid({ cols: 3, children: "items" }).includes("bento-grid-3"), "bentoGrid failed");
+assert(
+  bentoCard({ colSpan: 2, featured: true, children: "content" }).includes("bento-col-2 bento-featured"),
+  "bentoCard failed"
+);
+assert(BentoGrid({ children: BentoCard({ children: "Card" }) }).includes("bento-card"), "Bento PascalCase failed");
+assert(skeleton({ variant: "text", wave: true }).includes("skeleton-text skeleton-wave"), "skeleton failed");
+assert(Skeleton({ variant: "circle" }).includes("skeleton-circle"), "Skeleton PascalCase failed");
+assert(timeline({ children: "<li>" }).includes("timeline"), "timeline failed");
+assert(Timeline({ children: "<li>" }).includes("timeline"), "Timeline PascalCase failed");
+
+// Verify Theme Manager & Clipboard in JS
+assert(js.includes("setTheme"), "Missing setTheme in JS runtime");
+assert(js.includes("getTheme"), "Missing getTheme in JS runtime");
+assert(js.includes("initTheme"), "Missing initTheme in JS runtime");
+assert(js.includes("data-clipboard"), "Missing data-clipboard support in JS runtime");
+
+// Verify local vendor MDI assets exist
+assert(
+  fs.existsSync(path.join(root, "src/docs/assets/vendor/mdi/css/materialdesignicons.min.css")),
+  "Missing local vendor MDI CSS"
+);
+assert(
+  fs.existsSync(path.join(root, "src/docs/assets/vendor/mdi/fonts/materialdesignicons-webfont.woff2")),
+  "Missing local vendor MDI font"
+);
+
+// Verify no external picsum.photos in docs
+assert(!docsContent.includes("picsum.photos"), "Docs content still contains external picsum.photos URLs");
+
 // Verify dist/components output files exist
 assert(fs.existsSync(path.join(root, "dist/components/index.js")), "Missing dist/components/index.js");
 assert(fs.existsSync(path.join(root, "dist/components/index.d.ts")), "Missing dist/components/index.d.ts");
 assert(fs.existsSync(path.join(root, "dist/components/form/index.js")), "Missing dist/components/form/index.js");
 assert(fs.existsSync(path.join(root, "dist/components/form/index.d.ts")), "Missing dist/components/form/index.d.ts");
+assert(fs.existsSync(path.join(root, "dist/components/data/bento.js")), "Missing dist/components/data/bento.js");
+assert(fs.existsSync(path.join(root, "dist/components/data/bento.d.ts")), "Missing dist/components/data/bento.d.ts");
+assert(fs.existsSync(path.join(root, "dist/components/data/timeline.js")), "Missing dist/components/data/timeline.js");
+assert(
+  fs.existsSync(path.join(root, "dist/components/feedback/skeleton.js")),
+  "Missing dist/components/feedback/skeleton.js"
+);
 
 console.log("Aksara UI acceptance checks passed.");

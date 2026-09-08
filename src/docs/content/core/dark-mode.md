@@ -132,10 +132,10 @@ See the contrast side-by-side! Below are identical HTML card components rendered
 
 ::html
 <div class="docs-preview">
-  <div class="row gap-6">
+  <div class="row gap-4">
     <!-- Light Mode Container -->
     <div class="col-12 md:col-6">
-      <div class="p-6 rounded-16 border" style="background-color: #fbfcff; border-color: #d7deea; color: #172033;">
+      <div class="p-4 rounded-16 border" style="background-color: #fbfcff; border-color: #d7deea; color: #172033;">
         <span class="badge badge-soft-primary mb-3">Light Sandbox</span>
         <h4 class="mt-0 mb-2 font-800" style="color: #172033;">Aksara UI Soft Light</h4>
         <p class="text-sm mb-5 mt-0" style="color: #64748b; line-height: 1.6;">
@@ -147,7 +147,7 @@ See the contrast side-by-side! Below are identical HTML card components rendered
 
     <!-- Dark Mode Container -->
     <div class="col-12 md:col-6">
-      <div class="p-6 rounded-16 border" style="background-color: #0b1020; border-color: #334155; color: #f8fafc;">
+      <div class="p-4 rounded-16 border" style="background-color: #0b1020; border-color: #334155; color: #f8fafc;">
         <span class="badge badge-soft-primary mb-3">Dark Sandbox</span>
         <h4 class="mt-0 mb-2 font-800" style="color: #f8fafc;">Aksara UI Deep Dark</h4>
         <p class="text-sm mb-5 mt-0" style="color: #aebacc; line-height: 1.6;">
@@ -163,7 +163,7 @@ See the contrast side-by-side! Below are identical HTML card components rendered
 
 ```html
 <!-- Simply use adaptive utility variables. They handle both states natively! -->
-<div class="p-6 rounded-16 border border-body bg-body text-body">
+<div class="p-4 rounded-16 border border-body bg-body text-body">
   <span class="badge badge-soft-primary mb-3">Card Label</span>
   <h4 class="mt-0 mb-2 font-800">Adaptive Card</h4>
   <p class="text-subtle text-sm mb-5 mt-0">

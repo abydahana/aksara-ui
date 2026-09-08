@@ -7,8 +7,8 @@ Provide page navigation links to distribute massive, tabular datasets or list in
 Aksara UI features a clean, bordered pagination pattern. Use active (`aria-current="page"`) and disabled (`.disabled` or `disabled` attribute) modifiers to declare current state:
 
 ::html
-<div class="docs-preview py-6">
-  <div class="mb-6">
+<div class="docs-preview py-4">
+  <div class="mb-4">
     <h4 class="mt-0 mb-3 font-700 text-sm">Standard Pagination</h4>
     <ul class="pagination">
       <li><a href="#" class="page-link">Previous</a></li>

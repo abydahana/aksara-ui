@@ -7,7 +7,7 @@ Tabs partition complex views and content panels into logical, multi-tab layout s
 Aksara UI features highly accessible, fully keyboard-navigable tab menus natively. Focus a tab menu item and tap `➔` or `←` to transition tabs instantly:
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <div class="tabs" role="tablist" aria-label="Aksara Tabs Demo">
     <button id="tabPrimary" class="tab" data-tabs="#panelPrimary" aria-selected="true" role="tab" tabindex="0">
       Primary Accents
@@ -58,7 +58,7 @@ Aksara UI features highly accessible, fully keyboard-navigable tab menus nativel
 Use `nav nav-pills` on the same `.tabs` container when you want pill-shaped tab navigation instead of an underlined tab row.
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <div class="tabs nav nav-pills mb-4" role="tablist" aria-label="Pill Tabs Demo">
     <button id="pillTabOverview" class="tab" data-tabs="#pillPanelOverview" aria-selected="true" role="tab" tabindex="0">
       Overview

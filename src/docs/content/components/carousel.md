@@ -12,7 +12,7 @@ Click the prev/next arrow controls (`‹` and `›`) below to transition slides.
 <div class="docs-preview">
   <div id="demoCarousel" class="carousel card border border-subtle bg-body shadow-sm" style="position: relative; overflow: hidden; min-height: 200px;">
     <!-- Slide 1 -->
-    <div class="carousel-item p-10 bg-primary/10 text-primary hstack justify-center flex-col text-center" data-carousel-item style="min-height: 200px;">
+    <div class="carousel-item p-5 bg-primary/10 text-primary hstack justify-center flex-col text-center" data-carousel-item style="min-height: 200px;">
       <h3 class="text-24 font-900 m-0 hstack gap-2 justify-center"><span class="mdi mdi-flash"></span> High-Performance Offline CSS</h3>
       <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
         Aksara precompiles all spacing, sizing, colors, and layout combinations into static stylesheets, eliminating JIT lags entirely.
@@ -20,7 +20,7 @@ Click the prev/next arrow controls (`‹` and `›`) below to transition slides.
     </div>
 
     <!-- Slide 2 -->
-    <div class="carousel-item p-10 bg-success/10 text-success hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
+    <div class="carousel-item p-5 bg-success/10 text-success hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
       <h3 class="text-24 font-900 m-0 hstack gap-2 justify-center"><span class="mdi mdi-earth"></span> RTL-First Logical Architecture</h3>
       <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
         Align pages with start/end properties natively. Your interfaces instantly mirror when switching HTML text directions.
@@ -28,7 +28,7 @@ Click the prev/next arrow controls (`‹` and `›`) below to transition slides.
     </div>
 
     <!-- Slide 3 -->
-    <div class="carousel-item p-10 bg-danger/10 text-danger hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
+    <div class="carousel-item p-5 bg-danger/10 text-danger hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
       <h3 class="text-24 font-900 m-0 hstack gap-2 justify-center"><span class="mdi mdi-cube-outline"></span> Pure Zero-Dependency JS</h3>
       <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
         Clean vanilla JavaScript plugins with zero runtime footprint, complete accessibility focus trapping, and ARIA triggers.

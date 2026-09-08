@@ -23,12 +23,12 @@ Click the button below to toggle a live offcanvas drawer sheet sliding from the 
     </div>
 
     <div class="offcanvas-body">
-      <p class="mt-0 text-subtle text-sm mb-6">
+      <p class="mt-0 text-subtle text-sm mb-4">
         This sidebar is slide-positioned from the flow-end (right in LTR). Focus trapping is active, meaning you can Tab through options securely.
       </p>
 
       <!-- Sample Navigation Links -->
-      <nav class="vstack gap-2 mb-6">
+      <nav class="vstack gap-2 mb-4">
         <a href="#/core/utility-first" class="p-3 rounded bg-subtle text-base font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-home-outline"></span> Overview Dashboard</a>
         <a href="#/helpers/javascript" class="p-3 rounded bg-subtle text-base font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-flash-outline"></span> JavaScript API</a>
         <a href="#/utilities/colors" class="p-3 rounded bg-subtle text-base font-600 block hstack gap-2" data-offcanvas-close><span class="mdi mdi-palette-outline"></span> Visual Colors</a>

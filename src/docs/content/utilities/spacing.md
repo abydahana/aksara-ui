@@ -93,25 +93,76 @@ Aksara UI rejects legacy left/right naming conventions. To support RTL layouts s
 
 ## Precompiled Spacing Ranges
 
-Spacing classes are precompiled ahead-of-time in standard ranges of **0 to 100 quarter-rem steps**:
+Aksara UI uses a streamlined, Bootstrap-compatible **0 to 5** spacing scale for optimal visual harmony and predictability:
 
-- **Margin Utilities**: `m-{n}`, `mt-{n}`, `mb-{n}`, `ms-{n}`, `me-{n}`, `mx-{n}`, `my-{n}` (where `n` goes from `0` to `100`).
-- **Padding Utilities**: `p-{n}`, `pt-{n}`, `pb-{n}`, `ps-{n}`, `pe-{n}`, `px-{n}`, `py-{n}` (where `n` goes from `0` to `100`).
-- **Flex & Grid Gap Utilities**: `gap-{n}`, `row-gap-{n}`, `col-gap-{n}` (where `n` goes from `0` to `100`).
+::html
+<div class="table-responsive">
+  <table class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th style="width: 20%;">Step</th>
+        <th style="width: 30%;">Rem Value</th>
+        <th style="width: 25%;">Pixel (Base 16px)</th>
+        <th style="width: 25%;">Example Classes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>0</code></td>
+        <td><code>0</code></td>
+        <td><code>0px</code></td>
+        <td><code>m-0</code>, <code>p-0</code>, <code>gap-0</code></td>
+      </tr>
+      <tr>
+        <td><code>1</code></td>
+        <td><code>.25rem</code></td>
+        <td><code>4px</code></td>
+        <td><code>m-1</code>, <code>p-1</code>, <code>gap-1</code></td>
+      </tr>
+      <tr>
+        <td><code>2</code></td>
+        <td><code>.5rem</code></td>
+        <td><code>8px</code></td>
+        <td><code>m-2</code>, <code>p-2</code>, <code>gap-2</code></td>
+      </tr>
+      <tr>
+        <td><code>3</code></td>
+        <td><code>1rem</code></td>
+        <td><code>16px</code></td>
+        <td><code>m-3</code>, <code>p-3</code>, <code>gap-3</code></td>
+      </tr>
+      <tr>
+        <td><code>4</code></td>
+        <td><code>1.5rem</code></td>
+        <td><code>24px</code></td>
+        <td><code>m-4</code>, <code>p-4</code>, <code>gap-4</code></td>
+      </tr>
+      <tr>
+        <td><code>5</code></td>
+        <td><code>3rem</code></td>
+        <td><code>48px</code></td>
+        <td><code>m-5</code>, <code>p-5</code>, <code>gap-5</code></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+::end
 
-Examples: `p-1` is `.25rem`, `p-2` is `.5rem`, `p-3` is `.75rem`, `p-4` is `1rem`, and `gap-6` is `1.5rem`.
+- **Margin Utilities**: `m-{0..5}`, `mt-{0..5}`, `mb-{0..5}`, `ms-{0..5}`, `me-{0..5}`, `mx-{0..5}`, `my-{0..5}`.
+- **Padding Utilities**: `p-{0..5}`, `pt-{0..5}`, `pb-{0..5}`, `ps-{0..5}`, `pe-{0..5}`, `px-{0..5}`, `py-{0..5}`.
+- **Gap Utilities**: `gap-{0..5}`, `row-gap-{0..5}`, `col-gap-{0..5}`.
 
 ---
 
 ## Negative Spacing Modifiers
 
-To pull adjacent elements closer or build custom overlay structures, apply negative margins. Simply prefix your classes with a dash:
+To pull adjacent elements closer or create overlap layouts, apply negative margins (precompiled for steps `1` to `5`):
 
-- **Negative Classes**: `-m-{n}`, `-mt-{n}`, `-mb-{n}`, `-ms-{n}`, `-me-{n}`, `-mx-{n}`, `-my-{n}` (precompiled between `0` and `100` quarter-rem steps).
+- **Negative Classes**: `-m-{1..5}`, `-mt-{1..5}`, `-mb-{1..5}`, `-ms-{1..5}`, `-me-{1..5}`, `-mx-{1..5}`, `-my-{1..5}`.
 
 ```html
-<!-- Move card up to overlap a hero background by 2rem -->
-<div class="card -mt-8 bg-body">...</div>
+<!-- Move card up to overlap a hero background by 1.5rem -->
+<div class="card -mt-4 bg-body">...</div>
 ```
 
 ---

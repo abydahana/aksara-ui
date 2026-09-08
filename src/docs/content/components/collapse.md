@@ -7,7 +7,7 @@ Toggle the visibility of content areas across your page using simple utility cla
 Aksara UI features a clean, CSS-based visibility toggler that is extremely lightweight. Use the `.collapse` class to hide content, and add the `.collapse-show` modifier to reveal it smoothly:
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <div class="mb-4">
     <button class="btn btn-primary" onclick="const c = document.getElementById('demoCollapse'); c.classList.toggle('collapse-show'); this.setAttribute('aria-expanded', c.classList.contains('collapse-show') ? 'true' : 'false')" aria-expanded="false" aria-controls="demoCollapse">
       Toggle Content

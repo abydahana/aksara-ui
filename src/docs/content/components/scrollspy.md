@@ -7,7 +7,7 @@ Automatically update navigation active highlights based on scroll position to in
 Aksara UI components link beautifully with scroll listener hooks. Scroll the code-preview card content block below to see list highlights shift:
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <div class="row gap-4">
     <div class="col-12 md:col-4">
       <div id="scrollspyList" class="list-group" data-docs-scrollspy-nav data-docs-scrollspy-active="class">
@@ -18,19 +18,19 @@ Aksara UI components link beautifully with scroll listener hooks. Scroll the cod
     </div>
     <div class="col-12 md:col-8">
       <div id="scrollspyTarget" class="bg-body border border-subtle rounded-12 p-5 overflow-y-auto" style="height: 180px; position: relative;">
-        <div id="section-1" class="mb-6">
+        <div id="section-1" class="mb-4">
           <h4 class="mt-0 mb-2 font-700">Section One</h4>
           <p class="text-subtle text-xs mb-0 mt-0 leading-22">
             This is Section One. Scrolling down past this paragraph changes the active state hook of the navigation list item on the left.
           </p>
         </div>
-        <div id="section-2" class="mb-6 pt-4">
+        <div id="section-2" class="mb-4 pt-4">
           <h4 class="mt-0 mb-2 font-700">Section Two</h4>
           <p class="text-subtle text-xs mb-0 mt-0 leading-22">
             This is Section Two. When the scroll container boundary intersects this title, the list group highlights this index.
           </p>
         </div>
-        <div id="section-3" class="mb-6 pt-4" style="padding-bottom: 80px;">
+        <div id="section-3" class="mb-4 pt-4" style="padding-bottom: 80px;">
           <h4 class="mt-0 mb-2 font-700">Section Three</h4>
           <p class="text-subtle text-xs mb-0 mt-0 leading-22">
             This is Section Three. Use native logical spacings and transition effects to compose professional user guides or side-by-side reading panels.
@@ -71,7 +71,7 @@ Aksara UI components link beautifully with scroll listener hooks. Scroll the cod
 Use regular navbar links when the tracked sections live in a scrollable content area.
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <nav class="navbar rounded-12 border border-subtle mb-4">
     <a class="navbar-brand" href="#scrollspyNavbarOne" data-docs-scrollspy-link data-docs-scrollspy-container="#scrollspyNavbarTarget">Docs</a>
     <div id="scrollspyNavbarLinks" class="navbar-nav" data-docs-scrollspy-nav data-docs-scrollspy-current="page">
@@ -82,11 +82,11 @@ Use regular navbar links when the tracked sections live in a scrollable content 
   </nav>
 
   <div id="scrollspyNavbarTarget" class="bg-body border border-subtle rounded-12 p-5 overflow-y-auto" style="height: 180px;">
-    <section id="scrollspyNavbarOne" class="mb-7">
+    <section id="scrollspyNavbarOne" class="mb-5">
       <h4 class="mt-0 mb-2 font-700">Intro</h4>
       <p class="m-0 text-subtle text-sm leading-22">Navbar scrollspy is useful when page sections are broad and the active item should live in the top navigation.</p>
     </section>
-    <section id="scrollspyNavbarTwo" class="mb-7 pt-4">
+    <section id="scrollspyNavbarTwo" class="mb-5 pt-4">
       <h4 class="mt-0 mb-2 font-700">API</h4>
       <p class="m-0 text-subtle text-sm leading-22">Measure section offsets against the scroll container and toggle <code>aria-current</code> on matching links.</p>
     </section>
@@ -105,7 +105,7 @@ Use regular navbar links when the tracked sections live in a scrollable content 
 Use `nav nav-pills` when the scrollspy links act more like local section filters.
 
 ::html
-<div class="docs-preview py-6">
+<div class="docs-preview py-4">
   <div id="scrollspyPillsLinks" class="nav nav-pills mb-4" data-docs-scrollspy-nav data-docs-scrollspy-active="class" data-docs-scrollspy-current="true">
     <a class="nav-link active" href="#scrollspyPillOne" aria-current="true" data-docs-scrollspy-link data-docs-scrollspy-container="#scrollspyPillsTarget">Profile</a>
     <a class="nav-link" href="#scrollspyPillTwo" data-docs-scrollspy-link data-docs-scrollspy-container="#scrollspyPillsTarget">Billing</a>
@@ -113,11 +113,11 @@ Use `nav nav-pills` when the scrollspy links act more like local section filters
   </div>
 
   <div id="scrollspyPillsTarget" class="bg-body border border-subtle rounded-12 p-5 overflow-y-auto" style="height: 180px;">
-    <section id="scrollspyPillOne" class="mb-7">
+    <section id="scrollspyPillOne" class="mb-5">
       <h4 class="mt-0 mb-2 font-700">Profile</h4>
       <p class="m-0 text-subtle text-sm leading-22">Pill scrollspy is a compact way to show which settings section is currently visible.</p>
     </section>
-    <section id="scrollspyPillTwo" class="mb-7 pt-4">
+    <section id="scrollspyPillTwo" class="mb-5 pt-4">
       <h4 class="mt-0 mb-2 font-700">Billing</h4>
       <p class="m-0 text-subtle text-sm leading-22">The active pill is just a class and ARIA state update, so it stays framework-light.</p>
     </section>

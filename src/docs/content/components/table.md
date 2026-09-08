@@ -4,7 +4,7 @@ Tables include striped, hover, compact, bordered, and responsive wrappers.
 
 ::html
 <div class="docs-preview">
-  <div class="mb-6">
+  <div class="mb-4">
     <h4 class="mt-0 mb-3 font-700 text-sm">Responsive Striped Table</h4>
     <div class="table-responsive">
       <table class="table table-striped table-hover table-bordered">

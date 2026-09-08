@@ -7,7 +7,7 @@ Aksara UI is engineered for modern developers who value simplicity, lightning-fa
 Aksara UI provides a fully static, highly optimized, and pre-compiled CSS build out of the box. Unlike other modern utility frameworks, it does not scan templates, require runtime Node.js modules, or compile styles on the fly.
 
 ::html
-<div class="docs-preview py-8 flex justify-center">
+<div class="docs-preview py-5 flex justify-center">
   <div class="row w-full gap-4">
     <div class="col-12 md:col-4">
       <div class="p-5 bg-body border border-subtle rounded-12 h-100% hover:border-primary/50 transition">

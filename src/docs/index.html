@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aksara UI Documentation</title>
     <link rel="stylesheet" href="../../dist/aksara.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="./assets/vendor/mdi/css/materialdesignicons.min.css" />
     <link rel="stylesheet" href="./assets/docs.css" />
   </head>
   <body>
@@ -16,6 +16,7 @@
       </a>
       <div class="docs-topbar-actions">
         <button class="docs-theme-button" type="button" data-docs-theme aria-label="Switch color theme">
+          <span class="mdi mdi-theme-light-dark"></span>
           <span data-docs-theme-label>Light</span>
         </button>
         <button
@@ -32,11 +33,6 @@
     <div class="docs-backdrop" data-docs-backdrop></div>
     <div class="docs-shell">
       <aside id="docs-sidebar" class="docs-sidebar">
-        <a class="docs-brand" href="#/">
-          <span class="docs-mark">A</span>
-          <span>Aksara UI</span>
-        </a>
-
         <div class="docs-group" data-docs-group>
           <button
             class="docs-group-toggle"
@@ -54,12 +50,12 @@
           </nav>
         </div>
 
-        <div class="docs-group" data-docs-group>
+        <div class="docs-group" data-docs-group data-collapsed="true">
           <button
             class="docs-group-toggle"
             type="button"
             data-docs-group-toggle
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="docs-group-core"
           >
             <span>Core Concepts</span>
@@ -73,12 +69,12 @@
           </nav>
         </div>
 
-        <div class="docs-group" data-docs-group>
+        <div class="docs-group" data-docs-group data-collapsed="true">
           <button
             class="docs-group-toggle"
             type="button"
             data-docs-group-toggle
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="docs-group-components"
           >
             <span>Components</span>
@@ -88,6 +84,7 @@
             <a href="#/components/accordion" data-doc-link="/components/accordion">Accordion</a>
             <a href="#/components/alerts" data-doc-link="/components/alerts">Alerts</a>
             <a href="#/components/badges" data-doc-link="/components/badges">Badges</a>
+            <a href="#/components/bento-card" data-doc-link="/components/bento-card">Bento Card</a>
             <a href="#/components/breadcrumb" data-doc-link="/components/breadcrumb">Breadcrumb</a>
             <a href="#/components/button-group" data-doc-link="/components/button-group">Button Group</a>
             <a href="#/components/buttons" data-doc-link="/components/buttons">Buttons</a>
@@ -104,20 +101,22 @@
             <a href="#/components/popover" data-doc-link="/components/popover">Popover</a>
             <a href="#/components/progress" data-doc-link="/components/progress">Progress</a>
             <a href="#/components/scrollspy" data-doc-link="/components/scrollspy">Scrollspy</a>
+            <a href="#/components/skeleton" data-doc-link="/components/skeleton">Skeleton</a>
             <a href="#/components/spinner" data-doc-link="/components/spinner">Spinner</a>
             <a href="#/components/table" data-doc-link="/components/table">Table</a>
             <a href="#/components/tabs" data-doc-link="/components/tabs">Tabs</a>
+            <a href="#/components/timeline" data-doc-link="/components/timeline">Timeline</a>
             <a href="#/components/toast" data-doc-link="/components/toast">Toast</a>
             <a href="#/components/tooltip" data-doc-link="/components/tooltip">Tooltip</a>
           </nav>
         </div>
 
-        <div class="docs-group" data-docs-group>
+        <div class="docs-group" data-docs-group data-collapsed="true">
           <button
             class="docs-group-toggle"
             type="button"
             data-docs-group-toggle
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="docs-group-foundations"
           >
             <span>Layout</span>
@@ -133,12 +132,12 @@
           </nav>
         </div>
 
-        <div class="docs-group" data-docs-group>
+        <div class="docs-group" data-docs-group data-collapsed="true">
           <button
             class="docs-group-toggle"
             type="button"
             data-docs-group-toggle
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="docs-group-forms"
           >
             <span>Forms</span>
@@ -151,12 +150,12 @@
           </nav>
         </div>
 
-        <div class="docs-group" data-docs-group>
+        <div class="docs-group" data-docs-group data-collapsed="true">
           <button
             class="docs-group-toggle"
             type="button"
             data-docs-group-toggle
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="docs-group-typography"
           >
             <span>Typography</span>
@@ -168,12 +167,12 @@
           </nav>
         </div>
 
-        <div class="docs-group" data-docs-group>
+        <div class="docs-group" data-docs-group data-collapsed="true">
           <button
             class="docs-group-toggle"
             type="button"
             data-docs-group-toggle
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="docs-group-utilities"
           >
             <span>Utilities</span>
@@ -193,12 +192,12 @@
           </nav>
         </div>
 
-        <div class="docs-group" data-docs-group>
+        <div class="docs-group" data-docs-group data-collapsed="true">
           <button
             class="docs-group-toggle"
             type="button"
             data-docs-group-toggle
-            aria-expanded="true"
+            aria-expanded="false"
             aria-controls="docs-group-helpers"
           >
             <span>Helpers</span>
