@@ -33,6 +33,7 @@ const routes: Record<string, string> = {
   "/components/popover": "content/components/popover.md",
   "/components/progress": "content/components/progress.md",
   "/components/scrollspy": "content/components/scrollspy.md",
+  "/components/sidebar": "content/components/sidebar.md",
   "/components/skeleton": "content/components/skeleton.md",
   "/components/spinner": "content/components/spinner.md",
   "/components/table": "content/components/table.md",

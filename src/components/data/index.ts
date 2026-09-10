@@ -7,3 +7,4 @@ export * from "./media-grid";
 export * from "./avatar";
 export * from "./bento";
 export * from "./timeline";
+export * from "./settings";

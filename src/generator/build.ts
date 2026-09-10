@@ -1812,6 +1812,46 @@ function addComponents(): void {
   );
   addRaw(".avatar-group .avatar", "border:2px solid var(--aksara-bg-body);background:var(--aksara-bg-subtle)");
   addRaw(".avatar-group .avatar:not(:first-child)", "margin-inline-start:-.625rem");
+
+  // ── Sidebar Nav ────────────────────────────────────────────────────────────
+  add("sidebar-nav", "display:flex;flex-direction:column;gap:.125rem;padding:.5rem;margin:0;list-style:none");
+  add(
+    "sidebar-nav-item",
+    "display:flex;align-items:center;gap:.625rem;width:100%;border:0;border-radius:var(--aksara-radius-sm);padding:.5625rem .75rem;background:transparent;color:var(--aksara-text-subtle);font:inherit;font-weight:600;font-size:.9375rem;text-align:start;text-decoration:none;cursor:pointer;transition:background-color .15s ease,color .15s ease;line-height:1.35"
+  );
+  add(
+    "sidebar-nav-header",
+    "display:block;padding:.625rem .75rem .25rem;font-size:.6875rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--aksara-text-subtle);opacity:.7;user-select:none"
+  );
+  add(
+    "sidebar-nav-icon",
+    "display:inline-flex;align-items:center;justify-content:center;width:1.375rem;height:1.375rem;flex-shrink:0;font-size:1.0625rem"
+  );
+  add("sidebar-nav-label", "flex:1 1 auto;min-width:0");
+  add(
+    "sidebar-nav-badge",
+    "display:inline-flex;align-items:center;justify-content:center;min-width:1.25rem;height:1.25rem;border-radius:9999px;padding:0 .3125rem;font-size:.6875rem;font-weight:800;background:rgb(var(--aksara-primary)/.12);color:rgb(var(--aksara-primary));flex-shrink:0"
+  );
+  add(
+    "sidebar-nav-brand",
+    "display:flex;align-items:center;gap:.625rem;padding:.875rem .75rem;margin-block-end:.25rem"
+  );
+  add("sidebar-nav-brand-title", "font-weight:800;font-size:.9375rem;line-height:1.25;color:var(--aksara-text-body)");
+  add(
+    "sidebar-nav-brand-subtitle",
+    "display:block;font-size:.75rem;font-weight:400;color:var(--aksara-text-subtle);margin-block-start:.0625rem;line-height:1.3"
+  );
+  addRaw(".sidebar-nav-item:hover", "background:var(--aksara-bg-subtle);color:var(--aksara-text-body)");
+  addRaw(
+    '.sidebar-nav-item.active,.sidebar-nav-item[aria-selected="true"]',
+    "background:var(--aksara-bg-subtle);color:var(--aksara-text-body);font-weight:700"
+  );
+  addRaw(".sidebar-nav-item:disabled,.sidebar-nav-item.disabled", "opacity:.5;pointer-events:none");
+
+  // ── Sidebar Layout ─────────────────────────────────────────────────────────
+  add("sidebar-layout", "display:flex;min-height:0;gap:0");
+  add("sidebar-pane", "flex-shrink:0;width:14rem;border-inline-end:1px solid var(--aksara-border-subtle)");
+  add("sidebar-content", "flex:1 1 auto;min-width:0;overflow:auto");
 }
 
 function cssVars(source: Record<string, string>): string {
