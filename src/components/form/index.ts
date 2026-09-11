@@ -9,3 +9,4 @@ export * from "./input-group";
 export * from "./form-control";
 export * from "./floating-label";
 export * from "./layout";
+export * from "./dropdown-select";

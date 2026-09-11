@@ -1071,7 +1071,7 @@ function addComponents(): void {
   add("list-group-flush", "border:0;border-radius:0;overflow:visible");
   add(
     "list-group-item",
-    "display:block;padding:.5rem 1rem;border-block-end:1px solid var(--aksara-border-subtle);color:var(--aksara-text-body);text-decoration:none;background:var(--aksara-surface)"
+    "display:block;padding:1rem;border-block-end:1px solid var(--aksara-border-subtle);color:var(--aksara-text-body);text-decoration:none;background:var(--aksara-surface)"
   );
   add(
     "list-group-item-action",
@@ -1603,12 +1603,13 @@ function addComponents(): void {
   }
   add(
     "form-control",
-    "display:block;width:100%;padding:.5rem .75rem;font:inherit;color:var(--aksara-text-body);background:var(--aksara-bg-body);border:1px solid var(--aksara-border);border-radius:var(--aksara-radius-sm);transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out"
+    "display:block;width:100%;padding:.5rem .75rem;font:inherit;font-size:1rem;line-height:1.5;color:var(--aksara-text-body);background:var(--aksara-bg-body);border:1px solid var(--aksara-border);border-radius:var(--aksara-radius-sm);height:42px;min-height:42px;box-sizing:border-box;transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out"
   );
   add(
     "form-select",
-    "display:block;width:100%;padding:.5rem 2.25rem .5rem .75rem;font:inherit;color:var(--aksara-text-body);background:var(--aksara-bg-body);border:1px solid var(--aksara-border);border-radius:var(--aksara-radius-sm)"
+    "display:block;width:100%;padding:.5rem 2.25rem .5rem .75rem;font:inherit;font-size:1rem;line-height:1.5;color:var(--aksara-text-body);background-color:var(--aksara-bg-body);background-image:url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e\");background-repeat:no-repeat;background-position:right .75rem center;background-size:16px 12px;border:1px solid var(--aksara-border);border-radius:var(--aksara-radius-sm);height:42px;min-height:42px;box-sizing:border-box;-webkit-appearance:none;-moz-appearance:none;appearance:none"
   );
+  addRaw("textarea.form-control", "height:auto;min-height:auto");
   addRaw(".form-control::placeholder,.form-select::placeholder", "color:var(--aksara-text-subtle);opacity:1");
   add("form-label", "display:inline-block;margin-block-end:.375rem;font-weight:600");
   add("form-text", "margin-block-start:.25rem;color:var(--aksara-text-subtle);font-size:.875rem");
@@ -1677,21 +1678,27 @@ function addComponents(): void {
   add("is-invalid", "border-color:rgb(var(--aksara-danger))");
   add(
     "form-control-sm",
-    "padding:.25rem .5rem;font-size:.875rem;min-height:31px;height:31px;border-radius:var(--aksara-radius-sm)"
+    "padding:.25rem .5rem;font-size:.875rem;line-height:1.5;min-height:31px;height:31px;box-sizing:border-box;border-radius:var(--aksara-radius-sm)"
   );
   add(
     "form-select-sm",
-    "padding:.25rem 2rem .25rem .5rem;font-size:.875rem;min-height:31px;height:31px;border-radius:var(--aksara-radius-sm)"
+    "padding:.25rem 2rem .25rem .5rem;font-size:.875rem;line-height:1.5;min-height:31px;height:31px;box-sizing:border-box;border-radius:var(--aksara-radius-sm);background-position:right .5rem center;background-size:14px 10px"
   );
-  add("form-control-md", "padding:.5rem .75rem;font-size:1rem;min-height:38px");
-  add("form-select-md", "padding:.5rem 2.25rem .5rem .75rem;font-size:1rem;min-height:38px");
+  add(
+    "form-control-md",
+    "padding:.5rem .75rem;font-size:1rem;line-height:1.5;min-height:42px;height:42px;box-sizing:border-box"
+  );
+  add(
+    "form-select-md",
+    "padding:.5rem 2.25rem .5rem .75rem;font-size:1rem;line-height:1.5;min-height:42px;height:42px;box-sizing:border-box;background-position:right .75rem center;background-size:16px 12px"
+  );
   add(
     "form-control-lg",
-    "padding:.75rem 1rem;font-size:1.125rem;min-height:48px;height:48px;border-radius:var(--aksara-radius-md,.5rem)"
+    "padding:.75rem 1rem;font-size:1.125rem;line-height:1.5;min-height:48px;height:48px;box-sizing:border-box;border-radius:var(--aksara-radius-md,.5rem)"
   );
   add(
     "form-select-lg",
-    "padding:.75rem 2.5rem .75rem 1rem;font-size:1.125rem;min-height:48px;height:48px;border-radius:var(--aksara-radius-md,.5rem)"
+    "padding:.75rem 2.5rem .75rem 1rem;font-size:1.125rem;line-height:1.5;min-height:48px;height:48px;box-sizing:border-box;border-radius:var(--aksara-radius-md,.5rem);background-position:right 1rem center;background-size:18px 14px"
   );
   addRaw(
     ".form-control:focus,.form-select:focus",
@@ -1796,7 +1803,7 @@ function addComponents(): void {
   );
   add(
     "avatar",
-    "display:inline-flex;align-items:center;justify-content:center;position:relative;width:2.5rem;height:2.5rem;font-size:1rem;font-weight:700;line-height:1;overflow:hidden;user-select:none;flex-shrink:0"
+    "display:inline-flex;align-items:center;justify-content:center;position:relative;width:2.5rem;height:2.5rem;font-size:1rem;font-weight:700;line-height:1;overflow:visible;user-select:none;flex-shrink:0"
   );
   add("avatar-xs", "width:1.5rem;height:1.5rem;font-size:.6875rem");
   add("avatar-sm", "width:2rem;height:2rem;font-size:.8125rem");
@@ -1805,16 +1812,34 @@ function addComponents(): void {
   add("avatar-xl", "width:4rem;height:4rem;font-size:1.5rem");
   add("avatar-2xl", "width:6rem;height:6rem;font-size:2.25rem");
   add("avatar-3xl", "width:7.5rem;height:7.5rem;font-size:3rem");
-  addRaw(".avatar img,.avatar-img", "width:100%;height:100%;object-fit:cover;display:block");
+  addRaw(".avatar img,.avatar-img", "width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit");
+  addRaw(
+    ".avatar .avatar-initials,.avatar .avatar-fallback",
+    "width:100%;height:100%;display:inline-flex;align-items:center;justify-content:center;border-radius:inherit"
+  );
   addRaw(
     ".avatar-status",
-    "position:absolute;inset-block-end:0;inset-inline-end:0;width:.625rem;height:.625rem;border-radius:9999px;border:2px solid var(--aksara-bg-body)"
+    "position:absolute;bottom:0;right:0;border-radius:9999px;border:2px solid var(--aksara-bg-body);z-index:2;box-sizing:content-box"
   );
+  addRaw(
+    ".avatar.rounded-full .avatar-status,.avatar.rounded-circle .avatar-status",
+    "bottom:14.6%;right:14.6%;transform:translate(50%,50%)"
+  );
+  addRaw(".avatar-xs .avatar-status", "width:.375rem;height:.375rem;border-width:1px");
+  addRaw(".avatar-sm .avatar-status", "width:.4375rem;height:.4375rem;border-width:1.5px");
+  addRaw(
+    '.avatar-md .avatar-status,.avatar:not([class*="avatar-"]) .avatar-status',
+    "width:.5625rem;height:.5625rem;border-width:1.5px"
+  );
+  addRaw(".avatar-lg .avatar-status", "width:.6875rem;height:.6875rem;border-width:2px");
+  addRaw(".avatar-xl .avatar-status", "width:.8125rem;height:.8125rem;border-width:2px");
+  addRaw(".avatar-2xl .avatar-status", "width:1.125rem;height:1.125rem;border-width:3px");
+  addRaw(".avatar-3xl .avatar-status", "width:1.375rem;height:1.375rem;border-width:3.5px");
   addRaw(".avatar-group .avatar", "border:2px solid var(--aksara-bg-body);background:var(--aksara-bg-subtle)");
   addRaw(".avatar-group .avatar:not(:first-child)", "margin-inline-start:-.625rem");
 
   // ── Sidebar Nav ────────────────────────────────────────────────────────────
-  add("sidebar-nav", "display:flex;flex-direction:column;gap:.125rem;padding:.5rem;margin:0;list-style:none");
+  add("sidebar-nav", "display:flex;flex-direction:column;gap:.125rem;margin:0;list-style:none");
   add(
     "sidebar-nav-item",
     "display:flex;align-items:center;gap:.625rem;width:100%;border:0;border-radius:var(--aksara-radius-sm);padding:.5625rem .75rem;background:transparent;color:var(--aksara-text-subtle);font:inherit;font-weight:600;font-size:.9375rem;text-align:start;text-decoration:none;cursor:pointer;transition:background-color .15s ease,color .15s ease;line-height:1.35"
@@ -1852,6 +1877,40 @@ function addComponents(): void {
   add("sidebar-layout", "display:flex;min-height:0;gap:0");
   add("sidebar-pane", "flex-shrink:0;width:14rem;border-inline-end:1px solid var(--aksara-border-subtle)");
   add("sidebar-content", "flex:1 1 auto;min-width:0;overflow:auto");
+
+  // ── Empty State ────────────────────────────────────────────────────────────
+  add("empty-state", "padding:3rem 1.5rem;text-align:center;margin:1rem auto;max-width:32rem");
+  add(
+    "empty-state-icon-wrap",
+    "display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:var(--aksara-bg-subtle);margin-inline:auto;margin-block-end:1rem"
+  );
+  add("empty-state-title", "font-weight:700;font-size:1.125rem;color:var(--aksara-text-body);margin-block-end:.5rem");
+  add("empty-state-desc", "color:var(--aksara-text-subtle);font-size:.875rem;line-height:1.5;margin-block-end:1.25rem");
+  add("empty-state-actions", "display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap");
+
+  // ── User Item / Row ────────────────────────────────────────────────────────
+  add(
+    "user-item",
+    "display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-block-end:1px solid var(--aksara-border-subtle);transition:background .15s ease"
+  );
+  add("user-item-info", "flex:1 1 auto;min-width:0");
+  add("user-item-name", "font-weight:700;font-size:.875rem;color:var(--aksara-text-body);line-height:1.3");
+  add("user-item-subtitle", "color:var(--aksara-text-subtle);font-size:.8125rem;margin-block-start:.125rem");
+
+  // ── Dropdown Select ────────────────────────────────────────────────────────
+  add("aksara-select-dropdown", "position:relative");
+  addRaw(".aksara-select-dropdown .dropdown-select-menu", "min-width:100%;max-height:18rem;overflow-y:auto");
+  addRaw(".aksara-select-dropdown .select-current-label", "text-overflow:ellipsis;overflow:hidden;white-space:nowrap");
+
+  // ── Toast Floating Container ───────────────────────────────────────────────
+  add(
+    "aksara-toast-container",
+    "position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:1090;pointer-events:none;display:flex;flex-direction:column;gap:.5rem;align-items:center"
+  );
+  add(
+    "aksara-toast-pill",
+    "display:flex;align-items:center;gap:.5rem;padding:.5rem 1.15rem;border-radius:9999px;font-size:.875rem;font-weight:500;pointer-events:auto;background:rgba(15,23,42,.92);color:#fff;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 25px -5px rgba(0,0,0,.35);transition:opacity .25s ease,transform .25s ease"
+  );
 }
 
 function cssVars(source: Record<string, string>): string {
@@ -2118,6 +2177,13 @@ function addVariants(): void {
   ].forEach((name) => rules.push(variantRule(name)));
 }
 
+function mdiCss(): string {
+  const mdiCssPath = path.join(root, "node_modules/@mdi/font/css/materialdesignicons.min.css");
+  if (!fs.existsSync(mdiCssPath)) return "";
+  const raw = fs.readFileSync(mdiCssPath, "utf8");
+  return raw.replace(/\.\.\/fonts\//g, "./fonts/");
+}
+
 function buildCss(): string {
   addComponents();
   addSpacing();
@@ -2131,7 +2197,7 @@ function buildCss(): string {
   addScrollbars();
   addVariants();
   scanArbitraryClasses();
-  return `${banner()}@import "@mdi/font/css/materialdesignicons.min.css";\n${preflight()}${rules.join("")}`;
+  return `${banner()}${mdiCss()}\n${preflight()}${rules.join("")}`;
 }
 
 function banner(): string {
@@ -2296,6 +2362,7 @@ function buildDocsContent(): string {
 }
 
 fs.mkdirSync(distDir, { recursive: true });
+copyMdiAssets();
 const css = buildCss();
 const js = buildJs();
 
@@ -2344,8 +2411,10 @@ function copyMdiAssets(): void {
   const mdiNodeModules = path.join(root, "node_modules/@mdi/font");
   if (!fs.existsSync(mdiNodeModules)) return;
   const docsVendorMdi = path.join(root, "src/docs/assets/vendor/mdi");
+  const distFonts = path.join(distDir, "fonts");
   fs.mkdirSync(path.join(docsVendorMdi, "css"), { recursive: true });
   fs.mkdirSync(path.join(docsVendorMdi, "fonts"), { recursive: true });
+  fs.mkdirSync(distFonts, { recursive: true });
   fs.copyFileSync(
     path.join(mdiNodeModules, "css/materialdesignicons.min.css"),
     path.join(docsVendorMdi, "css/materialdesignicons.min.css")
@@ -2354,6 +2423,7 @@ function copyMdiAssets(): void {
   if (fs.existsSync(fontsDir)) {
     for (const font of fs.readdirSync(fontsDir)) {
       fs.copyFileSync(path.join(fontsDir, font), path.join(docsVendorMdi, "fonts", font));
+      fs.copyFileSync(path.join(fontsDir, font), path.join(distFonts, font));
     }
   }
 }

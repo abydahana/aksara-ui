@@ -631,6 +631,14 @@ export class Dropdown extends Component {
     this.menu.style.zIndex = "1000";
 
     const triggerRect = this.trigger.getBoundingClientRect();
+    if (
+      this.trigger.classList.contains("form-select") ||
+      this.element.classList.contains("variant-form-select") ||
+      this.element.hasAttribute("data-dropdown-select")
+    ) {
+      this.menu.style.width = `${triggerRect.width}px`;
+      this.menu.style.minWidth = `${triggerRect.width}px`;
+    }
     const menuRect = this.menu.getBoundingClientRect();
     const gap = this.offset;
     let top: number;
@@ -1590,6 +1598,29 @@ function bindDataApi(): void {
   });
 }
 
+export interface ConfirmModalOptions {
+  title: string;
+  message: string;
+  tone?: "danger" | "warning" | "primary" | "info" | "success" | string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  icon?: string;
+}
+
+export interface AlertModalOptions {
+  title: string;
+  message: string;
+  tone?: "primary" | "danger" | "warning" | "info" | "success" | string;
+  buttonLabel?: string;
+  icon?: string;
+}
+
+export interface ToastNotifyOptions {
+  icon?: string;
+  variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | string;
+  duration?: number;
+}
+
 export interface AksaraNamespace {
   Modal: typeof Modal;
   Tooltip: typeof Tooltip;
@@ -1639,6 +1670,9 @@ export interface AksaraNamespace {
   setTheme(theme: "light" | "dark" | "system"): "light" | "dark" | "system";
   getTheme(): "light" | "dark" | "system";
   initTheme(): "light" | "dark" | "system";
+  confirm(options: ConfirmModalOptions): Promise<boolean>;
+  alert(options: AlertModalOptions): Promise<void>;
+  notify(message: string, options?: ToastNotifyOptions): void;
   clipboard(target: string | HTMLElement, text?: string): Promise<boolean>;
   init(root?: ParentNode | Document | HTMLElement): AksaraNamespace;
   destroy(): AksaraNamespace;
@@ -2005,6 +2039,156 @@ export const Aksara: AksaraNamespace = {
     }
     return currentTheme;
   },
+  confirm(options: ConfirmModalOptions): Promise<boolean> {
+    if (typeof document === "undefined") return Promise.resolve(false);
+    let host = document.getElementById("aksara-dialog-host");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "aksara-dialog-host";
+      document.body.appendChild(host);
+    }
+
+    const tone = options.tone ?? "danger";
+    const confirmLabel = options.confirmLabel ?? "Confirm";
+    const cancelLabel = options.cancelLabel ?? "Cancel";
+    const icon = options.icon ?? (tone === "danger" ? "mdi-alert-circle-outline" : "mdi-alert-outline");
+
+    host.innerHTML = `
+      <div class="modal fade modal-sm" id="aksaraConfirmModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-confirm-title">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content overflow-hidden border-0 shadow-lg">
+            <div class="modal-body text-center p-4">
+              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} fs-1 d-block mb-2" aria-hidden="true"></i>
+              <h5 id="aksara-confirm-title" class="fs-5 font-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
+              <p class="text-muted mb-0">${escapeHtmlStr(options.message)}</p>
+            </div>
+            <div class="modal-footer p-0 overflow-hidden m-0 w-100 gap-0 d-flex border-top">
+              <button class="btn btn-ghost text-body rounded-0 py-3 m-0 text-center w-[50%]" type="button" data-aksara-confirm-cancel>
+                ${escapeHtmlStr(cancelLabel)}
+              </button>
+              <button class="btn btn-ghost border-start text-${escapeHtmlStr(tone)} rounded-0 py-3 m-0 text-center w-[50%]" type="button" data-aksara-confirm-accept>
+                <i class="mdi mdi-check me-1" aria-hidden="true"></i>
+                ${escapeHtmlStr(confirmLabel)}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modalEl = host.querySelector<HTMLElement>("#aksaraConfirmModal");
+    if (!modalEl) return Promise.resolve(false);
+
+    const modalInstance = Aksara.modal(modalEl);
+    modalInstance.show();
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (value: boolean) => {
+        if (settled) return;
+        settled = true;
+        modalInstance.hide();
+        setTimeout(() => {
+          if (host) host.innerHTML = "";
+        }, 200);
+        resolve(value);
+      };
+
+      modalEl.addEventListener("modal:hide", () => finish(false), { once: true });
+      host
+        ?.querySelector("[data-aksara-confirm-cancel]")
+        ?.addEventListener("click", () => finish(false), { once: true });
+      host
+        ?.querySelector("[data-aksara-confirm-accept]")
+        ?.addEventListener("click", () => finish(true), { once: true });
+    });
+  },
+
+  alert(options: AlertModalOptions): Promise<void> {
+    if (typeof document === "undefined") return Promise.resolve();
+    let host = document.getElementById("aksara-dialog-host");
+    if (!host) {
+      host = document.createElement("div");
+      host.id = "aksara-dialog-host";
+      document.body.appendChild(host);
+    }
+
+    const tone = options.tone ?? "primary";
+    const buttonLabel = options.buttonLabel ?? "OK";
+    const icon =
+      options.icon ??
+      (tone === "danger"
+        ? "mdi-alert-circle-outline"
+        : tone === "warning"
+          ? "mdi-alert-outline"
+          : "mdi-information-outline");
+
+    host.innerHTML = `
+      <div class="modal fade modal-sm" id="aksaraAlertModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-alert-title">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content overflow-hidden border-0 shadow-lg">
+            <div class="modal-body text-center p-4">
+              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} fs-1 d-block mb-2" aria-hidden="true"></i>
+              <h5 id="aksara-alert-title" class="fs-5 font-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
+              <p class="text-muted mb-0">${escapeHtmlStr(options.message)}</p>
+            </div>
+            <div class="modal-footer p-0 overflow-hidden m-0 w-100 gap-0 d-flex border-top">
+              <button class="btn btn-ghost text-body rounded-0 py-3 m-0 text-center w-100" type="button" data-aksara-alert-dismiss>
+                ${escapeHtmlStr(buttonLabel)}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const modalEl = host.querySelector<HTMLElement>("#aksaraAlertModal");
+    if (!modalEl) return Promise.resolve();
+
+    const modalInstance = Aksara.modal(modalEl);
+    modalInstance.show();
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        modalInstance.hide();
+        setTimeout(() => {
+          if (host) host.innerHTML = "";
+        }, 200);
+        resolve();
+      };
+
+      modalEl.addEventListener("modal:hide", () => finish(), { once: true });
+      host?.querySelector("[data-aksara-alert-dismiss]")?.addEventListener("click", () => finish(), { once: true });
+    });
+  },
+
+  notify(message: string, options: ToastNotifyOptions = {}) {
+    if (typeof document === "undefined") return;
+    let container = document.getElementById("aksara-toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "aksara-toast-container";
+      container.className = "aksara-toast-container";
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = "aksara-toast-pill";
+    const iconClass = options.icon ?? "mdi-information-outline";
+    toast.innerHTML = `<i class="mdi ${escapeHtmlStr(iconClass)} text-primary" style="font-size: 1.15rem; line-height: 1;"></i><span>${escapeHtmlStr(message)}</span>`;
+    container.appendChild(toast);
+
+    const duration = options.duration ?? 2500;
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      toast.style.transform = "translateY(8px)";
+      setTimeout(() => toast.remove(), 250);
+    }, duration);
+  },
+
   async clipboard(target: string | HTMLElement, text?: string): Promise<boolean> {
     if (typeof navigator === "undefined" || !navigator.clipboard) return false;
     let textToCopy = text ?? "";
@@ -2071,3 +2255,399 @@ if (typeof document !== "undefined") {
 }
 
 export default Aksara;
+
+// ── HTML Component Generators ─────────────────────────────────────────────────
+// Inline pure-function HTML string generators.
+// These accept typed props and return HTML strings ready for server-side rendering.
+
+// ── Shared utilities ──────────────────────────────────────────────────────────
+
+function classNames(...classes: (string | undefined | null | false | 0)[]): string {
+  return classes.filter(Boolean).join(" ").trim();
+}
+
+function toAttributes(attributes?: Record<string, unknown>): string {
+  if (!attributes) return "";
+  const parts: string[] = [];
+  for (const [key, value] of Object.entries(attributes)) {
+    if (value === true) {
+      parts.push(key);
+    } else if (value !== false && value !== null && value !== undefined) {
+      parts.push(`${key}="${escapeHtmlStr(value)}"`);
+    }
+  }
+  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
+}
+
+function escapeHtmlStr(value: unknown): string {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// ── SidebarNav ────────────────────────────────────────────────────────────────
+
+// ── SidebarNavItem ────────────────────────────────────────────────────────────
+
+export interface SidebarNavItemProps {
+  /** Unique ID (used for tab panel targeting) */
+  id?: string;
+  /** Label text */
+  label: string;
+  /** Icon HTML string */
+  icon?: string;
+  /** Badge text or count */
+  badge?: string;
+  /** Active state */
+  active?: boolean;
+  /** Disabled state */
+  disabled?: boolean;
+  /** Link mode: render as <a href="..."> */
+  href?: string;
+  /** Tab mode: render as <button data-tabs="#panelId"> */
+  panelTarget?: string;
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+// ── SidebarNavProps ───────────────────────────────────────────────────────────
+
+export interface SidebarNavProps {
+  items: SidebarNavItemProps[];
+  /** Brand section title at the top */
+  title?: string;
+  /** Brand section subtitle */
+  subtitle?: string;
+  /** Brand icon HTML */
+  brandIcon?: string;
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+/**
+ * Sidebar navigation that supports two modes:
+ *
+ * - **Tab mode** (`panelTarget` prop): renders `<button data-tabs="#panelId">` —
+ *   integrates with Aksara's tab JS to show/hide content panels.
+ * - **Link mode** (`href` prop): renders `<a href="...">` — plain navigation links.
+ *
+ * @example Tab mode
+ * SidebarNav({
+ *   title: "Settings",
+ *   items: [
+ *     { label: "Privacy", icon: '<span class="mdi mdi-lock-outline">', panelTarget: "#panel-privacy", active: true },
+ *     { label: "Notifications", icon: '<span class="mdi mdi-bell-outline">', panelTarget: "#panel-notif" },
+ *   ]
+ * })
+ *
+ * @example Link mode
+ * SidebarNav({
+ *   items: [
+ *     { label: "Dashboard", icon: '<span class="mdi mdi-home-outline">', href: "/dashboard", active: true },
+ *     { label: "Settings", icon: '<span class="mdi mdi-cog-outline">', href: "/settings" },
+ *   ]
+ * })
+ */
+export function SidebarNav(props: SidebarNavProps): string {
+  const { items = [], title = "", subtitle = "", brandIcon = "", className = "", attributes } = props;
+
+  const baseAttrs = toAttributes(attributes);
+
+  // Brand section
+  const brandHtml = title
+    ? `<div class="sidebar-nav-brand">${brandIcon ? `<span class="sidebar-nav-icon">${brandIcon}</span>` : ""}<div><span class="sidebar-nav-brand-title">${escapeHtmlStr(title)}</span>${subtitle ? `<span class="sidebar-nav-brand-subtitle">${escapeHtmlStr(subtitle)}</span>` : ""}</div></div>`
+    : "";
+
+  // Items
+  const itemsHtml = items
+    .map((item) => {
+      const isLink = Boolean(item.href);
+      const isTab = Boolean(item.panelTarget) && !isLink;
+      const Tag = isLink ? "a" : "button";
+
+      const itemClasses = classNames(
+        "sidebar-nav-item",
+        item.active && "active",
+        item.disabled && "disabled",
+        item.className
+      );
+
+      const itemAttrs = toAttributes({
+        href: isLink ? item.href : undefined,
+        type: !isLink ? "button" : undefined,
+        "data-tabs": isTab ? item.panelTarget : undefined,
+        role: isTab ? "tab" : undefined,
+        "aria-selected": isTab ? (item.active ? "true" : "false") : undefined,
+        tabindex: isTab ? (item.active ? "0" : "-1") : undefined,
+        id: isTab && item.id ? `sidebar-tab-${item.id}` : item.id,
+        "aria-controls": isTab && item.id ? item.id : undefined,
+        disabled: !isLink && item.disabled ? true : undefined,
+        "aria-disabled": item.disabled ? "true" : undefined,
+        "aria-current": isLink && item.active ? "page" : undefined,
+        ...item.attributes
+      });
+
+      const iconHtml = item.icon ? `<span class="sidebar-nav-icon" aria-hidden="true">${item.icon}</span>` : "";
+
+      const badgeHtml = item.badge ? `<span class="sidebar-nav-badge">${escapeHtmlStr(item.badge)}</span>` : "";
+
+      return `<${Tag} class="${itemClasses}"${itemAttrs}>${iconHtml}<span class="sidebar-nav-label">${escapeHtmlStr(item.label)}</span>${badgeHtml}</${Tag}>`;
+    })
+    .join("");
+
+  return `<nav class="${classNames("sidebar-nav", className)}"${baseAttrs}>${brandHtml}${itemsHtml}</nav>`.trim();
+}
+
+export const sidebarNav = SidebarNav;
+
+// ── SidebarNavHeader ──────────────────────────────────────────────────────────
+
+export interface SidebarNavHeaderProps {
+  label: string;
+  className?: string;
+}
+
+/** A group header label inside a SidebarNav */
+export function SidebarNavHeader(props: SidebarNavHeaderProps): string {
+  const { label, className = "" } = props;
+  return `<span class="${classNames("sidebar-nav-header", className)}">${escapeHtmlStr(label)}</span>`;
+}
+
+export const sidebarNavHeader = SidebarNavHeader;
+
+// ── SidebarLayout ─────────────────────────────────────────────────────────────
+
+export interface SidebarLayoutProps {
+  sidebar: string;
+  content: string;
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+/**
+ * Two-column layout wrapper: sidebar pane on the left, content area on the right.
+ *
+ * @example
+ * SidebarLayout({
+ *   sidebar: SidebarNav({ ... }),
+ *   content: '<div class="p-5">Panel content here</div>'
+ * })
+ */
+export function SidebarLayout(props: SidebarLayoutProps): string {
+  const { sidebar, content, className = "", attributes } = props;
+  const baseAttrs = toAttributes(attributes);
+  return `<div class="${classNames("sidebar-layout", className)}"${baseAttrs}><div class="sidebar-pane">${sidebar}</div><div class="sidebar-content">${content}</div></div>`.trim();
+}
+
+export const sidebarLayout = SidebarLayout;
+
+// ── ListGroup ─────────────────────────────────────────────────────────────────
+
+export interface ListGroupProps {
+  children?: string;
+  flush?: boolean;
+  numbered?: boolean;
+  horizontal?: boolean | "sm" | "md" | "lg" | "xl" | "xxl";
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+export function ListGroup(props: ListGroupProps = {}): string {
+  const { children = "", flush = false, numbered = false, horizontal = false, className = "", attributes } = props;
+
+  const horizontalClass =
+    horizontal === true
+      ? "list-group-horizontal"
+      : typeof horizontal === "string"
+        ? `list-group-horizontal-${horizontal}`
+        : null;
+
+  const classes = classNames(
+    "list-group",
+    flush && "list-group-flush",
+    numbered && "list-group-numbered",
+    horizontalClass,
+    className
+  );
+
+  const Tag = numbered ? "ol" : "div";
+  const baseAttrs = toAttributes(attributes);
+
+  return `<${Tag} class="${classes}"${baseAttrs}>${children}</${Tag}>`.trim();
+}
+
+export const listGroup = ListGroup;
+
+export interface ListGroupItemProps {
+  content?: string;
+  active?: boolean;
+  disabled?: boolean;
+  action?: boolean;
+  href?: string;
+  variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "light" | "dark";
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+export function ListGroupItem(props: ListGroupItemProps = {}): string {
+  const {
+    content = "",
+    active = false,
+    disabled = false,
+    action = false,
+    href,
+    variant,
+    className = "",
+    attributes
+  } = props;
+
+  const isLink = Boolean(href);
+  const Tag = isLink ? "a" : action ? "button" : "div";
+
+  const classes = classNames(
+    "list-group-item",
+    (action || isLink) && "list-group-item-action",
+    active && "active",
+    disabled && "disabled",
+    variant && `list-group-item-${variant}`,
+    className
+  );
+
+  const baseAttrs = toAttributes({
+    href,
+    type: Tag === "button" ? "button" : undefined,
+    disabled: Tag === "button" && disabled ? true : undefined,
+    "aria-current": active ? "true" : undefined,
+    "aria-disabled": disabled ? "true" : undefined,
+    ...attributes
+  });
+
+  return `<${Tag} class="${classes}"${baseAttrs}>${content}</${Tag}>`.trim();
+}
+
+export const listGroupItem = ListGroupItem;
+
+// ── Settings ──────────────────────────────────────────────────────────────────
+
+// ── SettingsGroup ─────────────────────────────────────────────────────────────
+
+export interface SettingsGroupProps {
+  children?: string;
+  /** Optional uppercase heading rendered above the group */
+  title?: string;
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+/**
+ * Container for a group of settings-style rows.
+ * Renders as `.list-group` with an optional uppercase section heading above.
+ */
+export function SettingsGroup(props: SettingsGroupProps = {}): string {
+  const { children = "", title = "", className = "", attributes } = props;
+
+  const baseAttrs = toAttributes(attributes);
+  const groupHtml = `<div class="${classNames("list-group", className)}"${baseAttrs}>${children}</div>`;
+
+  if (!title) return groupHtml.trim();
+
+  return `<div><p class="text-xs font-800 uppercase tracking-wider text-subtle mb-2 px-1">${escapeHtmlStr(title)}</p><div class="${classNames("list-group", className)}">${children}</div></div>`.trim();
+}
+
+export const settingsGroup = SettingsGroup;
+
+// ── SettingsItem ──────────────────────────────────────────────────────────────
+
+export interface SettingsItemProps {
+  /** Main label text */
+  label: string;
+  /** Optional supporting description rendered below the label */
+  description?: string;
+  /** Icon HTML string, e.g. `<span class="mdi mdi-lock-outline">` */
+  icon?: string;
+  /** Value text shown on the right */
+  value?: string;
+  /** Arbitrary trailing HTML on the right, e.g. a switch or select */
+  trailing?: string;
+  /** Renders the item as `<a href>` */
+  href?: string;
+  /** Renders the item as `<button>` (when no href) */
+  action?: boolean;
+  /** Shows a `›` chevron on the trailing edge */
+  showChevron?: boolean;
+  active?: boolean;
+  disabled?: boolean;
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+/**
+ * A settings-style row using `.list-group-item` with an inner flex layout.
+ * Composable as a link, button, or static element.
+ *
+ * @example Link row
+ * SettingsItem({ label: "Private profile", icon: '<span class="mdi mdi-lock-outline">', value: "Public", showChevron: true, href: "#privacy" })
+ *
+ * @example Toggle row
+ * SettingsItem({ label: "Floods & Inundations", icon: '<span class="mdi mdi-water-alert">', trailing: '<input type="checkbox" role="switch" class="form-check-input" checked />' })
+ *
+ * @example Description row
+ * SettingsItem({ label: "Verified reports only", description: "Only display verified observations.", trailing: '<input type="checkbox" role="switch" class="form-check-input" />' })
+ */
+export function SettingsItem(props: SettingsItemProps): string {
+  const {
+    label,
+    description = "",
+    icon = "",
+    value = "",
+    trailing = "",
+    href,
+    action = false,
+    showChevron = false,
+    active = false,
+    disabled = false,
+    className = "",
+    attributes
+  } = props;
+
+  const isLink = Boolean(href);
+  const Tag = isLink ? "a" : action ? "button" : "div";
+
+  const classes = classNames(
+    "list-group-item",
+    (action || isLink) && "list-group-item-action",
+    active && "active",
+    disabled && "disabled",
+    className
+  );
+
+  const baseAttrs = toAttributes({
+    href,
+    type: Tag === "button" ? "button" : undefined,
+    disabled: Tag === "button" && disabled ? true : undefined,
+    "aria-current": active ? "true" : undefined,
+    "aria-disabled": disabled ? "true" : undefined,
+    ...attributes
+  });
+
+  const iconHtml = icon
+    ? `<span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" aria-hidden="true">${icon}</span>`
+    : "";
+
+  const labelBlock = description
+    ? `<span class="flex-1 min-w-0"><span class="font-600 block">${escapeHtmlStr(label)}</span><span class="text-subtle text-sm block mt-1">${escapeHtmlStr(description)}</span></span>`
+    : `<span class="flex-1 font-600">${escapeHtmlStr(label)}</span>`;
+
+  const valueHtml = value ? `<span class="text-subtle text-sm">${escapeHtmlStr(value)}</span>` : "";
+
+  const chevronHtml = showChevron
+    ? `<span class="text-subtle opacity-50 text-sm ms-1" aria-hidden="true">&#8250;</span>`
+    : "";
+
+  return `<${Tag} class="${classes}"${baseAttrs}><div class="flex items-center gap-3">${iconHtml}${labelBlock}${valueHtml}${trailing}${chevronHtml}</div></${Tag}>`.trim();
+}
+
+export const settingsItem = SettingsItem;

@@ -9,6 +9,8 @@ export interface AvatarProps {
   alt?: string;
   initials?: string;
   size?: AvatarSize;
+  width?: string | number;
+  height?: string | number;
   shape?: AvatarShape;
   status?: AvatarStatus | boolean;
   variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "dark" | "light";
@@ -21,28 +23,53 @@ export function Avatar(props: AvatarProps = {}): string {
     src,
     alt = "Avatar",
     initials,
-    size = "md",
+    size,
+    width,
+    height,
     shape = "circle",
     status,
     variant = "primary",
     className = "",
-    attributes
+    attributes = {}
   } = props;
 
   const shapeClass = shape === "circle" ? "rounded-full" : shape === "rounded" ? "rounded-8" : "rounded-none";
 
-  const sizeClass = `avatar-${size}`;
+  // Use size if provided, otherwise default to "md" if no explicit width/height
+  const effectiveSize = size || (!width && !height ? "md" : undefined);
+  const sizeClass = effectiveSize ? `avatar-${effectiveSize}` : "";
 
   const classes = classNames(
     "avatar",
     sizeClass,
     shapeClass,
-    !src && !className.includes("bg-") && `avatar-${variant} bg-${variant}/15 text-${variant}`,
-    "position-relative inline-flex items-center justify-center font-bold select-none shrink-0 overflow-hidden",
+    !src &&
+      !className.includes("bg-") &&
+      !className.includes("feed-card-avatar") &&
+      `avatar-${variant} bg-${variant}/15 text-${variant}`,
+    "position-relative inline-flex items-center justify-center font-bold select-none shrink-0",
     className
   );
 
-  const baseAttrs = toAttributes(attributes);
+  const customStyles: string[] = [];
+  if (width !== undefined) {
+    const w = typeof width === "number" ? `${width}px` : width;
+    customStyles.push(`width:${w}`, `min-width:${w}`);
+  }
+  if (height !== undefined) {
+    const h = typeof height === "number" ? `${height}px` : height;
+    customStyles.push(`height:${h}`, `min-height:${h}`);
+  }
+
+  const attrs = { ...attributes };
+  if (customStyles.length > 0) {
+    const existingStyle = (attrs.style as string) || "";
+    attrs.style = existingStyle
+      ? `${existingStyle.replace(/;?$/, ";")} ${customStyles.join(";")};`
+      : `${customStyles.join(";")};`;
+  }
+
+  const baseAttrs = toAttributes(attrs);
 
   let contentHtml: string;
   if (src) {
@@ -57,11 +84,12 @@ export function Avatar(props: AvatarProps = {}): string {
   let statusHtml = "";
   if (status) {
     let statusVariant = "bg-success";
-    if (status === "offline") statusVariant = "bg-subtle border border-subtle";
+    if (status === "offline") statusVariant = "bg-subtle";
     else if (status === "busy") statusVariant = "bg-danger";
     else if (status === "away") statusVariant = "bg-warning";
 
-    statusHtml = `<span class="avatar-status position-absolute rounded-full ${statusVariant} border-2 border-body" aria-hidden="true"></span>`;
+    const statusKey = typeof status === "string" ? status : "online";
+    statusHtml = `<span class="avatar-status position-absolute rounded-full ${statusVariant} border-2 border-body" data-status="${statusKey}" aria-hidden="true"></span>`;
   }
 
   return `
