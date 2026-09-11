@@ -1651,7 +1651,12 @@ function addComponents(): void {
   add("input-group-sm", "");
   addRaw(
     ".input-group-sm>.form-control,.input-group-sm>.form-select,.input-group-sm>.input-group-text,.input-group-sm>.btn,.input-group>.form-control-sm,.input-group>.form-select-sm,.input-group>.btn-sm",
-    "padding:.25rem .5rem;font-size:.875rem;min-height:1.875rem"
+    "padding:.25rem .5rem;font-size:.875rem;line-height:1.5;min-height:31px;height:31px;box-sizing:border-box"
+  );
+  addRaw(".input-group-sm>textarea.form-control,.input-group>textarea.form-control-sm", "height:auto;min-height:auto");
+  addRaw(
+    ".input-group-sm>.form-select,.input-group>.form-select-sm",
+    "padding-right:2rem;background-position:right .5rem center;background-size:14px 10px"
   );
   addRaw(
     ".input-group-sm>:first-child,.input-group:has(>.form-control-sm:first-child)>:first-child,.input-group:has(>.btn-sm:first-child)>:first-child",
@@ -1664,7 +1669,12 @@ function addComponents(): void {
   add("input-group-lg", "");
   addRaw(
     ".input-group-lg>.form-control,.input-group-lg>.form-select,.input-group-lg>.input-group-text,.input-group-lg>.btn,.input-group>.form-control-lg,.input-group>.form-select-lg,.input-group>.btn-lg",
-    "padding:.5rem 1rem;font-size:1.125rem;min-height:2.875rem"
+    "padding:.5rem 1rem;font-size:1.125rem;line-height:1.5;min-height:48px;height:48px;box-sizing:border-box"
+  );
+  addRaw(".input-group-lg>textarea.form-control,.input-group>textarea.form-control-lg", "height:auto;min-height:auto");
+  addRaw(
+    ".input-group-lg>.form-select,.input-group>.form-select-lg",
+    "padding-right:2.5rem;background-position:right 1rem center;background-size:18px 14px"
   );
   addRaw(
     ".input-group-lg>:first-child",
