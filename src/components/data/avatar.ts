@@ -89,7 +89,7 @@ export function Avatar(props: AvatarProps = {}): string {
     else if (status === "away") statusVariant = "bg-warning";
 
     const statusKey = typeof status === "string" ? status : "online";
-    statusHtml = `<span class="avatar-status position-absolute rounded-full ${statusVariant} border-2 border-body" data-status="${statusKey}" aria-hidden="true"></span>`;
+    statusHtml = `<span class="avatar-status position-absolute rounded-full ${statusVariant} border-2" data-status="${statusKey}" aria-hidden="true"></span>`;
   }
 
   return `
