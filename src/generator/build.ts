@@ -925,12 +925,46 @@ function addComponents(): void {
     "btn",
     "display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.375rem;border:1px solid transparent;border-radius:var(--aksara-radius-sm);padding:.5rem .875rem;font:inherit;font-weight:650;line-height:1.25;text-decoration:none;cursor:pointer;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,transform .15s ease-in-out"
   );
+  add("btn-xs", "min-height:1.5rem;padding:.125rem .375rem;font-size:.75rem");
   add("btn-sm", "min-height:1.75rem;padding:.25rem .5rem;font-size:.8125rem");
   add("btn-lg", "min-height:2.875rem;padding:.75rem 1.125rem;font-size:1.0625rem");
   add("btn-block", "display:flex;width:100%");
-  add("btn-icon", "inline-size:2.375rem;block-size:2.375rem;padding:0");
-  addRaw(".btn-sm.btn-icon", "inline-size:1.75rem;block-size:1.75rem");
-  addRaw(".btn-lg.btn-icon", "inline-size:2.875rem;block-size:2.875rem");
+  add(
+    "btn-icon",
+    "inline-size:2.375rem;block-size:2.375rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
+  );
+  addRaw(
+    ".btn-xs.btn-icon",
+    "inline-size:1.5rem;block-size:1.5rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
+  );
+  addRaw(
+    ".btn-sm.btn-icon",
+    "inline-size:1.75rem;block-size:1.75rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
+  );
+  addRaw(
+    ".btn-lg.btn-icon",
+    "inline-size:2.875rem;block-size:2.875rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
+  );
+  addRaw(
+    ".btn.rounded-circle,.btn.rounded-full,button.rounded-circle,a.btn.rounded-circle",
+    "aspect-ratio:1/1;flex-shrink:0;min-height:unset;display:inline-flex;align-items:center;justify-content:center"
+  );
+  addRaw(
+    '.btn.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:2.375rem;block-size:2.375rem;padding:0"
+  );
+  addRaw(
+    '.btn.btn-sm.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-sm.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:1.75rem;block-size:1.75rem;padding:0"
+  );
+  addRaw(
+    '.btn.btn-xs.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-xs.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:1.5rem;block-size:1.5rem;padding:0"
+  );
+  addRaw(
+    '.btn.btn-lg.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-lg.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:2.875rem;block-size:2.875rem;padding:0"
+  );
   add("btn-ghost", "color:var(--aksara-text-body);background:transparent;border-color:transparent");
   add("btn-group", "display:inline-flex;vertical-align:middle");
   add(
@@ -1246,26 +1280,33 @@ function addComponents(): void {
   );
   add(
     "close",
-    "position:absolute;inset-block-start:.75rem;inset-inline-end:.75rem;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;flex:0 0 auto;border:0;border-radius:9999px;background:var(--aksara-bg-subtle);color:var(--aksara-text-subtle);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease"
+    "position:absolute;inset-block-start:.75rem;inset-inline-end:.75rem;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;aspect-ratio:1/1;flex:0 0 auto;flex-shrink:0;border:0;border-radius:9999px;background:var(--aksara-bg-subtle);color:var(--aksara-text-subtle);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease"
   );
   add(
     "modal-close",
-    "position:relative;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;flex:0 0 auto;border:0;border-radius:9999px;background:var(--aksara-bg-subtle);color:var(--aksara-text-subtle);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease"
+    "position:relative;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;aspect-ratio:1/1;flex:0 0 auto;flex-shrink:0;border:0;border-radius:9999px;background:var(--aksara-bg-subtle);color:var(--aksara-text-subtle);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease"
+  );
+  add(
+    "btn-close",
+    "position:relative;display:inline-flex;align-items:center;justify-content:center;inline-size:2rem;block-size:2rem;aspect-ratio:1/1;flex:0 0 auto;flex-shrink:0;border:0;border-radius:9999px;background:var(--aksara-bg-subtle);color:var(--aksara-text-subtle);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease"
   );
   add("close-sm", "inline-size:1.5rem;block-size:1.5rem");
   add("close-lg", "inline-size:2.5rem;block-size:2.5rem");
+  addRaw(".btn-close-sm,.btn-sm.btn-close", "inline-size:1.5rem;block-size:1.5rem");
+  addRaw(".btn-close-lg,.btn-lg.btn-close", "inline-size:2.5rem;block-size:2.5rem");
   addRaw(
-    ".close::before,.close::after,.modal-close::before,.modal-close::after",
+    ".close::before,.close::after,.modal-close::before,.modal-close::after,.btn-close::before,.btn-close::after",
     'content:"";position:absolute;inline-size:50%;block-size:2px;border-radius:9999px;background:currentColor'
   );
-  addRaw(".close::before,.modal-close::before", "transform:rotate(45deg)");
-  addRaw(".close::after,.modal-close::after", "transform:rotate(-45deg)");
-  addRaw(".close > *,.modal-close > *", "display:none");
+  addRaw(".close::before,.modal-close::before,.btn-close::before", "transform:rotate(45deg)");
+  addRaw(".close::after,.modal-close::after,.btn-close::after", "transform:rotate(-45deg)");
+  addRaw(".close > *,.modal-close > *,.btn-close > *", "display:none");
   addRaw(
-    ".close:hover,.modal-close:hover",
+    ".close:hover,.modal-close:hover,.btn-close:hover",
     "background:rgb(var(--aksara-primary)/.12);color:rgb(var(--aksara-primary))"
   );
-  addRaw(".close:active,.modal-close:active", "transform:scale(.94)");
+  addRaw(".close:active,.modal-close:active,.btn-close:active", "transform:scale(.94)");
+  addRaw(".close-white,.btn-close-white", "color:#fff;background:rgba(255,255,255,.16)");
   add(
     "tooltip",
     "position:absolute;z-index:1080;max-width:16rem;padding:.375rem .5rem;border-radius:var(--aksara-radius-sm);background:var(--aksara-tooltip-bg);color:var(--aksara-tooltip-text);font-size:.875rem;box-shadow:var(--aksara-shadow-sm)"
