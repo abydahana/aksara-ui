@@ -362,7 +362,7 @@ assert(
   "Buttons should use base rounded theme radius"
 );
 assert(
-  css.includes(".card {\n  background:var(--aksara-surface)") && css.includes("border-radius:var(--aksara-radius)"),
+  css.includes(".card {\n  color:var(--aksara-text-body)") && css.includes("border-radius:var(--aksara-radius)"),
   "Cards should use base rounded theme radius"
 );
 assert(

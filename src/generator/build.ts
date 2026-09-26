@@ -1099,7 +1099,7 @@ function addComponents(): void {
   }
   add(
     "card",
-    "background:var(--aksara-surface);color:var(--aksara-text-body);border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius);overflow:hidden;box-shadow:var(--aksara-shadow-sm)"
+    "color:var(--aksara-text-body);border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius);overflow:hidden;box-shadow:var(--aksara-shadow-sm)"
   );
   add("card-elevated", "box-shadow:var(--aksara-shadow-md)");
   add("card-flat", "box-shadow:none");
