@@ -927,7 +927,10 @@ function addComponents(): void {
   );
   add("btn-xs", "min-height:1.5rem;padding:.125rem .375rem;font-size:.75rem");
   add("btn-sm", "min-height:1.75rem;padding:.25rem .5rem;font-size:.8125rem");
+  add("btn-md", "min-height:2.375rem;padding:.5rem .875rem;font-size:.875rem");
   add("btn-lg", "min-height:2.875rem;padding:.75rem 1.125rem;font-size:1.0625rem");
+  add("btn-xl", "min-height:3.375rem;padding:.875rem 1.375rem;font-size:1.25rem");
+  add("btn-xxl", "min-height:3.875rem;padding:1rem 1.625rem;font-size:1.5rem");
   add("btn-block", "display:flex;width:100%");
   add(
     "btn-icon",
@@ -942,8 +945,20 @@ function addComponents(): void {
     "inline-size:1.75rem;block-size:1.75rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
   );
   addRaw(
+    ".btn-md.btn-icon",
+    "inline-size:2.375rem;block-size:2.375rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
+  );
+  addRaw(
     ".btn-lg.btn-icon",
     "inline-size:2.875rem;block-size:2.875rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
+  );
+  addRaw(
+    ".btn-xl.btn-icon",
+    "inline-size:3.375rem;block-size:3.375rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
+  );
+  addRaw(
+    ".btn-xxl.btn-icon",
+    "inline-size:3.875rem;block-size:3.875rem;aspect-ratio:1/1;flex-shrink:0;min-height:unset;min-width:unset;padding:0"
   );
   addRaw(
     ".btn.rounded-circle,.btn.rounded-full,button.rounded-circle,a.btn.rounded-circle",
@@ -954,16 +969,28 @@ function addComponents(): void {
     "inline-size:2.375rem;block-size:2.375rem;padding:0"
   );
   addRaw(
-    '.btn.btn-sm.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-sm.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
-    "inline-size:1.75rem;block-size:1.75rem;padding:0"
-  );
-  addRaw(
     '.btn.btn-xs.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-xs.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
     "inline-size:1.5rem;block-size:1.5rem;padding:0"
   );
   addRaw(
+    '.btn.btn-sm.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-sm.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:1.75rem;block-size:1.75rem;padding:0"
+  );
+  addRaw(
+    '.btn.btn-md.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-md.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:2.375rem;block-size:2.375rem;padding:0"
+  );
+  addRaw(
     '.btn.btn-lg.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-lg.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
     "inline-size:2.875rem;block-size:2.875rem;padding:0"
+  );
+  addRaw(
+    '.btn.btn-xl.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-xl.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:3.375rem;block-size:3.375rem;padding:0"
+  );
+  addRaw(
+    '.btn.btn-xxl.rounded-circle:not(.btn-icon):not([class*="w-"]):not([style*="width"]),.btn.btn-xxl.rounded-full:not(.btn-icon):not([class*="w-"]):not([style*="width"])',
+    "inline-size:3.875rem;block-size:3.875rem;padding:0"
   );
   add("btn-ghost", "color:var(--aksara-text-body);background:transparent;border-color:transparent");
   add("btn-group", "display:inline-flex;vertical-align:middle");
@@ -971,8 +998,12 @@ function addComponents(): void {
     "btn-group-vertical",
     "display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;vertical-align:middle"
   );
+  add("btn-group-xs", "font-size:.75rem");
   add("btn-group-sm", "font-size:.8125rem");
+  add("btn-group-md", "font-size:.875rem");
   add("btn-group-lg", "font-size:1.0625rem");
+  add("btn-group-xl", "font-size:1.25rem");
+  add("btn-group-xxl", "font-size:1.5rem");
   add("btn-toolbar", "display:flex;flex-wrap:wrap;justify-content:flex-start;gap:.5rem");
   addRaw(".btn-group>.btn,.btn-group-vertical>.btn", "position:relative;flex:1 1 auto;border-radius:0");
   addRaw(".btn-group>.btn+.btn", "margin-inline-start:-1px");
@@ -998,6 +1029,14 @@ function addComponents(): void {
     "border-end-start-radius:var(--aksara-radius-sm);border-end-end-radius:var(--aksara-radius-sm)"
   );
   addRaw(
+    ".btn-group-xs>.btn,.btn-group-xs>.btn-group>.btn,.btn-group-xs>.btn-group-vertical>.btn",
+    "min-height:1.5rem;padding:.125rem .375rem;font-size:.75rem"
+  );
+  addRaw(
+    ".btn-group-xs>.btn-icon,.btn-group-xs>.btn.btn-icon,.btn-group-xs>.btn-group>.btn-icon,.btn-group-xs>.btn-group>.btn.btn-icon,.btn-group-xs>.btn-group-vertical>.btn-icon,.btn-group-xs>.btn-group-vertical>.btn.btn-icon",
+    "inline-size:1.5rem;block-size:1.5rem"
+  );
+  addRaw(
     ".btn-group-sm>.btn,.btn-group-sm>.btn-group>.btn,.btn-group-sm>.btn-group-vertical>.btn",
     "min-height:1.75rem;padding:.25rem .5rem;font-size:.8125rem"
   );
@@ -1006,12 +1045,36 @@ function addComponents(): void {
     "inline-size:1.75rem;block-size:1.75rem"
   );
   addRaw(
+    ".btn-group-md>.btn,.btn-group-md>.btn-group>.btn,.btn-group-md>.btn-group-vertical>.btn",
+    "min-height:2.375rem;padding:.5rem .875rem;font-size:.875rem"
+  );
+  addRaw(
+    ".btn-group-md>.btn-icon,.btn-group-md>.btn.btn-icon,.btn-group-md>.btn-group>.btn-icon,.btn-group-md>.btn-group>.btn.btn-icon,.btn-group-md>.btn-group-vertical>.btn-icon,.btn-group-md>.btn-group-vertical>.btn.btn-icon",
+    "inline-size:2.375rem;block-size:2.375rem"
+  );
+  addRaw(
     ".btn-group-lg>.btn,.btn-group-lg>.btn-group>.btn,.btn-group-lg>.btn-group-vertical>.btn",
     "min-height:2.875rem;padding:.75rem 1.125rem;font-size:1.0625rem"
   );
   addRaw(
     ".btn-group-lg>.btn-icon,.btn-group-lg>.btn.btn-icon,.btn-group-lg>.btn-group>.btn-icon,.btn-group-lg>.btn-group>.btn.btn-icon,.btn-group-lg>.btn-group-vertical>.btn-icon,.btn-group-lg>.btn-group-vertical>.btn.btn-icon",
     "inline-size:2.875rem;block-size:2.875rem"
+  );
+  addRaw(
+    ".btn-group-xl>.btn,.btn-group-xl>.btn-group>.btn,.btn-group-xl>.btn-group-vertical>.btn",
+    "min-height:3.375rem;padding:.875rem 1.375rem;font-size:1.25rem"
+  );
+  addRaw(
+    ".btn-group-xl>.btn-icon,.btn-group-xl>.btn.btn-icon,.btn-group-xl>.btn-group>.btn-icon,.btn-group-xl>.btn-group>.btn.btn-icon,.btn-group-xl>.btn-group-vertical>.btn-icon,.btn-group-xl>.btn-group-vertical>.btn.btn-icon",
+    "inline-size:3.375rem;block-size:3.375rem"
+  );
+  addRaw(
+    ".btn-group-xxl>.btn,.btn-group-xxl>.btn-group>.btn,.btn-group-xxl>.btn-group-vertical>.btn",
+    "min-height:3.875rem;padding:1rem 1.625rem;font-size:1.5rem"
+  );
+  addRaw(
+    ".btn-group-xxl>.btn-icon,.btn-group-xxl>.btn.btn-icon,.btn-group-xxl>.btn-group>.btn-icon,.btn-group-xxl>.btn-group>.btn.btn-icon,.btn-group-xxl>.btn-group-vertical>.btn-icon,.btn-group-xxl>.btn-group-vertical>.btn.btn-icon",
+    "inline-size:3.875rem;block-size:3.875rem"
   );
   addRaw(".btn:focus-visible", "outline:0;box-shadow:none");
   addRaw(".btn-ghost:hover", "background:var(--aksara-bg-subtle)");
@@ -1097,6 +1160,12 @@ function addComponents(): void {
     "badge",
     "display:inline-flex;align-items:center;gap:.25rem;border-radius:9999px;padding:.25rem .55rem;font-size:.75em;font-weight:750;line-height:1;background:var(--aksara-bg-subtle);color:var(--aksara-text-body)"
   );
+  add("badge-xs", "padding:.125rem .35rem;font-size:.625rem");
+  add("badge-sm", "padding:.2rem .45rem;font-size:.7rem");
+  add("badge-md", "padding:.25rem .55rem;font-size:.75rem");
+  add("badge-lg", "padding:.35rem .65rem;font-size:.875rem");
+  add("badge-xl", "padding:.45rem .8rem;font-size:1rem");
+  add("badge-xxl", "padding:.55rem .95rem;font-size:1.125rem");
   add("badge-dot", "inline-size:.5rem;block-size:.5rem;border-radius:9999px;background:currentColor;padding:0");
   add(
     "list-group",
@@ -1292,8 +1361,12 @@ function addComponents(): void {
   );
   add("close-sm", "inline-size:1.5rem;block-size:1.5rem");
   add("close-lg", "inline-size:2.5rem;block-size:2.5rem");
+  addRaw(".btn-close-xs,.btn-xs.btn-close", "inline-size:1.25rem;block-size:1.25rem");
   addRaw(".btn-close-sm,.btn-sm.btn-close", "inline-size:1.5rem;block-size:1.5rem");
+  addRaw(".btn-close-md,.btn-md.btn-close", "inline-size:2rem;block-size:2rem");
   addRaw(".btn-close-lg,.btn-lg.btn-close", "inline-size:2.5rem;block-size:2.5rem");
+  addRaw(".btn-close-xl,.btn-xl.btn-close", "inline-size:3rem;block-size:3rem");
+  addRaw(".btn-close-xxl,.btn-xxl.btn-close", "inline-size:3.5rem;block-size:3.5rem");
   addRaw(
     ".close::before,.close::after,.modal-close::before,.modal-close::after,.btn-close::before,.btn-close::after",
     'content:"";position:absolute;inline-size:50%;block-size:2px;border-radius:9999px;background:currentColor'
@@ -1494,7 +1567,12 @@ function addComponents(): void {
     "spinner",
     "display:inline-block;inline-size:2rem;block-size:2rem;border:.25rem solid color-mix(in srgb,currentColor 22%,transparent);border-inline-end-color:currentColor;border-radius:9999px;animation:aksara-spin .75s linear infinite"
   );
+  add("spinner-xs", "inline-size:.75rem;block-size:.75rem;border-width:.125rem");
   add("spinner-sm", "inline-size:1rem;block-size:1rem;border-width:.15rem");
+  add("spinner-md", "inline-size:2rem;block-size:2rem;border-width:.25rem");
+  add("spinner-lg", "inline-size:2.75rem;block-size:2.75rem;border-width:.3rem");
+  add("spinner-xl", "inline-size:3.5rem;block-size:3.5rem;border-width:.35rem");
+  add("spinner-xxl", "inline-size:4.25rem;block-size:4.25rem;border-width:.4rem");
   add(
     "placeholder",
     "display:inline-block;min-height:1em;vertical-align:middle;cursor:wait;background:currentColor;opacity:.16"
@@ -1614,6 +1692,18 @@ function addComponents(): void {
   addRaw(".breadcrumb a", "color:inherit;text-decoration:none");
   addRaw(".breadcrumb a:hover", "color:var(--aksara-text-body)");
   add("pagination", "display:flex;gap:.25rem;list-style:none;padding:0;margin:0");
+  add("pagination-xs", "gap:.125rem");
+  addRaw(".pagination-xs .page-link", "min-width:1.5rem;height:1.5rem;padding:0 .375rem;font-size:.75rem");
+  add("pagination-sm", "gap:.2rem");
+  addRaw(".pagination-sm .page-link", "min-width:1.875rem;height:1.875rem;padding:0 .5rem;font-size:.8125rem");
+  add("pagination-md", "gap:.25rem");
+  addRaw(".pagination-md .page-link", "min-width:2.25rem;height:2.25rem;padding:0 .625rem;font-size:.875rem");
+  add("pagination-lg", "gap:.375rem");
+  addRaw(".pagination-lg .page-link", "min-width:2.75rem;height:2.75rem;padding:0 .875rem;font-size:1.0625rem");
+  add("pagination-xl", "gap:.5rem");
+  addRaw(".pagination-xl .page-link", "min-width:3.25rem;height:3.25rem;padding:0 1rem;font-size:1.25rem");
+  add("pagination-xxl", "gap:.625rem");
+  addRaw(".pagination-xxl .page-link", "min-width:3.75rem;height:3.75rem;padding:0 1.25rem;font-size:1.5rem");
   add(
     "page-link",
     "display:inline-flex;align-items:center;justify-content:center;min-width:2.25rem;height:2.25rem;border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius-sm);padding:0 .625rem;background:var(--aksara-surface);color:var(--aksara-text-body);text-decoration:none"
@@ -1689,6 +1779,24 @@ function addComponents(): void {
   );
   addRaw(".input-group>.form-control:focus,.input-group>.form-select:focus", "z-index:3");
   addRaw(".input-group>.btn:focus", "z-index:4");
+  add("input-group-xs", "");
+  addRaw(
+    ".input-group-xs>.form-control,.input-group-xs>.form-select,.input-group-xs>.input-group-text,.input-group-xs>.btn,.input-group>.form-control-xs,.input-group>.form-select-xs,.input-group>.btn-xs",
+    "padding:.1875rem .375rem;font-size:.75rem;line-height:1.4;min-height:26px;height:26px;box-sizing:border-box"
+  );
+  addRaw(".input-group-xs>textarea.form-control,.input-group>textarea.form-control-xs", "height:auto;min-height:auto");
+  addRaw(
+    ".input-group-xs>.form-select,.input-group>.form-select-xs",
+    "padding-right:1.75rem;background-position:right .375rem center;background-size:12px 8px"
+  );
+  addRaw(
+    ".input-group-xs>:first-child,.input-group:has(>.form-control-xs:first-child)>:first-child,.input-group:has(>.btn-xs:first-child)>:first-child",
+    "border-start-start-radius:var(--aksara-radius-sm);border-end-start-radius:var(--aksara-radius-sm)"
+  );
+  addRaw(
+    ".input-group-xs>:last-child,.input-group:has(>.form-control-xs:last-child)>:last-child,.input-group:has(>.btn-xs:last-child)>:last-child",
+    "border-start-end-radius:var(--aksara-radius-sm);border-end-end-radius:var(--aksara-radius-sm)"
+  );
   add("input-group-sm", "");
   addRaw(
     ".input-group-sm>.form-control,.input-group-sm>.form-select,.input-group-sm>.input-group-text,.input-group-sm>.btn,.input-group>.form-control-sm,.input-group>.form-select-sm,.input-group>.btn-sm",
@@ -1707,6 +1815,7 @@ function addComponents(): void {
     ".input-group-sm>:last-child,.input-group:has(>.form-control-sm:last-child)>:last-child,.input-group:has(>.btn-sm:last-child)>:last-child",
     "border-start-end-radius:var(--aksara-radius-sm);border-end-end-radius:var(--aksara-radius-sm)"
   );
+  add("input-group-md", "");
   add("input-group-lg", "");
   addRaw(
     ".input-group-lg>.form-control,.input-group-lg>.form-select,.input-group-lg>.input-group-text,.input-group-lg>.btn,.input-group>.form-control-lg,.input-group>.form-select-lg,.input-group>.btn-lg",
@@ -1725,8 +1834,55 @@ function addComponents(): void {
     ".input-group-lg>:last-child",
     "border-start-end-radius:var(--aksara-radius-md,.5rem);border-end-end-radius:var(--aksara-radius-md,.5rem)"
   );
+  add("input-group-xl", "");
+  addRaw(
+    ".input-group-xl>.form-control,.input-group-xl>.form-select,.input-group-xl>.input-group-text,.input-group-xl>.btn,.input-group>.form-control-xl,.input-group>.form-select-xl,.input-group>.btn-xl",
+    "padding:.875rem 1.125rem;font-size:1.25rem;line-height:1.5;min-height:56px;height:56px;box-sizing:border-box"
+  );
+  addRaw(".input-group-xl>textarea.form-control,.input-group>textarea.form-control-xl", "height:auto;min-height:auto");
+  addRaw(
+    ".input-group-xl>.form-select,.input-group>.form-select-xl",
+    "padding-right:2.75rem;background-position:right 1.125rem center;background-size:20px 16px"
+  );
+  addRaw(
+    ".input-group-xl>:first-child",
+    "border-start-start-radius:var(--aksara-radius-md,.5rem);border-end-start-radius:var(--aksara-radius-md,.5rem)"
+  );
+  addRaw(
+    ".input-group-xl>:last-child",
+    "border-start-end-radius:var(--aksara-radius-md,.5rem);border-end-end-radius:var(--aksara-radius-md,.5rem)"
+  );
+  add("input-group-xxl", "");
+  addRaw(
+    ".input-group-xxl>.form-control,.input-group-xxl>.form-select,.input-group-xxl>.input-group-text,.input-group-xxl>.btn,.input-group>.form-control-xxl,.input-group>.form-select-xxl,.input-group>.btn-xxl",
+    "padding:1rem 1.25rem;font-size:1.5rem;line-height:1.5;min-height:64px;height:64px;box-sizing:border-box"
+  );
+  addRaw(
+    ".input-group-xxl>textarea.form-control,.input-group>textarea.form-control-xxl",
+    "height:auto;min-height:auto"
+  );
+  addRaw(
+    ".input-group-xxl>.form-select,.input-group>.form-select-xxl",
+    "padding-right:3rem;background-position:right 1.25rem center;background-size:22px 18px"
+  );
+  addRaw(
+    ".input-group-xxl>:first-child",
+    "border-start-start-radius:var(--aksara-radius-lg,.75rem);border-end-start-radius:var(--aksara-radius-lg,.75rem)"
+  );
+  addRaw(
+    ".input-group-xxl>:last-child",
+    "border-start-end-radius:var(--aksara-radius-lg,.75rem);border-end-end-radius:var(--aksara-radius-lg,.75rem)"
+  );
   add("is-valid", "border-color:rgb(var(--aksara-success))");
   add("is-invalid", "border-color:rgb(var(--aksara-danger))");
+  add(
+    "form-control-xs",
+    "padding:.1875rem .375rem;font-size:.75rem;line-height:1.4;min-height:26px;height:26px;box-sizing:border-box;border-radius:var(--aksara-radius-sm)"
+  );
+  add(
+    "form-select-xs",
+    "padding:.1875rem 1.75rem .1875rem .375rem;font-size:.75rem;line-height:1.4;min-height:26px;height:26px;box-sizing:border-box;border-radius:var(--aksara-radius-sm);background-position:right .375rem center;background-size:12px 8px"
+  );
   add(
     "form-control-sm",
     "padding:.25rem .5rem;font-size:.875rem;line-height:1.5;min-height:31px;height:31px;box-sizing:border-box;border-radius:var(--aksara-radius-sm)"
@@ -1751,9 +1907,25 @@ function addComponents(): void {
     "form-select-lg",
     "padding:.75rem 2.5rem .75rem 1rem;font-size:1.125rem;line-height:1.5;min-height:48px;height:48px;box-sizing:border-box;border-radius:var(--aksara-radius-md,.5rem);background-position:right 1rem center;background-size:18px 14px"
   );
+  add(
+    "form-control-xl",
+    "padding:.875rem 1.125rem;font-size:1.25rem;line-height:1.5;min-height:56px;height:56px;box-sizing:border-box;border-radius:var(--aksara-radius-md,.5rem)"
+  );
+  add(
+    "form-select-xl",
+    "padding:.875rem 2.75rem .875rem 1.125rem;font-size:1.25rem;line-height:1.5;min-height:56px;height:56px;box-sizing:border-box;border-radius:var(--aksara-radius-md,.5rem);background-position:right 1.125rem center;background-size:20px 16px"
+  );
+  add(
+    "form-control-xxl",
+    "padding:1rem 1.25rem;font-size:1.5rem;line-height:1.5;min-height:64px;height:64px;box-sizing:border-box;border-radius:var(--aksara-radius-lg,.75rem)"
+  );
+  add(
+    "form-select-xxl",
+    "padding:1rem 3rem 1rem 1.25rem;font-size:1.5rem;line-height:1.5;min-height:64px;height:64px;box-sizing:border-box;border-radius:var(--aksara-radius-lg,.75rem);background-position:right 1.25rem center;background-size:22px 18px"
+  );
   addRaw(
     ".form-control:focus,.form-select:focus",
-    "color:var(--aksara-text-body);background:var(--aksara-surface);border-color:rgb(var(--aksara-primary));box-shadow:none;outline:0"
+    "color:var(--aksara-text-body);border-color:rgb(var(--aksara-primary));box-shadow:none;outline:0"
   );
   addRaw(
     ".form-check,.form-switch",

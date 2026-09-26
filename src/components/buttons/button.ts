@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
 
 export type ButtonVariant =
   "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "dark" | "light" | "link";
@@ -11,7 +11,7 @@ export interface ButtonProps {
   outline?: boolean;
   soft?: boolean;
   ghost?: boolean;
-  size?: "sm" | "lg";
+  size?: ComponentSize;
   pill?: boolean;
   disabled?: boolean;
   href?: string;
@@ -45,15 +45,9 @@ export function Button(props: ButtonProps = {}): string {
     variantClass = `btn-soft-${variant}`;
   }
 
-  const classes = classNames(
-    "btn",
-    variantClass,
-    size === "sm" && "btn-sm",
-    size === "lg" && "btn-lg",
-    pill && "rounded-pill",
-    disabled && "disabled",
-    className
-  );
+  const sizeClass = size ? `btn-${size}` : "";
+
+  const classes = classNames("btn", variantClass, sizeClass, pill && "rounded-pill", disabled && "disabled", className);
 
   const isLink = Boolean(href);
   const Tag = isLink ? "a" : "button";

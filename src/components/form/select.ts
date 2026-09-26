@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
 
 export interface SelectOption {
   label: string;
@@ -19,7 +19,7 @@ export interface SelectProps {
   placeholder?: string;
   disabled?: boolean;
   required?: boolean;
-  size?: "sm" | "lg";
+  size?: ComponentSize;
   isInvalid?: boolean;
   isValid?: boolean;
   className?: string;
@@ -42,14 +42,9 @@ export function Select(props: SelectProps = {}): string {
     attributes
   } = props;
 
-  const classes = classNames(
-    "form-select",
-    size === "sm" && "form-select-sm",
-    size === "lg" && "form-select-lg",
-    isInvalid && "is-invalid",
-    isValid && "is-valid",
-    className
-  );
+  const sizeClass = size ? `form-select-${size}` : "";
+
+  const classes = classNames("form-select", sizeClass, isInvalid && "is-invalid", isValid && "is-valid", className);
 
   const baseAttrs = toAttributes({
     name,

@@ -1,4 +1,4 @@
-import { classNames, escapeHtml } from "../utils";
+import { classNames, escapeHtml, type ComponentSize } from "../utils";
 import { Input } from "./input";
 import { Button } from "../buttons/button";
 import { Dropdown, DropdownItem, DropdownMenu } from "../overlay/dropdown";
@@ -16,7 +16,7 @@ export interface DropdownSelectProps {
   defaultValue?: string;
   className?: string;
   btnClassName?: string;
-  size?: "sm" | "md" | "lg";
+  size?: ComponentSize;
   variant?: "chip" | "form-select";
   attributes?: Record<string, unknown>;
 }
@@ -36,10 +36,10 @@ export function DropdownSelect(props: DropdownSelectProps): string {
   const selectedOption = options.find((opt) => opt.value === defaultValue) ?? options[0];
   const isFormSelect = variant === "form-select";
 
-  const dropdownSizeClass = size === "sm" ? "dropdown-sm" : size === "lg" ? "dropdown-lg" : "dropdown-md";
-  const menuSizeClass = size === "sm" ? "dropdown-menu-sm" : size === "lg" ? "dropdown-menu-lg" : "";
-  const selectSizeClass = size === "sm" ? "form-select-sm" : size === "lg" ? "form-select-lg" : "";
-  const chipSizeClass = size === "sm" ? "chip-sm" : size === "lg" ? "chip-lg" : "chip-md";
+  const dropdownSizeClass = size ? `dropdown-${size}` : "dropdown-md";
+  const menuSizeClass = size && size !== "md" ? `dropdown-menu-${size}` : "";
+  const selectSizeClass = size ? `form-select-${size}` : "";
+  const chipSizeClass = size ? `chip-${size}` : "chip-md";
 
   const hiddenInput = Input({
     type: "hidden",

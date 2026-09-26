@@ -1,8 +1,8 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, type ComponentSize } from "../utils";
 
 export interface InputGroupProps {
   children?: string;
-  size?: "sm" | "lg";
+  size?: ComponentSize;
   className?: string;
   attributes?: Record<string, unknown>;
 }
@@ -10,12 +10,9 @@ export interface InputGroupProps {
 export function InputGroup(props: InputGroupProps = {}): string {
   const { children = "", size, className = "", attributes } = props;
 
-  const classes = classNames(
-    "input-group",
-    size === "sm" && "input-group-sm",
-    size === "lg" && "input-group-lg",
-    className
-  );
+  const sizeClass = size ? `input-group-${size}` : "";
+
+  const classes = classNames("input-group", sizeClass, className);
 
   const baseAttrs = toAttributes(attributes);
 

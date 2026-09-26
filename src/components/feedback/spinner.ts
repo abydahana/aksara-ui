@@ -1,7 +1,7 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, type ComponentSize } from "../utils";
 
 export interface SpinnerProps {
-  size?: "sm" | "md";
+  size?: ComponentSize;
   variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "dark" | "light";
   label?: string;
   className?: string;
@@ -11,7 +11,9 @@ export interface SpinnerProps {
 export function Spinner(props: SpinnerProps = {}): string {
   const { size, variant, label = "Loading...", className = "", attributes } = props;
 
-  const classes = classNames("spinner", size === "sm" && "spinner-sm", variant && `text-${variant}`, className);
+  const sizeClass = size ? `spinner-${size}` : "";
+
+  const classes = classNames("spinner", sizeClass, variant && `text-${variant}`, className);
 
   const baseAttrs = toAttributes({
     role: "status",

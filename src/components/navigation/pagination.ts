@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
 
 export interface PaginationItem {
   label: string;
@@ -10,7 +10,7 @@ export interface PaginationItem {
 
 export interface PaginationProps {
   items: PaginationItem[];
-  size?: "sm" | "lg";
+  size?: ComponentSize;
   className?: string;
   attributes?: Record<string, unknown>;
 }
@@ -18,12 +18,9 @@ export interface PaginationProps {
 export function Pagination(props: PaginationProps): string {
   const { items = [], size, className = "", attributes } = props;
 
-  const classes = classNames(
-    "pagination",
-    size === "sm" && "pagination-sm",
-    size === "lg" && "pagination-lg",
-    className
-  );
+  const sizeClass = size ? `pagination-${size}` : "";
+
+  const classes = classNames("pagination", sizeClass, className);
 
   const baseAttrs = toAttributes(attributes);
 

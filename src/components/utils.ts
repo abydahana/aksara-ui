@@ -1,3 +1,5 @@
+export type ComponentSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
+
 export function escapeHtml(value: unknown): string {
   return String(value ?? "")
     .replace(/&/g, "&amp;")

@@ -1,4 +1,4 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, type ComponentSize } from "../utils";
 
 export type InputType =
   | "text"
@@ -26,7 +26,7 @@ export interface InputProps {
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;
-  size?: "sm" | "lg";
+  size?: ComponentSize;
   isInvalid?: boolean;
   isValid?: boolean;
   className?: string;
@@ -51,15 +51,9 @@ export function Input(props: InputProps = {}): string {
   } = props;
 
   const controlClass = type === "color" ? "form-control form-control-color" : "form-control";
+  const sizeClass = size ? `form-control-${size}` : "";
 
-  const classes = classNames(
-    controlClass,
-    size === "sm" && "form-control-sm",
-    size === "lg" && "form-control-lg",
-    isInvalid && "is-invalid",
-    isValid && "is-valid",
-    className
-  );
+  const classes = classNames(controlClass, sizeClass, isInvalid && "is-invalid", isValid && "is-valid", className);
 
   const baseAttrs = toAttributes({
     type,

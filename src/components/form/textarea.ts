@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
 
 export interface TextareaProps {
   name?: string;
@@ -9,6 +9,7 @@ export interface TextareaProps {
   disabled?: boolean;
   readOnly?: boolean;
   required?: boolean;
+  size?: ComponentSize;
   isInvalid?: boolean;
   isValid?: boolean;
   className?: string;
@@ -26,6 +27,7 @@ export function Textarea(props: TextareaProps = {}): string {
     disabled = false,
     readOnly = false,
     required = false,
+    size,
     isInvalid = false,
     isValid = false,
     className = "",
@@ -34,9 +36,11 @@ export function Textarea(props: TextareaProps = {}): string {
   } = props;
 
   const isAutoGrow = autoGrow || rows === 1;
+  const sizeClass = size ? `form-control-${size}` : "";
 
   const classes = classNames(
     "form-control",
+    sizeClass,
     isAutoGrow && "form-control-autogrow",
     isInvalid && "is-invalid",
     isValid && "is-valid",

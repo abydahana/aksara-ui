@@ -1,6 +1,7 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, type ComponentSize } from "../utils";
 
 export interface CloseButtonProps {
+  size?: ComponentSize;
   white?: boolean;
   disabled?: boolean;
   ariaLabel?: string;
@@ -9,9 +10,11 @@ export interface CloseButtonProps {
 }
 
 export function CloseButton(props: CloseButtonProps = {}): string {
-  const { white = false, disabled = false, ariaLabel = "Close", className = "", attributes } = props;
+  const { size, white = false, disabled = false, ariaLabel = "Close", className = "", attributes } = props;
 
-  const classes = classNames("btn-close", white && "btn-close-white", className);
+  const sizeClass = size ? `btn-close-${size}` : "";
+
+  const classes = classNames("btn-close", sizeClass, white && "btn-close-white", className);
 
   const baseAttrs = toAttributes({
     type: "button",

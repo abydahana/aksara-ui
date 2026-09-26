@@ -1,8 +1,8 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, type ComponentSize } from "../utils";
 
 export interface ButtonGroupProps {
   children?: string;
-  size?: "sm" | "lg";
+  size?: ComponentSize;
   vertical?: boolean;
   ariaLabel?: string;
   className?: string;
@@ -12,12 +12,9 @@ export interface ButtonGroupProps {
 export function ButtonGroup(props: ButtonGroupProps = {}): string {
   const { children = "", size, vertical = false, ariaLabel = "Button group", className = "", attributes } = props;
 
-  const classes = classNames(
-    vertical ? "btn-group-vertical" : "btn-group",
-    size === "sm" && "btn-group-sm",
-    size === "lg" && "btn-group-lg",
-    className
-  );
+  const sizeClass = size ? `btn-group-${size}` : "";
+
+  const classes = classNames(vertical ? "btn-group-vertical" : "btn-group", sizeClass, className);
 
   const baseAttrs = toAttributes({
     role: "group",
