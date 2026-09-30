@@ -2026,7 +2026,7 @@ function addComponents(): void {
   );
   add(
     "avatar",
-    "display:inline-flex;align-items:center;justify-content:center;position:relative;width:2.5rem;height:2.5rem;font-size:1rem;font-weight:700;line-height:1;overflow:visible;user-select:none;flex-shrink:0"
+    "display:inline-flex;align-items:center;justify-content:center;position:relative;width:2.5rem;height:2.5rem;font-size:1rem;font-weight:700;line-height:1;overflow:visible;user-select:none;flex-shrink:0;border-color:var(--aksara-bg-body)"
   );
   add("avatar-xs", "width:1.5rem;height:1.5rem;font-size:.6875rem");
   add("avatar-sm", "width:2rem;height:2rem;font-size:.8125rem");
