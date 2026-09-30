@@ -131,7 +131,7 @@ export function AvatarGroup(props: AvatarGroupProps = {}): string {
   const extraPill =
     extraCount > 0
       ? `
-        <span class="avatar avatar-${size} rounded-full bg-subtle text-subtle text-xs font-bold inline-flex items-center justify-center border-2 border-body">
+        <span class="avatar avatar-${size} rounded-full bg-subtle text-subtle text-xs font-bold inline-flex items-center justify-center border-2">
           +${extraCount}
         </span>
       `.trim()

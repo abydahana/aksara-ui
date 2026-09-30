@@ -33,7 +33,7 @@ export function UserItem(props: UserItemProps): string {
   } = props;
 
   const containerClasses = classNames(
-    "user-item d-flex align-items-center justify-content-between p-3 border-bottom border-subtle",
+    "user-item d-flex align-items-center justify-content-between px-3 py-2 border-bottom border-subtle",
     className
   );
 
