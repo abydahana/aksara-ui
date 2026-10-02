@@ -1686,9 +1686,21 @@ function getArbitrarySheet(): CSSStyleSheet | null {
   if (typeof document === "undefined") return null;
   if (!arbitrarySheet) {
     if ("adoptedStyleSheets" in document && typeof CSSStyleSheet !== "undefined") {
-      arbitrarySheet = new CSSStyleSheet();
-      document.adoptedStyleSheets = [...document.adoptedStyleSheets, arbitrarySheet];
+      try {
+        arbitrarySheet = new CSSStyleSheet();
+        document.adoptedStyleSheets = [...document.adoptedStyleSheets, arbitrarySheet];
+        return arbitrarySheet;
+      } catch {
+        // Fallback to style tag below
+      }
     }
+    let styleEl = document.getElementById("aksara-arbitrary-styles") as HTMLStyleElement | null;
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = "aksara-arbitrary-styles";
+      document.head?.appendChild(styleEl);
+    }
+    arbitrarySheet = styleEl.sheet;
   }
   return arbitrarySheet;
 }
@@ -1736,6 +1748,8 @@ const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
   bottom: (v) => `inset-block-end:${v}`,
   start: (v) => `inset-inline-start:${v}`,
   end: (v) => `inset-inline-end:${v}`,
+  left: (v) => `left:${v}`,
+  right: (v) => `right:${v}`,
   inset: (v) => `inset:${v}`,
   "inset-x": (v) => `inset-inline:${v}`,
   "inset-y": (v) => `inset-block:${v}`,
@@ -1743,17 +1757,66 @@ const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
   "translate-y": (v) => `transform:translateY(${v})`,
   rotate: (v) => `transform:rotate(${v})`,
   scale: (v) => `transform:scale(${v})`,
+  "skew-x": (v) => `transform:skewX(${v})`,
+  "skew-y": (v) => `transform:skewY(${v})`,
   rounded: (v) => `border-radius:${v}`,
   border: (v) => `border-width:${v}`,
+  "border-t": (v) => `border-top-width:${v}`,
+  "border-b": (v) => `border-bottom-width:${v}`,
+  "border-s": (v) => `border-inline-start-width:${v}`,
+  "border-e": (v) => `border-inline-end-width:${v}`,
+  "border-x": (v) => `border-inline-width:${v}`,
+  "border-y": (v) => `border-block-width:${v}`,
   opacity: (v) => `opacity:${v}`,
   z: (v) => `z-index:${v}`,
   leading: (v) => `line-height:${v}`,
   tracking: (v) => `letter-spacing:${v}`,
-  text: (v) => (/^(#[0-9a-fA-F]+|rgb|hsl)/.test(v) ? `color:${v}` : `font-size:${v}`),
+  text: (v) => {
+    if (/^(start|center|end|justify|left|right|inline-start|inline-end)$/i.test(v)) {
+      return `text-align:${v}`;
+    }
+    return /^(#[0-9a-fA-F]+|rgb|hsl|var\(--|currentColor|transparent)/i.test(v) ? `color:${v}` : `font-size:${v}`;
+  },
   bg: (v) => `background-color:${v}`,
+  "bg-color": (v) => `background-color:${v}`,
   overscroll: (v) => `overscroll-behavior:${v}`,
   "overscroll-x": (v) => `overscroll-behavior-x:${v}`,
-  "overscroll-y": (v) => `overscroll-behavior-y:${v}`
+  "overscroll-y": (v) => `overscroll-behavior-y:${v}`,
+  fw: (v) => `font-weight:${v}`,
+  "font-weight": (v) => `font-weight:${v}`,
+  fs: (v) => `font-size:${v}`,
+  "font-size": (v) => `font-size:${v}`,
+  lh: (v) => `line-height:${v}`,
+  "line-height": (v) => `line-height:${v}`,
+  "text-align": (v) => `text-align:${v}`,
+  align: (v) => `vertical-align:${v}`,
+  "vertical-align": (v) => `vertical-align:${v}`,
+  items: (v) => `align-items:${v}`,
+  "align-items": (v) => `align-items:${v}`,
+  justify: (v) => `justify-content:${v}`,
+  "justify-content": (v) => `justify-content:${v}`,
+  self: (v) => `align-self:${v}`,
+  "align-self": (v) => `align-self:${v}`,
+  content: (v) => `align-content:${v}`,
+  "align-content": (v) => `align-content:${v}`,
+  d: (v) => `display:${v}`,
+  display: (v) => `display:${v}`,
+  pos: (v) => `position:${v}`,
+  position: (v) => `position:${v}`,
+  aspect: (v) => `aspect-ratio:${v}`,
+  "aspect-ratio": (v) => `aspect-ratio:${v}`,
+  cursor: (v) => `cursor:${v}`,
+  select: (v) => `user-select:${v}`,
+  "user-select": (v) => `user-select:${v}`,
+  pointer: (v) => `pointer-events:${v}`,
+  "pointer-events": (v) => `pointer-events:${v}`,
+  fit: (v) => `object-fit:${v}`,
+  "object-fit": (v) => `object-fit:${v}`,
+  overflow: (v) => `overflow:${v}`,
+  "overflow-x": (v) => `overflow-x:${v}`,
+  "overflow-y": (v) => `overflow-y:${v}`,
+  shadow: (v) => `box-shadow:${v}`,
+  "box-shadow": (v) => `box-shadow:${v}`
 };
 
 const runtimeBreakpoints: Record<string, string> = {
@@ -1779,29 +1842,73 @@ const runtimeStateSelectors: Record<string, string> = {
   even: ":nth-child(even)"
 };
 
+function parseModifiersAndUtility(className: string): { modifiers: string[]; utility: string } {
+  const parts: string[] = [];
+  let bracketDepth = 0;
+  let current = "";
+  for (let i = 0; i < className.length; i++) {
+    const ch = className[i];
+    if (ch === "[") bracketDepth++;
+    else if (ch === "]") bracketDepth--;
+
+    if (ch === ":" && bracketDepth === 0) {
+      parts.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  parts.push(current);
+  const utility = parts.pop() ?? "";
+  return { modifiers: parts, utility };
+}
+
 function injectArbitraryClass(className: string): void {
   if (injectedArbitraryRules.has(className)) return;
   injectedArbitraryRules.add(className);
 
-  const parts = className.split(":");
-  const utility = parts.pop();
+  const { modifiers, utility } = parseModifiersAndUtility(className);
   if (!utility) return;
 
-  const match = utility.match(/^(-)?([a-zA-Z0-9_-]+)-\[(.+)\]$/);
-  if (!match) return;
+  let prop: string;
+  let val: string;
+  let isNegative = false;
 
-  const isNegative = Boolean(match[1]);
-  const prop = match[2];
-  let val = match[3];
+  const bracketMatch = utility.match(/^\[([a-zA-Z0-9_-]+):(.+)\]$/);
+  if (bracketMatch) {
+    prop = bracketMatch[1];
+    if (!prop.startsWith("-")) {
+      prop = prop.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+    }
+    val = bracketMatch[2];
+  } else {
+    const match = utility.match(/^(-)?([a-zA-Z0-9_-]+)-\[(.+)\]$/);
+    if (!match) return;
+    isNegative = Boolean(match[1]);
+    prop = match[2];
+    val = match[3];
 
-  const resolver = runtimeArbitraryPropertyMap[prop];
-  if (!resolver) return;
+    // If leading hyphen was part of a vendor prefix (-webkit-, -moz-, -ms-, -o-), treat it as part of prop
+    if (isNegative && /^(webkit|moz|ms|o)-/i.test(prop)) {
+      prop = `-${prop}`;
+      isNegative = false;
+    } else {
+      prop = prop.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+    }
+  }
+
+  // Convert unescaped underscores to spaces (e.g. shadow-[0_4px_6px_rgba(...)])
+  val = val
+    .replace(/(?<!\\)_/g, " ")
+    .replace(/\\_/g, "_")
+    .trim();
 
   if (isNegative && !val.startsWith("-")) {
     val = `-${val}`;
   }
 
-  const declarations = resolver(val);
+  const resolver = runtimeArbitraryPropertyMap[prop];
+  const declarations = resolver ? resolver(val) : `${prop}:${val}`;
   const escaped = escapeArbitraryClass(className);
   let selector = `.${escaped}`;
 
@@ -1809,10 +1916,11 @@ function injectArbitraryClass(className: string): void {
   let themeVariant = "";
   let breakpointVariant = "";
 
-  for (const v of parts) {
+  for (const v of modifiers) {
     if (v === "dark" || v === "light") themeVariant = v;
     else if (runtimeBreakpoints[v]) breakpointVariant = v;
     else if (runtimeStateSelectors[v]) stateSelector += runtimeStateSelectors[v];
+    else if (v === "group-hover") selector = `.group:hover .${escaped}`;
   }
 
   selector += stateSelector;
@@ -1841,10 +1949,10 @@ function injectArbitraryClass(className: string): void {
 
 function processElementClasses(el: Element): void {
   const classAttr = el.getAttribute("class");
-  if (!classAttr || !classAttr.includes("-[")) return;
+  if (!classAttr || !classAttr.includes("[")) return;
   const tokens = classAttr.split(/\s+/);
   for (const token of tokens) {
-    if (token.includes("-[") && token.endsWith("]")) {
+    if (token.includes("[") && token.endsWith("]")) {
       injectArbitraryClass(token);
     }
   }
@@ -1855,7 +1963,7 @@ function scanArbitraryDom(root: ParentNode = document): void {
   if (root instanceof Element) {
     processElementClasses(root);
   }
-  root.querySelectorAll('[class*="-["]').forEach(processElementClasses);
+  root.querySelectorAll('[class*="["]').forEach(processElementClasses);
 }
 
 let mutationObserverStarted = false;

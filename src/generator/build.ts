@@ -350,6 +350,8 @@ const arbitraryPropertyMap: Record<string, (val: string) => string> = {
   bottom: (v) => `inset-block-end:${v}`,
   start: (v) => `inset-inline-start:${v}`,
   end: (v) => `inset-inline-end:${v}`,
+  left: (v) => `left:${v}`,
+  right: (v) => `right:${v}`,
   inset: (v) => `inset:${v}`,
   "inset-x": (v) => `inset-inline:${v}`,
   "inset-y": (v) => `inset-block:${v}`,
@@ -357,30 +359,108 @@ const arbitraryPropertyMap: Record<string, (val: string) => string> = {
   "translate-y": (v) => `transform:translateY(${v})`,
   rotate: (v) => `transform:rotate(${v})`,
   scale: (v) => `transform:scale(${v})`,
+  "skew-x": (v) => `transform:skewX(${v})`,
+  "skew-y": (v) => `transform:skewY(${v})`,
   rounded: (v) => `border-radius:${v}`,
   border: (v) => `border-width:${v}`,
+  "border-t": (v) => `border-top-width:${v}`,
+  "border-b": (v) => `border-bottom-width:${v}`,
+  "border-s": (v) => `border-inline-start-width:${v}`,
+  "border-e": (v) => `border-inline-end-width:${v}`,
+  "border-x": (v) => `border-inline-width:${v}`,
+  "border-y": (v) => `border-block-width:${v}`,
   opacity: (v) => `opacity:${v}`,
   z: (v) => `z-index:${v}`,
   leading: (v) => `line-height:${v}`,
   tracking: (v) => `letter-spacing:${v}`,
-  text: (v) => (/^(#[0-9a-fA-F]+|rgb|hsl)/.test(v) ? `color:${v}` : `font-size:${v}`),
-  bg: (v) => `background-color:${v}`
+  text: (v) => {
+    if (/^(start|center|end|justify|left|right|inline-start|inline-end)$/i.test(v)) {
+      return `text-align:${v}`;
+    }
+    return /^(#[0-9a-fA-F]+|rgb|hsl|var\(--|currentColor|transparent)/i.test(v) ? `color:${v}` : `font-size:${v}`;
+  },
+  bg: (v) => `background-color:${v}`,
+  "bg-color": (v) => `background-color:${v}`,
+  overscroll: (v) => `overscroll-behavior:${v}`,
+  "overscroll-x": (v) => `overscroll-behavior-x:${v}`,
+  "overscroll-y": (v) => `overscroll-behavior-y:${v}`,
+  fw: (v) => `font-weight:${v}`,
+  "font-weight": (v) => `font-weight:${v}`,
+  fs: (v) => `font-size:${v}`,
+  "font-size": (v) => `font-size:${v}`,
+  lh: (v) => `line-height:${v}`,
+  "line-height": (v) => `line-height:${v}`,
+  "text-align": (v) => `text-align:${v}`,
+  align: (v) => `vertical-align:${v}`,
+  "vertical-align": (v) => `vertical-align:${v}`,
+  items: (v) => `align-items:${v}`,
+  "align-items": (v) => `align-items:${v}`,
+  justify: (v) => `justify-content:${v}`,
+  "justify-content": (v) => `justify-content:${v}`,
+  self: (v) => `align-self:${v}`,
+  "align-self": (v) => `align-self:${v}`,
+  content: (v) => `align-content:${v}`,
+  "align-content": (v) => `align-content:${v}`,
+  d: (v) => `display:${v}`,
+  display: (v) => `display:${v}`,
+  pos: (v) => `position:${v}`,
+  position: (v) => `position:${v}`,
+  aspect: (v) => `aspect-ratio:${v}`,
+  "aspect-ratio": (v) => `aspect-ratio:${v}`,
+  cursor: (v) => `cursor:${v}`,
+  select: (v) => `user-select:${v}`,
+  "user-select": (v) => `user-select:${v}`,
+  pointer: (v) => `pointer-events:${v}`,
+  "pointer-events": (v) => `pointer-events:${v}`,
+  fit: (v) => `object-fit:${v}`,
+  "object-fit": (v) => `object-fit:${v}`,
+  overflow: (v) => `overflow:${v}`,
+  "overflow-x": (v) => `overflow-x:${v}`,
+  "overflow-y": (v) => `overflow-y:${v}`,
+  shadow: (v) => `box-shadow:${v}`,
+  "box-shadow": (v) => `box-shadow:${v}`
 };
 
 export function resolveArbitrary(utility: string): string | null {
+  // Support [prop:value] format
+  const bracketMatch = utility.match(/^\[([a-zA-Z0-9_-]+):(.+)\]$/);
+  if (bracketMatch) {
+    let prop = bracketMatch[1];
+    if (!prop.startsWith("-")) {
+      prop = prop.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+    }
+    const val = bracketMatch[2]
+      .replace(/(?<!\\)_/g, " ")
+      .replace(/\\_/g, "_")
+      .trim();
+    const resolver = arbitraryPropertyMap[prop];
+    return resolver ? resolver(val) : `${prop}:${val}`;
+  }
+
+  // Support prop-[value] format (with optional leading minus for negative values or vendor prefixes)
   const match = utility.match(/^(-)?([a-zA-Z0-9_-]+)-\[(.+)\]$/);
   if (!match) return null;
-  const isNegative = Boolean(match[1]);
-  const prop = match[2];
-  let val = match[3];
+  let isNegative = Boolean(match[1]);
+  let prop = match[2];
+  let val = match[3]
+    .replace(/(?<!\\)_/g, " ")
+    .replace(/\\_/g, "_")
+    .trim();
 
-  if (!arbitraryPropertyMap[prop]) return null;
+  // If leading hyphen was part of a vendor prefix (-webkit-, -moz-, -ms-, -o-), treat it as part of prop
+  if (isNegative && /^(webkit|moz|ms|o)-/i.test(prop)) {
+    prop = `-${prop}`;
+    isNegative = false;
+  } else {
+    prop = prop.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+  }
 
   if (isNegative && !val.startsWith("-")) {
     val = `-${val}`;
   }
 
-  return arbitraryPropertyMap[prop](val);
+  const resolver = arbitraryPropertyMap[prop];
+  return resolver ? resolver(val) : `${prop}:${val}`;
 }
 
 function addSpacing(): void {
@@ -2160,16 +2240,36 @@ interface ParsedClass {
   utility: string;
 }
 
+function parseModifiersAndUtility(className: string): { modifiers: string[]; utility: string } {
+  const parts: string[] = [];
+  let bracketDepth = 0;
+  let current = "";
+  for (let i = 0; i < className.length; i++) {
+    const ch = className[i];
+    if (ch === "[") bracketDepth++;
+    else if (ch === "]") bracketDepth--;
+
+    if (ch === ":" && bracketDepth === 0) {
+      parts.push(current);
+      current = "";
+    } else {
+      current += ch;
+    }
+  }
+  parts.push(current);
+  const utility = parts.pop() ?? "";
+  return { modifiers: parts, utility };
+}
+
 function parseClassName(className: string): ParsedClass {
-  const parts = className.split(":");
-  const utility = parts.pop()!;
+  const { modifiers, utility } = parseModifiersAndUtility(className);
   let position = 0;
   const parsed: ParsedClass = { theme: null, breakpoint: null, state: null, utility };
-  for (const variant of parts) {
+  for (const variant of modifiers) {
     let next: number | null = null;
     if (themeVariants.includes(variant)) next = 1;
     if (breakpointVariants.includes(variant)) next = 2;
-    if (stateVariants.includes(variant)) next = 3;
+    if (stateVariants.includes(variant) || variant === "group-hover") next = 3;
     if (!next || next < position || (next === position && next !== 3)) {
       throw new Error(`Invalid variant order: ${className}`);
     }
@@ -2195,8 +2295,15 @@ function variantRule(className: string): string {
     }
   }
   if (!declarations) throw new Error(`Unknown utility: ${parsed.utility}`);
-  let selector = `.${escapeClass(className)}`;
-  if (parsed.state) selector += stateSelectors[parsed.state];
+  const escaped = escapeClass(className);
+  let selector = `.${escaped}`;
+  if (parsed.state) {
+    if (parsed.state === "group-hover") {
+      selector = `.group:hover .${escaped}`;
+    } else {
+      selector += stateSelectors[parsed.state];
+    }
+  }
   let output = `${selector}{${declarations}}`;
   if (parsed.theme) {
     const themeSelector =
@@ -2253,7 +2360,8 @@ function scanArbitraryClasses(): void {
     path.resolve(root, "../frontend/index.html")
   ];
 
-  const classRegex = /([a-zA-Z0-9_:-]+-\[[^\]\s"'`]+\])/g;
+  const classRegex =
+    /([a-zA-Z0-9_:-]+-\[[^\]\s"'`]+\]|\[[^\]\s"'`]+:[^\]\s"'`]+\]|[a-zA-Z0-9_:-]+:\[[^\]\s"'`]+:[^\]\s"'`]+\])/g;
 
   function scanFile(filePath: string): void {
     if (!fs.existsSync(filePath)) return;
