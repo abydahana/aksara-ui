@@ -337,6 +337,8 @@ const arbitraryPropertyMap: Record<string, (val: string) => string> = {
   gap: (v) => `gap:${v}`,
   "row-gap": (v) => `row-gap:${v}`,
   "col-gap": (v) => `column-gap:${v}`,
+  "gap-y": (v) => `row-gap:${v}`,
+  "gap-x": (v) => `column-gap:${v}`,
   g: (v) => `--aksara-gutter-x:${v};--aksara-gutter-y:${v}`,
   gx: (v) => `--aksara-gutter-x:${v}`,
   gy: (v) => `--aksara-gutter-y:${v}`,
@@ -484,7 +486,9 @@ function addSpacing(): void {
     add(`py-${n}`, `padding-block:${value}`);
     add(`gap-${n}`, `gap:${value}`);
     add(`row-gap-${n}`, `row-gap:${value}`);
+    add(`gap-y-${n}`, `row-gap:${value}`);
     add(`col-gap-${n}`, `column-gap:${value}`);
+    add(`gap-x-${n}`, `column-gap:${value}`);
     if (n > 0) {
       add(`-m-${n}`, `margin:${inverse}`);
       add(`-mt-${n}`, `margin-block-start:${inverse}`);
@@ -788,7 +792,9 @@ function addFlexGrid(): void {
       `--aksara-gutter-x:${value};--aksara-gutter-y:${value};column-gap:0;row-gap:0`
     );
     addRaw(`.row.${escapeClass(`col-gap-${n}`)}`, `--aksara-gutter-x:${value};column-gap:0`);
+    addRaw(`.row.${escapeClass(`gap-x-${n}`)}`, `--aksara-gutter-x:${value};column-gap:0`);
     addRaw(`.row.${escapeClass(`row-gap-${n}`)}`, `--aksara-gutter-y:${value};row-gap:0`);
+    addRaw(`.row.${escapeClass(`gap-y-${n}`)}`, `--aksara-gutter-y:${value};row-gap:0`);
     add(`g-${n}`, `--aksara-gutter-x:${value};--aksara-gutter-y:${value}`);
     add(`gx-${n}`, `--aksara-gutter-x:${value}`);
     add(`gy-${n}`, `--aksara-gutter-y:${value}`);
@@ -2326,7 +2332,13 @@ function addArbitraryClass(className: string): boolean {
     const declarations = resolveArbitrary(className);
     if (!declarations) return false;
     add(className, declarations);
-    if (className.startsWith("gap-[") || className.startsWith("row-gap-[") || className.startsWith("col-gap-[")) {
+    if (
+      className.startsWith("gap-[") ||
+      className.startsWith("row-gap-[") ||
+      className.startsWith("col-gap-[") ||
+      className.startsWith("gap-y-[") ||
+      className.startsWith("gap-x-[")
+    ) {
       const match = className.match(/^([a-z-]+)-\[(.+)\]$/);
       if (match) {
         const type = match[1];
@@ -2336,9 +2348,9 @@ function addArbitraryClass(className: string): boolean {
             `.row.${escapeClass(className)}`,
             `--aksara-gutter-x:${val};--aksara-gutter-y:${val};column-gap:0;row-gap:0`
           );
-        } else if (type === "col-gap") {
+        } else if (type === "col-gap" || type === "gap-x") {
           addRaw(`.row.${escapeClass(className)}`, `--aksara-gutter-x:${val};column-gap:0`);
-        } else if (type === "row-gap") {
+        } else if (type === "row-gap" || type === "gap-y") {
           addRaw(`.row.${escapeClass(className)}`, `--aksara-gutter-y:${val};row-gap:0`);
         }
       }
@@ -2410,7 +2422,9 @@ function addVariants(): void {
     ...Array.from({ length: 6 }, (_, i) => `gy-${i}`),
     ...Array.from({ length: 6 }, (_, i) => `gap-${i}`),
     ...Array.from({ length: 6 }, (_, i) => `row-gap-${i}`),
+    ...Array.from({ length: 6 }, (_, i) => `gap-y-${i}`),
     ...Array.from({ length: 6 }, (_, i) => `col-gap-${i}`),
+    ...Array.from({ length: 6 }, (_, i) => `gap-x-${i}`),
     "block",
     "flex",
     "grid",
@@ -2453,7 +2467,9 @@ function addVariants(): void {
         `.g-${bp}-${k},.gy-${bp}-${k}{--aksara-gutter-y:${v}}`,
         `.row.${escapeClass(`gap-${bp}-${k}`)}{--aksara-gutter-x:${v};--aksara-gutter-y:${v};column-gap:0;row-gap:0}`,
         `.row.${escapeClass(`col-gap-${bp}-${k}`)}{--aksara-gutter-x:${v};column-gap:0}`,
-        `.row.${escapeClass(`row-gap-${bp}-${k}`)}{--aksara-gutter-y:${v};row-gap:0}`
+        `.row.${escapeClass(`gap-x-${bp}-${k}`)}{--aksara-gutter-x:${v};column-gap:0}`,
+        `.row.${escapeClass(`row-gap-${bp}-${k}`)}{--aksara-gutter-y:${v};row-gap:0}`,
+        `.row.${escapeClass(`gap-y-${bp}-${k}`)}{--aksara-gutter-y:${v};row-gap:0}`
       ])
     ];
     if (bp === "2xl") {

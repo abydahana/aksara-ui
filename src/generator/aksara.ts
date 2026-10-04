@@ -1735,6 +1735,8 @@ const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
   gap: (v) => `gap:${v}`,
   "row-gap": (v) => `row-gap:${v}`,
   "col-gap": (v) => `column-gap:${v}`,
+  "gap-y": (v) => `row-gap:${v}`,
+  "gap-x": (v) => `column-gap:${v}`,
   g: (v) => `--aksara-gutter-x:${v};--aksara-gutter-y:${v}`,
   gx: (v) => `--aksara-gutter-x:${v}`,
   gy: (v) => `--aksara-gutter-y:${v}`,
