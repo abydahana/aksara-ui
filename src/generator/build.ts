@@ -2188,7 +2188,7 @@ function addComponents(): void {
   add("sidebar-content", "flex:1 1 auto;min-width:0;overflow:auto");
 
   // ── Empty State ────────────────────────────────────────────────────────────
-  add("empty-state", "padding:3rem 1.5rem;text-align:center;margin:1rem auto;max-width:32rem");
+  add("empty-state", "padding:3rem 1.5rem;text-align:center;margin:1rem auto");
   add(
     "empty-state-icon-wrap",
     "display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;background:var(--aksara-bg-subtle);margin-inline:auto;margin-block-end:1rem"

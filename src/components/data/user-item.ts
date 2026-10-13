@@ -51,9 +51,14 @@ export function UserItem(props: UserItemProps): string {
     ? `<i class="mdi mdi-check-decagram text-primary ms-1" style="font-size: 1rem; vertical-align: middle;" title="Verified"></i>`
     : "";
 
-  const subtitleText = subtitle || (handle ? `@${handle.replace(/^@/, "")}` : "");
-  const subtitleHtml = subtitleText
-    ? `<div class="user-item-subtitle text-subtle text-sm text-truncate mt-0.5">${escapeHtml(subtitleText)}</div>`
+  const cleanHandle = handle ? handle.replace(/^@/, "").trim() : "";
+  const handleHtml = cleanHandle
+    ? `<div class="user-item-handle text-subtle text-xs text-truncate">@${escapeHtml(cleanHandle)}</div>`
+    : "";
+
+  const hasDistinctSubtitle = Boolean(subtitle && (!cleanHandle || subtitle.replace(/^@/, "").trim() !== cleanHandle));
+  const subtitleHtml = hasDistinctSubtitle
+    ? `<div class="user-item-subtitle text-subtle ${cleanHandle ? "text-xs" : "text-sm"} text-truncate mt-0.5">${escapeHtml(subtitle!)}</div>`
     : "";
 
   const contentCol = `
@@ -62,6 +67,7 @@ export function UserItem(props: UserItemProps): string {
         <span class="user-item-name font-bold text-sm text-truncate text-body">${escapeHtml(name)}</span>
         ${verifiedBadge}
       </div>
+      ${handleHtml}
       ${subtitleHtml}
     </div>
   `.trim();
