@@ -13,10 +13,12 @@ export interface TabsProps {
   ariaLabel?: string;
   className?: string;
   attributes?: Record<string, unknown>;
+  /** When true (default: true), tab panels render in a swipeable slider track that tracks finger movement */
+  swipeable?: boolean;
 }
 
 export function Tabs(props: TabsProps): string {
-  const { items = [], ariaLabel = "Tabs", className = "", attributes } = props;
+  const { items = [], ariaLabel = "Tabs", className = "", attributes, swipeable = true } = props;
 
   const hasActive = items.some((item) => item.active);
   const activeIndex = hasActive ? items.findIndex((item) => item.active) : 0;
@@ -48,12 +50,13 @@ export function Tabs(props: TabsProps): string {
   const panelsHtml = items
     .map((item, idx) => {
       const isSelected = idx === activeIndex;
-      const hiddenAttr = isSelected ? "" : " hidden";
+      const hiddenAttr = swipeable ? "" : isSelected ? "" : " hidden";
+      const panelClasses = classNames("tab-panel", isSelected && "active");
 
       return `
         <div
           id="panel-${escapeHtml(item.id)}"
-          class="tab-panel"
+          class="${panelClasses}"
           role="tabpanel"
           aria-labelledby="tab-${escapeHtml(item.id)}"${hiddenAttr}
         >
@@ -64,13 +67,14 @@ export function Tabs(props: TabsProps): string {
     .join("\n");
 
   const baseAttrs = toAttributes(attributes);
+  const trackClass = classNames("tab-content", swipeable && "tabs-slider-track", "mt-3");
 
   return `
-    <div class="${classNames("tabs-wrapper", className)}"${baseAttrs}>
+    <div class="${classNames("tabs-wrapper", swipeable && "tabs-slider", className)}"${baseAttrs}>
       <div class="tabs" role="tablist" aria-label="${escapeHtml(ariaLabel)}">
         ${buttonsHtml}
       </div>
-      <div class="tab-content mt-3">
+      <div class="${trackClass}"${swipeable ? ' data-tabs-slider=""' : ""}>
         ${panelsHtml}
       </div>
     </div>

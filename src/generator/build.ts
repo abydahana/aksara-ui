@@ -1581,6 +1581,15 @@ function addComponents(): void {
     "display:inline-flex;align-items:center;border:0;border-end-start-radius:0;border-end-end-radius:0;border-start-start-radius:var(--aksara-radius-sm);border-start-end-radius:var(--aksara-radius-sm);padding:.625rem .875rem;background:transparent;color:var(--aksara-text-subtle);font:inherit;font-weight:700;cursor:pointer"
   );
   add("tab-panel", "padding:1rem 0");
+  add("tabs-slider", "position:relative;overflow:hidden;width:100%");
+  addRaw(
+    ".tabs-slider-track",
+    "display:flex;flex-direction:row;flex-wrap:nowrap;width:100%;will-change:transform;touch-action:pan-y pinch-zoom;transition:transform .3s cubic-bezier(.25,1,.5,1)"
+  );
+  addRaw(
+    ".tabs-slider-track > .tab-panel,.tabs-slider-track > .tab-pane",
+    "flex:0 0 100%;min-width:100%;max-width:100%;width:100%;box-sizing:border-box;display:block !important"
+  );
   addRaw('.tab[aria-selected="true"]', "background:var(--aksara-bg-subtle);color:var(--aksara-text-body)");
   add("nav", "display:flex;flex-wrap:wrap;gap:.25rem;margin:0;padding:0;list-style:none");
   add("nav-pills", "border-block-end:0");

@@ -1273,6 +1273,7 @@ export class Tabs extends Component {
         this.show(next);
       }
     });
+    this.bindSliderGestures();
     this.activateInitial();
   }
 
@@ -1319,26 +1320,151 @@ export class Tabs extends Component {
     if (initial) this.show(initial);
   }
 
-  show(tab: HTMLElement): this {
+  getSliderTrack(): HTMLElement | null {
+    const wrapper =
+      this.element.closest(".tabs-wrapper") ||
+      this.element.closest(".feed-main-col, main, .page-container, [data-tabs-wrapper]") ||
+      this.element.parentElement;
+    return (
+      wrapper?.querySelector<HTMLElement>(".tabs-slider-track, [data-tabs-slider]") ||
+      document.querySelector<HTMLElement>(".tabs-slider-track, [data-tabs-slider]")
+    );
+  }
+
+  bindSliderGestures(): void {
+    const track = this.getSliderTrack();
+    if (!track || (track as unknown as Record<string, unknown>).__sliderGesturesBound) return;
+    (track as unknown as Record<string, unknown>).__sliderGesturesBound = true;
+
+    let startX = 0;
+    let startY = 0;
+    let deltaX = 0;
+    let deltaY = 0;
+    let isSwiping = false;
+    let isVertical = false;
+
+    track.addEventListener(
+      "touchstart",
+      (e: TouchEvent) => {
+        if (e.touches.length !== 1) return;
+        const target = e.target as HTMLElement | null;
+        if (
+          target?.closest(
+            "input, textarea, select, [contenteditable='true'], video, audio, .carousel, .bento-carousel, .media-grid-scroll, .map-canvas-container, [data-prevent-swipe]"
+          )
+        ) {
+          return;
+        }
+        const touch = e.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        deltaX = 0;
+        deltaY = 0;
+        isSwiping = false;
+        isVertical = false;
+      },
+      { passive: true }
+    );
+
+    track.addEventListener(
+      "touchmove",
+      (e: TouchEvent) => {
+        if (e.touches.length !== 1 || isVertical) return;
+        const touch = e.touches[0];
+        deltaX = touch.clientX - startX;
+        deltaY = touch.clientY - startY;
+
+        if (!isSwiping) {
+          if (Math.abs(deltaY) > 8 && Math.abs(deltaY) > Math.abs(deltaX)) {
+            isVertical = true;
+            return;
+          }
+          if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+            isSwiping = true;
+          }
+        }
+
+        if (isSwiping) {
+          if (e.cancelable) e.preventDefault();
+          const tabs = Array.from(this.element.querySelectorAll<HTMLElement>(this.tabSelector));
+          const maxIdx = Math.max(0, tabs.length - 1);
+          let currentDelta = deltaX;
+          const currentIdx = tabs.findIndex((t) => t.classList.contains("active"));
+          const safeIdx = currentIdx >= 0 ? currentIdx : 0;
+          if ((safeIdx === 0 && currentDelta > 0) || (safeIdx === maxIdx && currentDelta < 0)) {
+            currentDelta = currentDelta * 0.3;
+          }
+          track.style.transition = "none";
+          track.style.transform = `translate3d(calc(-${safeIdx * 100}% + ${currentDelta}px), 0, 0)`;
+        }
+      },
+      { passive: false }
+    );
+
+    const onTouchEnd = () => {
+      if (!isSwiping) return;
+      isSwiping = false;
+      const tabs = Array.from(this.element.querySelectorAll<HTMLElement>(this.tabSelector));
+      const maxIdx = Math.max(0, tabs.length - 1);
+      const currentIdx = tabs.findIndex((t) => t.classList.contains("active"));
+      const safeIdx = currentIdx >= 0 ? currentIdx : 0;
+      track.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
+
+      if (deltaX < -50 && safeIdx < maxIdx) {
+        this.show(tabs[safeIdx + 1]);
+      } else if (deltaX > 50 && safeIdx > 0) {
+        this.show(tabs[safeIdx - 1]);
+      } else {
+        track.style.transform = `translate3d(-${safeIdx * 100}%, 0, 0)`;
+      }
+    };
+
+    track.addEventListener("touchend", onTouchEnd, { passive: true });
+    track.addEventListener("touchcancel", onTouchEnd, { passive: true });
+  }
+
+  show(tab: HTMLElement, animate = true): this {
     const selector = tab.getAttribute("data-tabs");
     const panel = selector ? document.querySelector<HTMLElement>(selector) : null;
     if (!panel) return this;
-    this.element.querySelectorAll<HTMLElement>(this.tabSelector).forEach((item) => {
+
+    const tabs = Array.from(this.element.querySelectorAll<HTMLElement>(this.tabSelector));
+    const targetIndex = tabs.indexOf(tab);
+
+    const track = this.getSliderTrack();
+    const isSlider = Boolean(track && track.contains(panel));
+
+    tabs.forEach((item) => {
       const selected = item === tab;
       item.setAttribute("role", item.getAttribute("role") || "tab");
       item.setAttribute("aria-selected", String(selected));
+      item.classList.toggle("active", selected);
       item.tabIndex = selected ? 0 : -1;
       const targetSelector = item.getAttribute("data-tabs");
       const target = targetSelector ? document.querySelector<HTMLElement>(targetSelector) : null;
-      if (target) target.hidden = !selected;
+      if (target) {
+        target.classList.toggle("active", selected);
+        if (!isSlider) {
+          target.hidden = !selected;
+        }
+      }
     });
-    if (this.panelSelector) {
+
+    if (this.panelSelector && !isSlider) {
       document.querySelectorAll<HTMLElement>(this.panelSelector).forEach((item) => {
         if (item !== panel) item.hidden = true;
       });
     }
+
     panel.setAttribute("role", panel.getAttribute("role") || "tabpanel");
-    emit(this.element, "tabs:show", { tab, panel, instance: this });
+
+    if (isSlider && track && targetIndex >= 0) {
+      track.style.transition = animate ? "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)" : "none";
+      track.style.transform = `translate3d(-${targetIndex * 100}%, 0, 0)`;
+    }
+
+    tab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    emit(this.element, "tabs:show", { tab, panel, index: targetIndex, instance: this });
     return this;
   }
 }
