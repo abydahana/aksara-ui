@@ -476,7 +476,8 @@ export class Dropdown extends Component {
   isOpen: boolean;
   originalParent: Node | null;
   originalSibling: Node | null;
-  scrollHandler: (() => void) | null;
+  scrollHandler: ((event?: Event) => void) | null;
+  wheelHandler: ((event: WheelEvent) => void) | null;
   placement!: string;
   container!: string | HTMLElement;
   offset!: number;
@@ -527,6 +528,7 @@ export class Dropdown extends Component {
     this.originalParent = null;
     this.originalSibling = null;
     this.scrollHandler = null;
+    this.wheelHandler = null;
     this.updateOptions(options);
 
     if (
@@ -626,9 +628,15 @@ export class Dropdown extends Component {
   position(): void {
     if (!this.menu || !this.isOpen || !this.trigger) return;
 
+    if (!this.trigger.isConnected || !document.body.contains(this.trigger)) {
+      this.hide();
+      return;
+    }
+
     this.menu.style.display = "block";
     this.menu.style.position = "absolute";
     this.menu.style.zIndex = "1000";
+    this.menu.style.overscrollBehavior = "contain";
 
     const triggerRect = this.trigger.getBoundingClientRect();
     if (
@@ -644,10 +652,11 @@ export class Dropdown extends Component {
     let top: number;
     let left: number;
 
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+
     let placement = this.placement;
     if (placement === "auto") {
-      const spaceBelow = window.innerHeight - triggerRect.bottom;
-      const spaceAbove = triggerRect.top;
       placement = spaceBelow >= menuRect.height || spaceBelow >= spaceAbove ? "bottom" : "top";
     }
 
@@ -673,6 +682,15 @@ export class Dropdown extends Component {
 
     const viewportWidth = window.innerWidth;
     left = Math.max(8, Math.min(left, viewportWidth - menuRect.width - 8));
+
+    const availableHeight = Math.max(
+      120,
+      Math.floor(placement === "top" ? spaceAbove - gap - 16 : spaceBelow - gap - 16)
+    );
+    if (this.menu.scrollHeight > availableHeight || availableHeight < 300) {
+      this.menu.style.maxHeight = `${availableHeight}px`;
+      this.menu.style.overflowY = "auto";
+    }
 
     this.menu.style.top = `${top + window.scrollY}px`;
     this.menu.style.left = `${left + window.scrollX}px`;
@@ -700,9 +718,33 @@ export class Dropdown extends Component {
 
     this.position();
 
-    this.scrollHandler = () => this.position();
-    window.addEventListener("scroll", this.scrollHandler, { passive: true });
+    this.scrollHandler = (event?: Event) => {
+      if (
+        (this.menu && (this.menu.matches(":hover") || this.menu.contains(document.activeElement))) ||
+        (this.trigger && this.trigger.matches(":hover")) ||
+        (event?.target && this.menu && (this.menu === event.target || this.menu.contains(event.target as Node)))
+      ) {
+        return;
+      }
+      this.position();
+    };
+    window.addEventListener("scroll", this.scrollHandler, { passive: true, capture: true });
     window.addEventListener("resize", this.scrollHandler);
+
+    this.wheelHandler = (e: WheelEvent) => {
+      if (!this.menu) return;
+      const { deltaY } = e;
+      if (deltaY === 0) return;
+
+      const atTop = this.menu.scrollTop <= 0;
+      const atBottom = this.menu.scrollTop + this.menu.clientHeight >= this.menu.scrollHeight - 1;
+
+      if ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom) || this.menu.scrollHeight <= this.menu.clientHeight) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+    this.menu.addEventListener("wheel", this.wheelHandler, { passive: false });
 
     emit(this.element, "dropdown:show", { instance: this });
     return this;
@@ -713,9 +755,13 @@ export class Dropdown extends Component {
     this.isOpen = false;
 
     if (this.scrollHandler) {
-      window.removeEventListener("scroll", this.scrollHandler);
+      window.removeEventListener("scroll", this.scrollHandler, { capture: true } as EventListenerOptions);
       window.removeEventListener("resize", this.scrollHandler);
       this.scrollHandler = null;
+    }
+    if (this.wheelHandler && this.menu) {
+      this.menu.removeEventListener("wheel", this.wheelHandler);
+      this.wheelHandler = null;
     }
 
     this.menu.classList.remove("dropdown-open", "dropdown-top", "dropdown-bottom", "dropdown-start", "dropdown-end");

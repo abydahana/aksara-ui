@@ -1319,7 +1319,7 @@ function addComponents(): void {
   add("dropdown-end", "position:relative;display:inline-block");
   add(
     "dropdown-menu",
-    "position:absolute;z-index:1000;display:none;min-width:12rem;padding:.375rem;margin:.25rem 0 0;list-style:none;background:var(--aksara-surface);border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius);box-shadow:var(--aksara-shadow-md)"
+    "position:absolute;z-index:1000;display:none;min-width:12rem;padding:.375rem;margin:.25rem 0 0;list-style:none;background:var(--aksara-surface);border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius);box-shadow:var(--aksara-shadow-md);overscroll-behavior:contain"
   );
   addRaw(
     ".dropdown-top .dropdown-menu,.dropdown-menu.dropdown-top",
