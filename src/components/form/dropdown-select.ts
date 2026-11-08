@@ -48,7 +48,7 @@ export function DropdownSelect(props: DropdownSelectProps): string {
   });
 
   const triggerIcon = selectedOption?.icon
-    ? `<i class="mdi ${escapeHtml(selectedOption.icon)} ${escapeHtml(selectedOption.iconClass ?? "")} me-1.5 select-current-icon"></i>`
+    ? `<i class="mdi ${escapeHtml(selectedOption.icon)} ${escapeHtml(selectedOption.iconClass ?? "")} me-2 select-current-icon"></i>`
     : "";
 
   const triggerBtn = isFormSelect

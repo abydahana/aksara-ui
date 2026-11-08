@@ -58,7 +58,7 @@ export function UserItem(props: UserItemProps): string {
 
   const hasDistinctSubtitle = Boolean(subtitle && (!cleanHandle || subtitle.replace(/^@/, "").trim() !== cleanHandle));
   const subtitleHtml = hasDistinctSubtitle
-    ? `<div class="user-item-subtitle text-subtle ${cleanHandle ? "text-xs" : "text-sm"} text-truncate mt-0.5">${escapeHtml(subtitle!)}</div>`
+    ? `<div class="user-item-subtitle text-subtle ${cleanHandle ? "text-xs" : "text-sm"} text-truncate mt-1">${escapeHtml(subtitle!)}</div>`
     : "";
 
   const contentCol = `

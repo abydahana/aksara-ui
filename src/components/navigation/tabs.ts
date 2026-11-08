@@ -3,6 +3,7 @@ import { classNames, escapeHtml, toAttributes } from "../utils";
 export interface TabItem {
   id: string;
   label: string;
+  icon?: string;
   content: string;
   active?: boolean;
   disabled?: boolean;
@@ -15,10 +16,12 @@ export interface TabsProps {
   attributes?: Record<string, unknown>;
   /** When true (default: true), tab panels render in a swipeable slider track that tracks finger movement */
   swipeable?: boolean;
+  /** Visual style variant: 'default' (standard underline), 'segmented' (iOS/macOS style segmented control), or 'pills' */
+  variant?: "default" | "segmented" | "pills";
 }
 
 export function Tabs(props: TabsProps): string {
-  const { items = [], ariaLabel = "Tabs", className = "", attributes, swipeable = true } = props;
+  const { items = [], ariaLabel = "Tabs", className = "", attributes, swipeable = true, variant = "default" } = props;
 
   const hasActive = items.some((item) => item.active);
   const activeIndex = hasActive ? items.findIndex((item) => item.active) : 0;
@@ -28,6 +31,7 @@ export function Tabs(props: TabsProps): string {
       const isSelected = idx === activeIndex;
       const btnClasses = classNames("tab", isSelected && "active", item.disabled && "disabled");
       const disabledAttr = item.disabled ? " disabled" : "";
+      const iconHtml = item.icon ? `<span class="tab-icon me-1 shrink-0" aria-hidden="true">${item.icon}</span>` : "";
 
       return `
         <button
@@ -41,7 +45,7 @@ export function Tabs(props: TabsProps): string {
           aria-controls="panel-${escapeHtml(item.id)}"
           ${disabledAttr}
         >
-          ${escapeHtml(item.label)}
+          ${iconHtml}${escapeHtml(item.label)}
         </button>
       `.trim();
     })
@@ -68,10 +72,15 @@ export function Tabs(props: TabsProps): string {
 
   const baseAttrs = toAttributes(attributes);
   const trackClass = classNames("tab-content", swipeable && "tabs-slider-track", "mt-3");
+  const tablistClass = classNames(
+    "tabs",
+    variant === "segmented" && "tabs-segmented",
+    variant === "pills" && "nav nav-pills"
+  );
 
   return `
-    <div class="${classNames("tabs-wrapper", swipeable && "tabs-slider", className)}"${baseAttrs}>
-      <div class="tabs" role="tablist" aria-label="${escapeHtml(ariaLabel)}">
+    <div class="${classNames("tabs-wrapper", swipeable && "tabs-slider", variant === "segmented" && "tabs-segmented-wrapper", className)}"${baseAttrs}>
+      <div class="${tablistClass}" role="tablist" aria-label="${escapeHtml(ariaLabel)}">
         ${buttonsHtml}
       </div>
       <div class="${trackClass}"${swipeable ? ' data-tabs-slider=""' : ""}>

@@ -8,6 +8,8 @@ export interface SettingsGroupProps {
   title?: string;
   className?: string;
   attributes?: Record<string, unknown>;
+  /** Inset iOS-style group with soft background and rounded corners */
+  inset?: boolean;
 }
 
 /**
@@ -15,14 +17,15 @@ export interface SettingsGroupProps {
  * Renders as `.list-group` with an optional uppercase section heading above.
  */
 export function SettingsGroup(props: SettingsGroupProps = {}): string {
-  const { children = "", title = "", className = "", attributes } = props;
+  const { children = "", title = "", className = "", attributes, inset = false } = props;
 
   const baseAttrs = toAttributes(attributes);
-  const groupHtml = `<div class="${classNames("list-group", className)}"${baseAttrs}>${children}</div>`;
+  const groupClasses = classNames("list-group", inset && "list-group-inset", className);
+  const groupHtml = `<div class="${groupClasses}"${baseAttrs}>${children}</div>`;
 
   if (!title) return groupHtml.trim();
 
-  return `<div><p class="text-xs font-800 uppercase tracking-wider text-subtle mb-2 px-1">${escapeHtml(title)}</p><div class="${classNames("list-group", className)}">${children}</div></div>`.trim();
+  return `<div><p class="text-xs font-800 uppercase tracking-wider text-subtle mb-2 px-1">${escapeHtml(title)}</p><div class="${groupClasses}">${children}</div></div>`.trim();
 }
 
 export const settingsGroup = SettingsGroup;
