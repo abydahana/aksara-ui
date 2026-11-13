@@ -3,7 +3,15 @@ import { classNames, escapeHtml, toAttributes } from "../utils";
 export interface ModalProps {
   id: string;
   children?: string;
-  size?: "sm" | "lg" | "xl" | "fullscreen";
+  size?:
+    | "sm"
+    | "lg"
+    | "xl"
+    | "fullscreen"
+    | "fullscreen-sm-down"
+    | "fullscreen-md-down"
+    | "fullscreen-lg-down"
+    | "fullscreen-xl-down";
   centered?: boolean;
   scrollable?: boolean;
   staticBackdrop?: boolean;

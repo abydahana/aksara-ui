@@ -71,8 +71,8 @@ export function DropdownSelect(props: DropdownSelectProps): string {
         },
         children: `
           ${triggerIcon}
-          <span class="select-current-label">${escapeHtml(selectedOption?.label ?? "")}</span>
-          <i class="mdi mdi-chevron-down ms-1 opacity-60"></i>
+          <span class="select-current-label text-truncate flex-1 min-w-0 text-start">${escapeHtml(selectedOption?.label ?? "")}</span>
+          <i class="mdi mdi-chevron-down ms-1 opacity-60 shrink-0"></i>
         `
       });
 

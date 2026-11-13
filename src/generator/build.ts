@@ -1253,6 +1253,7 @@ function addComponents(): void {
   add("badge-xl", "padding:.45rem .8rem;font-size:1rem");
   add("badge-xxl", "padding:.55rem .95rem;font-size:1.125rem");
   add("badge-dot", "inline-size:.5rem;block-size:.5rem;border-radius:9999px;background:currentColor;padding:0");
+  add("list-unstyled", "padding-left:0;list-style:none");
   add(
     "list-group",
     "display:flex;flex-direction:column;margin:0;padding:0;list-style:none;border:1px solid var(--aksara-border-subtle);border-radius:var(--aksara-radius);overflow:hidden;background:var(--aksara-surface)"
@@ -1416,6 +1417,22 @@ function addComponents(): void {
   add("modal-lg", "--aksara-modal-width:48rem");
   add("modal-xl", "--aksara-modal-width:72rem");
   add("modal-fullscreen", "width:100%;height:100%;max-height:100%;border-radius:0");
+  addRaw(
+    "@media(max-width:35.99875rem)",
+    ".modal-fullscreen-sm-down{width:100%;height:100%;max-height:100%;border-radius:0}.modal-fullscreen-sm-down .modal-content{height:100%;max-height:100%;border-radius:0;border:0}"
+  );
+  addRaw(
+    "@media(max-width:47.99875rem)",
+    ".modal-fullscreen-md-down{width:100%;height:100%;max-height:100%;border-radius:0}.modal-fullscreen-md-down .modal-content{height:100%;max-height:100%;border-radius:0;border:0}"
+  );
+  addRaw(
+    "@media(max-width:61.99875rem)",
+    ".modal-fullscreen-lg-down{width:100%;height:100%;max-height:100%;border-radius:0}.modal-fullscreen-lg-down .modal-content{height:100%;max-height:100%;border-radius:0;border:0}"
+  );
+  addRaw(
+    "@media(max-width:79.99875rem)",
+    ".modal-fullscreen-xl-down{width:100%;height:100%;max-height:100%;border-radius:0}.modal-fullscreen-xl-down .modal-content{height:100%;max-height:100%;border-radius:0;border:0}"
+  );
   add(
     "modal-header",
     "display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem;border-block-end:1px solid var(--aksara-border-subtle)"
@@ -2249,8 +2266,15 @@ function addComponents(): void {
   );
   add(
     "aksara-toast-pill",
-    "display:flex;align-items:center;gap:.5rem;padding:.5rem 1.15rem;border-radius:9999px;font-size:.875rem;font-weight:500;pointer-events:auto;background:rgba(15,23,42,.92);color:#fff;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 25px -5px rgba(0,0,0,.35);transition:opacity .25s ease,transform .25s ease"
+    "display:flex;align-items:center;gap:.625rem;padding:.75rem 1rem;border-radius:var(--aksara-radius-md,0.75rem);font-size:.875rem;font-weight:500;line-height:1.4;pointer-events:auto;background:rgba(15,23,42,.92);color:#fff;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 25px -5px rgba(0,0,0,.35);transition:opacity .25s ease,transform .25s ease;word-break:break-word"
   );
+  addRaw(".aksara-toast-pill span", "flex:1 1 auto;min-width:0");
+  addRaw(".aksara-toast-pill i,.aksara-toast-pill .mdi", "flex-shrink:0");
+  addRaw(
+    "@media(max-width:47.99875rem)",
+    ".aksara-toast-container{left:1rem;right:1rem;bottom:max(1rem,env(safe-area-inset-bottom,0px));transform:none;width:auto;max-width:calc(100% - 2rem);margin:0 auto}.aksara-toast-pill{width:100%;max-width:100%;box-sizing:border-box}"
+  );
+  addRaw("@media(min-width:48rem)", ".aksara-toast-container{max-width:32rem}.aksara-toast-pill{max-width:32rem}");
 }
 
 function cssVars(source: Record<string, string>): string {
