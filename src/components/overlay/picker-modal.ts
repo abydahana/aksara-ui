@@ -55,7 +55,7 @@ export function OptionPickerModal(options: OptionPickerModalOptions): string {
         className: "px-3 px-md-4 py-3 border-bottom border-line bg-transparent",
         children: `
           <div class="d-flex align-items-center gap-2 me-auto min-w-0">
-            <div class="w-9 h-9 rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center shrink-0">
+            <div class="w-[38px] h-[38px] min-w-[38px] rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center shrink-0">
               <i class="mdi ${escapeHtml(icon)} text-lg"></i>
             </div>
             <div class="min-w-0">
@@ -89,10 +89,10 @@ export function OptionPickerModal(options: OptionPickerModalOptions): string {
                   >
                     <div class="d-flex align-items-center gap-3 min-w-0 flex-1">
                       <!-- Perfectly Round Circular Icon -->
-                      <div class="w-9 h-9 rounded-circle ${
+                      <div class="w-[38px] h-[38px] min-w-[38px] rounded-circle ${
                         isSelected ? "bg-primary text-white" : "bg-subtle " + (item.iconClass || "text-body")
                       } d-flex align-items-center justify-content-center shrink-0">
-                        <i class="mdi ${escapeHtml(iconClass)} text-lg"></i>
+                        <i class="mdi ${escapeHtml(iconClass)} text-lg leading-none"></i>
                       </div>
                       <!-- Label & Description -->
                       <div class="d-flex flex-column min-w-0 flex-1">
