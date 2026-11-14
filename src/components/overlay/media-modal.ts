@@ -64,13 +64,13 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
   const zoomControlsHtml = showZoomControls
     ? `
       <div class="media-modal-zoom-controls position-absolute bottom-6 start-50% translate-x-[-50%] z-10 d-flex align-items-center gap-2 p-1 rounded-pill bg-black/70" id="media-zoom-controls">
-        <button type="button" class="media-zoom-btn w-9 h-9 rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-in aria-label="Zoom in" title="Zoom in">
+        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-in aria-label="Zoom in" title="Zoom in">
           <span class="mdi mdi-magnify-plus-outline mdi-18px"></span>
         </button>
-        <button type="button" class="media-zoom-btn w-9 h-9 rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-out aria-label="Zoom out" title="Zoom out">
+        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-out aria-label="Zoom out" title="Zoom out">
           <span class="mdi mdi-magnify-minus-outline mdi-18px"></span>
         </button>
-        <button type="button" class="media-zoom-btn w-9 h-9 rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-reset aria-label="Fit to screen" title="Fit to screen">
+        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-reset aria-label="Fit to screen" title="Fit to screen">
           <span class="mdi mdi-fit-to-screen-outline mdi-18px"></span>
         </button>
       </div>
