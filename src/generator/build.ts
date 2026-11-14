@@ -1253,6 +1253,60 @@ function addComponents(): void {
   add("badge-xl", "padding:.45rem .8rem;font-size:1rem");
   add("badge-xxl", "padding:.55rem .95rem;font-size:1.125rem");
   add("badge-dot", "inline-size:.5rem;block-size:.5rem;border-radius:9999px;background:currentColor;padding:0");
+  add(
+    "chip",
+    "display:inline-flex;align-items:center;justify-content:center;gap:.375rem;min-width:0;max-width:100%;border-radius:9999px;font-weight:600;text-decoration:none;vertical-align:middle;cursor:pointer;transition:all .15s ease-in-out;border:1px solid var(--aksara-border-subtle);background:var(--aksara-bg-subtle);color:var(--aksara-text-body)"
+  );
+  add("chip-xs", "padding:.125rem .375rem;font-size:.6875rem;line-height:1.2;min-height:1.375rem");
+  add("chip-sm", "padding:.25rem .5rem;font-size:.75rem;line-height:1.25;min-height:1.75rem");
+  add("chip-md", "padding:.375rem .75rem;font-size:.875rem;line-height:1.35;min-height:2.125rem");
+  add("chip-lg", "padding:.5rem 1rem;font-size:1rem;line-height:1.5;min-height:2.5rem");
+  add(
+    "chip-label",
+    "flex:1 1 0%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start"
+  );
+  add("chip-icon", "flex-shrink:0;display:inline-flex;align-items:center;justify-content:center");
+  add(
+    "chip-action",
+    "flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;opacity:.7;cursor:pointer;transition:opacity .15s ease"
+  );
+  addRaw(".chip-action:hover", "opacity:1");
+  add(
+    "composer-chip-btn",
+    "display:inline-flex!important;align-items:center;justify-content:space-between;width:100%;min-width:0;max-width:100%;padding-left:.5rem;padding-right:.5rem"
+  );
+  addRaw(
+    ".composer-chip-btn .select-current-label",
+    "flex:1 1 0%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start"
+  );
+  addRaw(".composer-chip-btn .select-current-icon,.composer-chip-btn .mdi-chevron-down", "flex-shrink:0");
+  add(
+    "chip",
+    "display:inline-flex;align-items:center;justify-content:center;gap:.375rem;min-width:0;max-width:100%;border-radius:9999px;font-weight:600;text-decoration:none;vertical-align:middle;cursor:pointer;transition:all .15s ease-in-out;border:1px solid var(--aksara-border-subtle);background:var(--aksara-bg-subtle);color:var(--aksara-text-body)"
+  );
+  add("chip-xs", "padding:.125rem .375rem;font-size:.6875rem;line-height:1.2;min-height:1.375rem");
+  add("chip-sm", "padding:.25rem .5rem;font-size:.75rem;line-height:1.25;min-height:1.75rem");
+  add("chip-md", "padding:.375rem .75rem;font-size:.875rem;line-height:1.35;min-height:2.125rem");
+  add("chip-lg", "padding:.5rem 1rem;font-size:1rem;line-height:1.5;min-height:2.5rem");
+  add(
+    "chip-label",
+    "flex:1 1 0%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start"
+  );
+  add("chip-icon", "flex-shrink:0;display:inline-flex;align-items:center;justify-content:center");
+  add(
+    "chip-action",
+    "flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;opacity:.7;cursor:pointer;transition:opacity .15s ease"
+  );
+  addRaw(".chip-action:hover", "opacity:1");
+  add(
+    "composer-chip-btn",
+    "display:inline-flex!important;align-items:center;justify-content:space-between;width:100%;min-width:0;max-width:100%;padding-left:.5rem;padding-right:.5rem"
+  );
+  addRaw(
+    ".composer-chip-btn .select-current-label",
+    "flex:1 1 0%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start"
+  );
+  addRaw(".composer-chip-btn .select-current-icon,.composer-chip-btn .mdi-chevron-down", "flex-shrink:0");
   add("list-unstyled", "padding-left:0;list-style:none");
   add(
     "list-group",
@@ -1854,6 +1908,30 @@ function addComponents(): void {
     );
     add(`badge-${name}`, `color:${solidForeground(name)};background-color:${colorValue(name)}`);
     add(`badge-soft-${name}`, `color:${colorValue(name)};background-color:${colorValue(name, 12)}`);
+    add(
+      `chip-${name}`,
+      `color:${solidForeground(name)};background-color:${colorValue(name)};border-color:${colorValue(name)}`
+    );
+    add(
+      `chip-soft-${name}`,
+      `color:${colorValue(name)};background-color:${colorValue(name, 12)};border-color:${colorValue(name, 24)}`
+    );
+    add(
+      `chip-outline-${name}`,
+      `color:${colorValue(name)};background-color:transparent;border-color:${colorValue(name)}`
+    );
+    add(
+      `chip-${name}`,
+      `color:${solidForeground(name)};background-color:${colorValue(name)};border-color:${colorValue(name)}`
+    );
+    add(
+      `chip-soft-${name}`,
+      `color:${colorValue(name)};background-color:${colorValue(name, 12)};border-color:${colorValue(name, 24)}`
+    );
+    add(
+      `chip-outline-${name}`,
+      `color:${colorValue(name)};background-color:transparent;border-color:${colorValue(name)}`
+    );
     addRaw(
       `.badge-dot.${escapeClass(`text-${name}`)}`,
       `color:${colorValue(name)};background-color:${colorValue(name)}`

@@ -5,3 +5,4 @@ export * from "./spinner";
 export * from "./toast";
 export * from "./placeholder";
 export * from "./skeleton";
+export * from "./guest-gate";

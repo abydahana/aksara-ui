@@ -1,6 +1,6 @@
 {
   "name": "@abydahana/aksara-ui",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "publishConfig": {
     "access": "public"
   },
@@ -84,7 +84,7 @@
     "validate": "npm run check && npm run format:check && npm run test && npm run build",
     "setup:hooks": "git config core.hooksPath .githooks && chmod +x .githooks/pre-commit",
     "prepare": "npm run build",
-    "all": "npm run format && npm run lint && npm run test && npm run build",
+    "all": "npm run check && npm run format && npm run lint && npm run test && npm run build",
     "prepublishOnly": "npm run all"
   },
   "keywords": [

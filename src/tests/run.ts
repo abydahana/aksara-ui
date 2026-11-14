@@ -50,6 +50,16 @@ import {
   Button,
   buttonGroup,
   closeButton,
+  chip,
+  Chip,
+  OptionPickerModal,
+  PickerModal,
+  quoteCard,
+  QuoteCard,
+  GuestGate,
+  guestGate,
+  AuthPromptModal,
+  AuthModal,
   mediaGrid,
   MediaGrid,
   mediaPreviewModal,
@@ -946,6 +956,44 @@ assert(skeleton({ variant: "text", wave: true }).includes("skeleton-text skeleto
 assert(Skeleton({ variant: "circle" }).includes("skeleton-circle"), "Skeleton PascalCase failed");
 assert(timeline({ children: "<li>" }).includes("timeline"), "timeline failed");
 assert(Timeline({ children: "<li>" }).includes("timeline"), "Timeline PascalCase failed");
+
+assert(Chip({ label: "Category", icon: "mdi-tag", removable: true }).includes("chip-label"), "Chip failed");
+assert(chip({ label: "Test", soft: true, variant: "primary" }).includes("chip-soft-primary"), "chip function failed");
+assert(
+  OptionPickerModal({
+    id: "testPicker",
+    title: "Select Alert",
+    options: [{ value: "1", label: "One" }]
+  }).includes('data-picker-value="1"'),
+  "OptionPickerModal failed"
+);
+assert(
+  PickerModal({
+    id: "testPicker2",
+    title: "Select Alert 2",
+    options: [{ value: "2", label: "Two" }]
+  }).includes('data-picker-value="2"'),
+  "PickerModal failed"
+);
+assert(
+  QuoteCard({
+    author: { name: "User", handle: "@user" },
+    content: "Quoted message"
+  }).includes("feed-quote-card"),
+  "QuoteCard failed"
+);
+assert(quoteCard({ author: { name: "A" } }).includes("quote-card"), "quoteCard failed");
+
+assert(GuestGate({ title: "Login to see" }).includes("guest-gate-wrapper"), "GuestGate failed");
+assert(
+  guestGate({ variant: "slide", title: "Slide Lock" }).includes("clips-guest-gate-slide"),
+  "guestGate slide failed"
+);
+assert(AuthPromptModal({ title: "Sign in now" }).includes("authPromptModal"), "AuthPromptModal failed");
+assert(AuthModal({ title: "Sign in modal" }).includes("auth-prompt-modal-dialog"), "AuthModal failed");
+
+assert(css.includes(".chip"), "Missing .chip in generated CSS");
+assert(css.includes(".composer-chip-btn"), "Missing .composer-chip-btn in generated CSS");
 
 // Verify Theme Manager & Clipboard in JS
 assert(js.includes("setTheme"), "Missing setTheme in JS runtime");

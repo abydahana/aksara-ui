@@ -10,3 +10,4 @@ export * from "./timeline";
 export * from "./settings";
 export * from "./empty-state";
 export * from "./user-item";
+export * from "./quote-card";
