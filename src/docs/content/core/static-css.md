@@ -1,37 +1,45 @@
-# Static CSS & JIT-Free Philosophy
+# Static CSS & On-Demand Runtime
 
-Aksara UI is engineered for modern developers who value simplicity, lightning-fast rendering speed, and zero build tool complexity.
+Aksara UI is engineered for developers who value simplicity, fast rendering, and no build tool complexity.
 
 ## Zero-Tooling Architecture
 
-Aksara UI provides a fully static, highly optimized, and pre-compiled CSS build out of the box. Unlike other modern utility frameworks, it does not scan templates, require runtime Node.js modules, or compile styles on the fly.
+Aksara UI ships a precompiled stylesheet with every component and the predictable utility scales. It does not scan your templates at build time and needs no Node.js process or bundler.
+
+Values outside those scales are handled in the browser: once `Aksara.init()` has run, a small runtime engine watches the DOM and generates a CSS rule the first time it sees one of these classes:
+
+- **Arbitrary bracket classes**: `w-[320px]`, `md:p-[2rem]`, `[position:sticky]`.
+- **Color opacity classes**: `bg-primary/10`, `hover:border-danger/30`. Any level from `0` to `100` works, for the palette colors `primary`, `secondary`, `tertiary`, `success`, `danger`, `warning`, `info`, `dark` and `light`.
+- **Variants that are not precompiled**: `disabled:opacity-[.5]`, `last:border-0`, `md:text-center`, `odd:bg-subtle`. The variant must wrap an existing static utility (or an arbitrary class).
+
+Variants must follow the strict `theme → breakpoint → state` order. Unknown or misordered variants (`print:p-3`, `hover:md:p-3`) are ignored and no rule is generated. Arbitrary values may not contain `;`, `{` or `}`.
 
 ::html
 <div class="docs-preview py-5 flex justify-center">
   <div class="row w-full gap-4">
     <div class="col-12 md:col-4">
-      <div class="p-5 bg-body border border-subtle rounded-12 h-100% hover:border-primary/50 transition">
-        <span class="mdi mdi-flash text-28 text-warning mb-3 d-block"></span>
-        <h4 class="font-700 mb-2 mt-0 text-body">Instant Setup</h4>
-        <p class="text-subtle text-xs mb-0 mt-0 leading-18">
-          Add simple CDN links directly to your HTML files. No npm install, no compiler, and no bundler required.
+      <div class="p-5 bg-body border border-subtle rounded-[12px] h-100 hover:border-primary/50 transition">
+        <span class="mdi mdi-flash text-[28px] text-warning mb-3 d-block"></span>
+        <h4 class="fw-bold mb-2 mt-0 text-body">Instant Setup</h4>
+        <p class="text-subtle text-xs mb-0 mt-0 leading-[18px]">
+          Add the CDN links directly to your HTML files. No npm install, no compiler, and no bundler required.
         </p>
       </div>
     </div>
     <div class="col-12 md:col-4">
-      <div class="p-5 bg-body border border-subtle rounded-12 h-100% hover:border-primary/50 transition">
-        <span class="mdi mdi-shield-check text-28 text-success mb-3 d-block"></span>
-        <h4 class="font-700 mb-2 mt-0 text-body">100% Safe JIT-Free</h4>
-        <p class="text-subtle text-xs mb-0 mt-0 leading-18">
-          Never worry about build utilities failing to parse your javascript or missing classes during production builds.
+      <div class="p-5 bg-body border border-subtle rounded-[12px] h-100 hover:border-primary/50 transition">
+        <span class="mdi mdi-shield-check text-[28px] text-success mb-3 d-block"></span>
+        <h4 class="fw-bold mb-2 mt-0 text-body">No Build-Time Scanning</h4>
+        <p class="text-subtle text-xs mb-0 mt-0 leading-[18px]">
+          Classes are resolved from the live DOM, so no build tool can strip a class it failed to find in your JavaScript.
         </p>
       </div>
     </div>
     <div class="col-12 md:col-4">
-      <div class="p-5 bg-body border border-subtle rounded-12 h-100% hover:border-primary/50 transition">
-        <span class="mdi mdi-server-network text-28 text-primary mb-3 d-block"></span>
-        <h4 class="font-700 mb-2 mt-0 text-body">CDN-Ready & Cached</h4>
-        <p class="text-subtle text-xs mb-0 mt-0 leading-18">
+      <div class="p-5 bg-body border border-subtle rounded-[12px] h-100 hover:border-primary/50 transition">
+        <span class="mdi mdi-server-network text-[28px] text-primary mb-3 d-block"></span>
+        <h4 class="fw-bold mb-2 mt-0 text-body">CDN-Ready & Cached</h4>
+        <p class="text-subtle text-xs mb-0 mt-0 leading-[18px]">
           Highly optimized, gzipped, and minified stylesheet easily distributed and cached globally.
         </p>
       </div>
@@ -44,7 +52,7 @@ Aksara UI provides a fully static, highly optimized, and pre-compiled CSS build 
 
 ## Browser CDN Integration
 
-To start building beautiful, high-performance dashboards, simply copy and paste the premium Aksara UI distribution assets into your document's `<head>`:
+Copy the Aksara UI distribution assets into your document. Pin the version you tested against:
 
 ```html
 <!DOCTYPE html>
@@ -55,20 +63,22 @@ To start building beautiful, high-performance dashboards, simply copy and paste 
     <title>Aksara UI App</title>
 
     <!-- Aksara UI CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aksara-ui@latest/dist/aksara.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@abydahana/aksara-ui@1.4.0/dist/aksara.min.css" />
+    <!-- Material Design Icons (required peer dependency) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
   </head>
   <body class="bg-subtle text-body font-normal">
-    <!-- Aksara UI Javascript -->
-    <script src="https://cdn.jsdelivr.net/npm/aksara-ui@latest/dist/aksara.min.js"></script>
+    <!-- Aksara UI JavaScript (runs Aksara.init() on DOMContentLoaded) -->
+    <script src="https://cdn.jsdelivr.net/npm/@abydahana/aksara-ui@1.4.0/dist/aksara.min.js"></script>
   </body>
 </html>
 ```
 
 ---
 
-## Precompiled Utility Ranges
+## Precompiled Utility Scales
 
-Aksara UI contains pre-computed utility classes compiled through optimized ranges. This lets you access precise spacing, typography sizes, and border dimensions with zero runtime latency.
+Spacing, inset, translate, border width and opacity share one small `0..5` scale; radius, typography and font weights use semantic names only. Any other value is written as an arbitrary class (`rounded-[12px]`, `text-[13px]`, `z-[1050]`), generated on demand by the runtime engine.
 
 ::html
 <div class="table-responsive">
@@ -76,53 +86,60 @@ Aksara UI contains pre-computed utility classes compiled through optimized range
     <thead>
       <tr>
         <th style="width: 25%;">Utility Group</th>
-        <th style="width: 25%;">Standard Range</th>
-        <th style="width: 20%;">Step Increment</th>
-        <th style="width: 30%;">Example Class</th>
+        <th style="width: 35%;">Static Scale</th>
+        <th style="width: 40%;">Other Values</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Margins & Spacing</strong></td>
-        <td><code>m-0</code> to <code>m-100</code></td>
-        <td><code>1px</code></td>
-        <td><code>m-4</code>, <code>-mx-3</code>, <code>ps-5</code></td>
+        <td><strong>Margins, Padding, Gap, Inset</strong></td>
+        <td><code>0..5</code> = <code>0, .25rem, .5rem, 1rem, 1.5rem, 3rem</code></td>
+        <td><code>p-[0.75rem]</code>, <code>-top-[10px]</code></td>
       </tr>
       <tr>
-        <td><strong>Widths & Heights</strong></td>
-        <td><code>w-0</code> to <code>w-1000</code></td>
-        <td><code>1px</code></td>
-        <td><code>w-400</code>, <code>h-120</code>, <code>max-w-640</code></td>
-      </tr>
-      <tr>
-        <td><strong>Fraction Widths</strong></td>
-        <td><code>w-1/2</code>, <code>w-1/3</code>, <code>w-2/5</code></td>
-        <td><code>ratio</code></td>
-        <td><code>w-1/2</code>, <code>w-2/3</code>, <code>w-3/4</code></td>
+        <td><strong>Translate</strong></td>
+        <td><code>translate-x-0..5</code> (spacing scale)</td>
+        <td><code>translate-y-[-2px]</code></td>
       </tr>
       <tr>
         <td><strong>Border Radius</strong></td>
-        <td><code>rounded-0</code> to <code>rounded-100</code></td>
-        <td><code>1px</code></td>
-        <td><code>rounded-12</code>, <code>rounded-full</code></td>
+        <td><code>rounded-0</code>, <code>rounded-2xs</code> &hellip; <code>rounded-3xl</code>, <code>rounded</code> (theme default), <code>rounded-full</code>, <code>rounded-pill</code>, <code>rounded-circle</code></td>
+        <td><code>rounded-[12px]</code></td>
       </tr>
       <tr>
-        <td><strong>Font Sizes</strong></td>
-        <td><code>text-10</code> to <code>text-100</code></td>
-        <td><code>1px</code></td>
-        <td><code>text-14</code>, <code>text-28</code></td>
+        <td><strong>Border Width</strong></td>
+        <td><code>border-0..5</code> = <code>0..5px</code></td>
+        <td><code>border-[6px]</code></td>
+      </tr>
+      <tr>
+        <td><strong>Z Index</strong></td>
+        <td>&mdash; (<code>z-auto</code> only)</td>
+        <td><code>z-[1050]</code></td>
+      </tr>
+      <tr>
+        <td><strong>Opacity</strong></td>
+        <td><code>opacity-0..5</code> = <code>0, .2, .4, .6, .8, 1</code></td>
+        <td><code>opacity-[.85]</code></td>
+      </tr>
+      <tr>
+        <td><strong>Font Size, Line Height, Letter Spacing</strong></td>
+        <td><code>text-xs</code> &hellip; <code>text-6xl</code>, <code>leading-none</code> &hellip; <code>leading-loose</code>, <code>tracking-tight</code> &hellip; <code>tracking-widest</code></td>
+        <td><code>text-[13px]</code>, <code>leading-[22px]</code>, <code>tracking-[.02em]</code></td>
       </tr>
       <tr>
         <td><strong>Font Weights</strong></td>
-        <td><code>font-100</code> to <code>font-900</code></td>
-        <td><code>100</code></td>
-        <td><code>font-700</code>, <code>font-semibold</code></td>
+        <td><code>font-thin</code>, <code>font-extralight</code>, <code>font-light</code>, <code>font-normal</code>, <code>font-medium</code>, <code>font-extrabold</code>, <code>font-black</code>; weight classes <code>fw-light</code> (300), <code>fw-normal</code> (400), <code>fw-semibold</code> (600), <code>fw-bold</code> (700), <code>fw-bolder</code> (800), <code>fw-black</code> (900)</td>
+        <td>&mdash;</td>
       </tr>
       <tr>
-        <td><strong>Opacity Fills</strong></td>
-        <td><code>opacity-0</code> to <code>opacity-100</code></td>
-        <td><code>1%</code></td>
-        <td><code>opacity-85</code>, <code>opacity-50</code></td>
+        <td><strong>Widths &amp; Heights</strong></td>
+        <td><code>w-100</code>, <code>w-full</code>, <code>h-100</code>, <code>h-full</code>, <code>w/h-auto</code>, <code>w/h-screen</code></td>
+        <td><code>w-[50%]</code>, <code>w-[33.3333%]</code>, <code>w-[320px]</code>, <code>max-w-[40rem]</code></td>
+      </tr>
+      <tr>
+        <td><strong>Scale &amp; Skew</strong></td>
+        <td>&mdash;</td>
+        <td><code>scale-[.95]</code>, <code>skew-x-[6deg]</code></td>
       </tr>
     </tbody>
   </table>
@@ -131,24 +148,19 @@ Aksara UI contains pre-computed utility classes compiled through optimized range
 
 ---
 
-## Safe Dynamic Class Concatenation
+## Dynamic Class Concatenation
 
-Traditional JIT CSS frameworks scan templates statically using string regex lookups. As a result, they **cannot** resolve dynamically concatenated classes at runtime, making patterns like `bg-${color}` or `p-${padding}` completely fail:
+Build-time scanners only see class names that appear literally in your source, so a concatenated class such as `` `bg-${color}` `` is missing from their production CSS. Aksara UI resolves classes from the live DOM instead:
 
-❌ **JIT-Based Framework (Fails)**:
-
-```js
-// The JIT compiler only reads static text; it will strip this class from production builds!
-const paddingValue = 24;
-element.className = `p-${paddingValue}`;
-```
-
-✅ **Aksara UI (Works Perfectly)**:
+- Static scale classes are always in the stylesheet, so a computed value from the scale works as long as it stays within `0..5`.
+- Arbitrary and opacity classes are generated the moment they appear in the DOM, including in markup rendered later by your framework.
 
 ```js
-// Precompiled static classes allow safe dynamic template literal resolutions!
-const paddingValue = 24;
-element.className = `p-${paddingValue} bg-primary/10 rounded-16`;
+const level = 3; // spacing scale 0..5 (3 = 1rem)
+const width = 320;
+element.className = `p-${level} w-[${width}px] bg-primary/10 rounded-[16px]`;
 ```
 
-This makes Aksara UI exceptionally robust for client-rendered applications, headless component integrations, and state-driven web platforms!
+There is no `p-24`: values outside the scale must use the arbitrary form (`` `p-[${px}px]` ``).
+
+This makes Aksara UI robust for client-rendered applications, headless component integrations, and state-driven interfaces.

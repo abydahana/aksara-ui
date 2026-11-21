@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export type BadgeVariant = "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "dark" | "light";
 
@@ -28,7 +28,7 @@ export function Badge(props: BadgeProps = {}): string {
   } = props;
 
   const prefix = soft ? "badge-soft" : "badge";
-  const sizeClass = size ? `badge-${size}` : "";
+  const sizeClass = size ? `badge-${normalizeSize(size)}` : "";
 
   const classes = classNames(
     "badge",

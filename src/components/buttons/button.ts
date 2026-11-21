@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export type ButtonVariant =
   "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "dark" | "light" | "link";
@@ -45,7 +45,7 @@ export function Button(props: ButtonProps = {}): string {
     variantClass = `btn-soft-${variant}`;
   }
 
-  const sizeClass = size ? `btn-${size}` : "";
+  const sizeClass = size ? `btn-${normalizeSize(size)}` : "";
 
   const classes = classNames("btn", variantClass, sizeClass, pill && "rounded-pill", disabled && "disabled", className);
 

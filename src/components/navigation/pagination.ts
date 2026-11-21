@@ -1,7 +1,10 @@
-import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, safeUrl, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export interface PaginationItem {
+  /** Plain-text label (escaped). */
   label: string;
+  /** Raw HTML content (e.g. an icon or `&laquo;`); takes precedence over `label`. */
+  content?: string;
   href?: string;
   active?: boolean;
   disabled?: boolean;
@@ -18,7 +21,7 @@ export interface PaginationProps {
 export function Pagination(props: PaginationProps): string {
   const { items = [], size, className = "", attributes } = props;
 
-  const sizeClass = size ? `pagination-${size}` : "";
+  const sizeClass = size ? `pagination-${normalizeSize(size)}` : "";
 
   const classes = classNames("pagination", sizeClass, className);
 
@@ -36,8 +39,8 @@ export function Pagination(props: PaginationProps): string {
 
       return `
         <li class="${liClasses}">
-          <a href="${escapeHtml(href)}" class="${linkClasses}"${currentAttr}${disabledAttr}${itemAttrs}>
-            ${item.label}
+          <a href="${escapeHtml(safeUrl(href))}" class="${linkClasses}"${currentAttr}${disabledAttr}${itemAttrs}>
+            ${item.content ?? escapeHtml(item.label)}
           </a>
         </li>
       `.trim();

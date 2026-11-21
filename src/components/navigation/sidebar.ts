@@ -33,6 +33,8 @@ export interface SidebarNavProps {
   subtitle?: string;
   /** Brand icon HTML */
   brandIcon?: string;
+  /** Accessible label for the nav / tablist */
+  ariaLabel?: string;
   className?: string;
   attributes?: Record<string, unknown>;
 }
@@ -62,9 +64,20 @@ export interface SidebarNavProps {
  * })
  */
 export function SidebarNav(props: SidebarNavProps): string {
-  const { items = [], title = "", subtitle = "", brandIcon = "", className = "", attributes } = props;
+  const { items = [], title = "", subtitle = "", brandIcon = "", ariaLabel, className = "", attributes } = props;
 
-  const baseAttrs = toAttributes(attributes);
+  const hasTabs = items.some((item) => Boolean(item.panelTarget) && !item.href);
+
+  // Tab mode: the nav is the tablist. `data-tabs-root` marks it for the Tabs runtime
+  // (which auto-initializes `.tabs` only); `data-tabs-orientation` drives arrow keys.
+  const baseAttrs = toAttributes({
+    role: hasTabs ? "tablist" : undefined,
+    "aria-orientation": hasTabs ? "vertical" : undefined,
+    "aria-label": ariaLabel ?? (title || undefined),
+    "data-tabs-root": hasTabs ? "" : undefined,
+    "data-tabs-orientation": hasTabs ? "vertical" : undefined,
+    ...attributes
+  });
 
   // Brand section
   const brandHtml = title
@@ -85,15 +98,21 @@ export function SidebarNav(props: SidebarNavProps): string {
         item.className
       );
 
+      // aria-controls must reference the panel element id, derived from `panelTarget`
+      // ("#panel-x" or a bare "panel-x" id).
+      const rawTarget = isTab ? String(item.panelTarget) : "";
+      const panelId = /^#?[A-Za-z_][-A-Za-z0-9_:.]*$/.test(rawTarget) ? rawTarget.replace(/^#/, "") : "";
+      const panelSelector = panelId ? `#${panelId}` : rawTarget;
+
       const itemAttrs = toAttributes({
         href: isLink ? item.href : undefined,
         type: !isLink ? "button" : undefined,
-        "data-tabs": isTab ? item.panelTarget : undefined,
+        "data-tabs": isTab ? panelSelector : undefined,
         role: isTab ? "tab" : undefined,
         "aria-selected": isTab ? (item.active ? "true" : "false") : undefined,
         tabindex: isTab ? (item.active ? "0" : "-1") : undefined,
         id: isTab && item.id ? `sidebar-tab-${item.id}` : item.id,
-        "aria-controls": isTab && item.id ? item.id : undefined,
+        "aria-controls": panelId || undefined,
         disabled: !isLink && item.disabled ? true : undefined,
         "aria-disabled": item.disabled ? "true" : undefined,
         "aria-current": isLink && item.active ? "page" : undefined,

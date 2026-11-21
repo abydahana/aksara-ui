@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, isSafeAttributeName, safeUrl, toAttributes } from "../utils";
 
 export interface MediaGridItem {
   src: string;
@@ -13,6 +13,10 @@ export interface MediaGridProps {
   maxDisplay?: number;
   gap?: 1 | 2 | 3 | 4;
   rounded?: boolean;
+  /**
+   * Name of a data attribute set on every cell with `itemClickDataId` as value
+   * (e.g. `"data-open-media"`). Event-handler names (`on*`) are rejected.
+   */
   onItemClickAttribute?: string;
   itemClickDataId?: string;
   className?: string;
@@ -46,7 +50,7 @@ export function MediaGrid(props: MediaGridProps): string {
     "media-grid",
     gridVariant,
     gap && `gap-${gap}`,
-    rounded && "rounded-12",
+    rounded && "rounded-[12px]",
     "overflow-hidden",
     className
   );
@@ -67,7 +71,9 @@ export function MediaGrid(props: MediaGridProps): string {
       );
 
       const itemAttrs = toAttributes({
-        ...(onItemClickAttribute && itemClickDataId ? { [onItemClickAttribute]: itemClickDataId } : {}),
+        ...(onItemClickAttribute && itemClickDataId && isSafeAttributeName(onItemClickAttribute)
+          ? { [onItemClickAttribute]: itemClickDataId }
+          : {}),
         "data-media-index": item.dataIndex ?? idx,
         ...item.attributes
       });
@@ -75,14 +81,14 @@ export function MediaGrid(props: MediaGridProps): string {
       const overlayHtml = isLast
         ? `
           <div class="media-grid-overlay position-absolute inset-0 d-flex align-items-center justify-content-center">
-            <span class="media-grid-overlay-text font-bold text-white text-24">+${extraCount}</span>
+            <span class="media-grid-overlay-text fw-bold text-light text-2xl">+${extraCount}</span>
           </div>
         `.trim()
         : "";
 
       return `
         <div class="${cellClasses}"${itemAttrs}>
-          <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt || `Media item ${idx + 1}`)}" class="media-grid-img w-full h-full object-cover block" loading="lazy" />
+          <img src="${escapeHtml(safeUrl(item.src))}" alt="${escapeHtml(item.alt || `Media item ${idx + 1}`)}" class="media-grid-img w-full h-full object-cover block" loading="lazy" />
           ${overlayHtml}
         </div>
       `.trim();

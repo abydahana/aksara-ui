@@ -7,9 +7,9 @@ Flex utilities cover direction, wrapping, alignment, justification, grow, and sh
 ::html
 <div class="docs-preview">
   <div class="flex flex-wrap gap-3">
-    <div class="p-3 bg-primary/10 rounded-12">One</div>
-    <div class="p-3 bg-primary/10 rounded-12">Two</div>
-    <div class="p-3 bg-primary/10 rounded-12">Three</div>
+    <div class="p-3 bg-primary/10 rounded-[12px]">One</div>
+    <div class="p-3 bg-primary/10 rounded-[12px]">Two</div>
+    <div class="p-3 bg-primary/10 rounded-[12px]">Three</div>
   </div>
 </div>
 ::end
@@ -23,7 +23,7 @@ Flex utilities cover direction, wrapping, alignment, justification, grow, and sh
 
 ::html
 <div class="docs-preview">
-  <div class="flex items-center justify-between p-5 bg-subtle rounded-12">
+  <div class="flex items-center justify-between p-5 bg-subtle rounded-[12px]">
     <span>Aligned start</span>
     <button class="btn btn-primary">Action</button>
   </div>

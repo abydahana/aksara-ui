@@ -17,22 +17,22 @@ Aksara UI components link beautifully with scroll listener hooks. Scroll the cod
       </div>
     </div>
     <div class="col-12 md:col-8">
-      <div id="scrollspyTarget" class="bg-body border border-subtle rounded-12 p-5 overflow-y-auto" style="height: 180px; position: relative;">
+      <div id="scrollspyTarget" class="bg-body border border-subtle rounded-[12px] p-5 overflow-y-auto" style="height: 180px; position: relative;">
         <div id="section-1" class="mb-4">
-          <h4 class="mt-0 mb-2 font-700">Section One</h4>
-          <p class="text-subtle text-xs mb-0 mt-0 leading-22">
+          <h4 class="mt-0 mb-2 fw-bold">Section One</h4>
+          <p class="text-subtle text-xs mb-0 mt-0 leading-[22px]">
             This is Section One. Scrolling down past this paragraph changes the active state hook of the navigation list item on the left.
           </p>
         </div>
         <div id="section-2" class="mb-4 pt-4">
-          <h4 class="mt-0 mb-2 font-700">Section Two</h4>
-          <p class="text-subtle text-xs mb-0 mt-0 leading-22">
+          <h4 class="mt-0 mb-2 fw-bold">Section Two</h4>
+          <p class="text-subtle text-xs mb-0 mt-0 leading-[22px]">
             This is Section Two. When the scroll container boundary intersects this title, the list group highlights this index.
           </p>
         </div>
         <div id="section-3" class="mb-4 pt-4" style="padding-bottom: 80px;">
-          <h4 class="mt-0 mb-2 font-700">Section Three</h4>
-          <p class="text-subtle text-xs mb-0 mt-0 leading-22">
+          <h4 class="mt-0 mb-2 fw-bold">Section Three</h4>
+          <p class="text-subtle text-xs mb-0 mt-0 leading-[22px]">
             This is Section Three. Use native logical spacings and transition effects to compose professional user guides or side-by-side reading panels.
           </p>
         </div>
@@ -72,7 +72,7 @@ Use regular navbar links when the tracked sections live in a scrollable content 
 
 ::html
 <div class="docs-preview py-4">
-  <nav class="navbar rounded-12 border border-subtle mb-4">
+  <nav class="navbar rounded-[12px] border border-subtle mb-4">
     <a class="navbar-brand" href="#scrollspyNavbarOne" data-docs-scrollspy-link data-docs-scrollspy-container="#scrollspyNavbarTarget">Docs</a>
     <div id="scrollspyNavbarLinks" class="navbar-nav" data-docs-scrollspy-nav data-docs-scrollspy-current="page">
       <a class="nav-link" href="#scrollspyNavbarOne" aria-current="page" data-docs-scrollspy-link data-docs-scrollspy-container="#scrollspyNavbarTarget">Intro</a>
@@ -81,18 +81,18 @@ Use regular navbar links when the tracked sections live in a scrollable content 
     </div>
   </nav>
 
-  <div id="scrollspyNavbarTarget" class="bg-body border border-subtle rounded-12 p-5 overflow-y-auto" style="height: 180px;">
+  <div id="scrollspyNavbarTarget" class="bg-body border border-subtle rounded-[12px] p-5 overflow-y-auto" style="height: 180px;">
     <section id="scrollspyNavbarOne" class="mb-5">
-      <h4 class="mt-0 mb-2 font-700">Intro</h4>
-      <p class="m-0 text-subtle text-sm leading-22">Navbar scrollspy is useful when page sections are broad and the active item should live in the top navigation.</p>
+      <h4 class="mt-0 mb-2 fw-bold">Intro</h4>
+      <p class="m-0 text-subtle text-sm leading-[22px]">Navbar scrollspy is useful when page sections are broad and the active item should live in the top navigation.</p>
     </section>
     <section id="scrollspyNavbarTwo" class="mb-5 pt-4">
-      <h4 class="mt-0 mb-2 font-700">API</h4>
-      <p class="m-0 text-subtle text-sm leading-22">Measure section offsets against the scroll container and toggle <code>aria-current</code> on matching links.</p>
+      <h4 class="mt-0 mb-2 fw-bold">API</h4>
+      <p class="m-0 text-subtle text-sm leading-[22px]">Measure section offsets against the scroll container and toggle <code>aria-current</code> on matching links.</p>
     </section>
     <section id="scrollspyNavbarThree" class="pt-4" style="padding-bottom: 90px;">
-      <h4 class="mt-0 mb-2 font-700">Events</h4>
-      <p class="m-0 text-subtle text-sm leading-22">This pattern works with plain anchors, navbar items, pills, or any link group.</p>
+      <h4 class="mt-0 mb-2 fw-bold">Events</h4>
+      <p class="m-0 text-subtle text-sm leading-[22px]">This pattern works with plain anchors, navbar items, pills, or any link group.</p>
     </section>
   </div>
 </div>
@@ -112,18 +112,18 @@ Use `nav nav-pills` when the scrollspy links act more like local section filters
     <a class="nav-link" href="#scrollspyPillThree" data-docs-scrollspy-link data-docs-scrollspy-container="#scrollspyPillsTarget">Security</a>
   </div>
 
-  <div id="scrollspyPillsTarget" class="bg-body border border-subtle rounded-12 p-5 overflow-y-auto" style="height: 180px;">
+  <div id="scrollspyPillsTarget" class="bg-body border border-subtle rounded-[12px] p-5 overflow-y-auto" style="height: 180px;">
     <section id="scrollspyPillOne" class="mb-5">
-      <h4 class="mt-0 mb-2 font-700">Profile</h4>
-      <p class="m-0 text-subtle text-sm leading-22">Pill scrollspy is a compact way to show which settings section is currently visible.</p>
+      <h4 class="mt-0 mb-2 fw-bold">Profile</h4>
+      <p class="m-0 text-subtle text-sm leading-[22px]">Pill scrollspy is a compact way to show which settings section is currently visible.</p>
     </section>
     <section id="scrollspyPillTwo" class="mb-5 pt-4">
-      <h4 class="mt-0 mb-2 font-700">Billing</h4>
-      <p class="m-0 text-subtle text-sm leading-22">The active pill is just a class and ARIA state update, so it stays framework-light.</p>
+      <h4 class="mt-0 mb-2 fw-bold">Billing</h4>
+      <p class="m-0 text-subtle text-sm leading-[22px]">The active pill is just a class and ARIA state update, so it stays framework-light.</p>
     </section>
     <section id="scrollspyPillThree" class="pt-4" style="padding-bottom: 90px;">
-      <h4 class="mt-0 mb-2 font-700">Security</h4>
-      <p class="m-0 text-subtle text-sm leading-22">This uses the same logic as list-group and navbar scrollspy samples.</p>
+      <h4 class="mt-0 mb-2 fw-bold">Security</h4>
+      <p class="m-0 text-subtle text-sm leading-[22px]">This uses the same logic as list-group and navbar scrollspy samples.</p>
     </section>
   </div>
 </div>

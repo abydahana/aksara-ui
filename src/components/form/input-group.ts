@@ -1,4 +1,4 @@
-import { classNames, toAttributes, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, pickTag, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export interface InputGroupProps {
   children?: string;
@@ -10,7 +10,7 @@ export interface InputGroupProps {
 export function InputGroup(props: InputGroupProps = {}): string {
   const { children = "", size, className = "", attributes } = props;
 
-  const sizeClass = size ? `input-group-${size}` : "";
+  const sizeClass = size ? `input-group-${normalizeSize(size)}` : "";
 
   const classes = classNames("input-group", sizeClass, className);
 
@@ -29,8 +29,9 @@ export interface InputGroupTextProps {
 }
 
 export function InputGroupText(props: InputGroupTextProps = {}): string {
-  const { children = "", as: Tag = "span", htmlFor, className = "" } = props;
-  const forAttr = htmlFor && Tag === "label" ? ` for="${htmlFor}"` : "";
+  const { children = "", htmlFor, className = "" } = props;
+  const Tag = pickTag(props.as, ["span", "label"] as const, "span");
+  const forAttr = htmlFor && Tag === "label" ? ` for="${escapeHtml(htmlFor)}"` : "";
 
   return `<${Tag} class="${classNames("input-group-text", className)}"${forAttr}>${children}</${Tag}>`.trim();
 }

@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, pickTag, toAttributes } from "../utils";
 
 export type PopoverPlacement = "top" | "bottom" | "start" | "end" | "auto";
 
@@ -13,7 +13,8 @@ export interface PopoverTriggerProps {
 }
 
 export function PopoverTrigger(props: PopoverTriggerProps): string {
-  const { content, placement = "top", title, children, as: Tag = "button", className = "", attributes } = props;
+  const { content, placement = "top", title, children, className = "", attributes } = props;
+  const Tag = pickTag(props.as, ["button", "a", "span", "div"] as const, "button");
 
   const baseAttrs = toAttributes({
     "data-popover": content,
@@ -37,7 +38,7 @@ export interface PopoverProps {
 export function Popover(props: PopoverProps): string {
   const { title, body, className = "" } = props;
 
-  const headerHtml = title ? `<div class="popover-header font-bold">${escapeHtml(title)}</div>` : "";
+  const headerHtml = title ? `<div class="popover-header fw-bold">${escapeHtml(title)}</div>` : "";
 
   return `
     <div class="${classNames("popover", className)}" role="tooltip">

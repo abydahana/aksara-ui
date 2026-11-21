@@ -11,7 +11,7 @@ Button groups join related actions together.
   </div>
 
   <div class="mt-4">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Anchor Button Group</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Anchor Button Group</h4>
     <div class="btn-group" role="group" aria-label="Documentation links">
       <a class="btn btn-outline-primary" href="#/components/buttons">Buttons</a>
       <a class="btn btn-outline-primary" href="#/components/button-group">Button Group</a>
@@ -20,7 +20,7 @@ Button groups join related actions together.
   </div>
 
   <div class="mt-4">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Sizing</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Sizing</h4>
     <div class="vstack gap-3 items-start">
       <div class="btn-group btn-group-sm" role="group" aria-label="Small grouped actions">
         <button class="btn btn-primary">Small</button>

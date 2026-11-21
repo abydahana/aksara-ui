@@ -8,18 +8,18 @@ Use utility classes to compose bespoke, highly interactive layouts directly in y
 
 ::html
 <div class="docs-preview py-5 flex justify-center">
-  <article class="w-full p-4 bg-body border border-subtle rounded-16 shadow-md hover:border-primary/50 transition duration-300" style="max-width:520px;">
+  <article class="w-full p-4 bg-body border border-subtle rounded-[16px] shadow-md hover:border-primary/50 transition duration-[300ms]" style="max-width:520px;">
     <div class="hstack justify-between items-center mb-4">
-      <span class="badge badge-soft-primary hstack gap-2 text-xs px-3 py-1 rounded-full font-700">
+      <span class="badge badge-soft-primary hstack gap-2 text-xs px-3 py-1 rounded-full fw-bold">
         <span class="mdi mdi-cube-outline"></span> Utility-first
       </span>
-      <span class="text-xs text-subtle font-600">Active Concept</span>
+      <span class="text-xs text-subtle fw-semibold">Active Concept</span>
     </div>
-    <h2 class="text-28 font-800 leading-34 mb-2 text-body">Compose directly in HTML</h2>
-    <p class="text-subtle leading-24 mb-5 text-sm">
+    <h2 class="text-[28px] font-extrabold leading-[34px] mb-2 text-body">Compose directly in HTML</h2>
+    <p class="text-subtle leading-[24px] mb-5 text-sm">
       Seamlessly combine layout grids, spacing offsets, adaptive color schemes, premium border properties, and CSS animations.
     </p>
-    <button class="btn btn-primary hover:bg-primary/80 transition duration-200 hstack gap-2">
+    <button class="btn btn-primary hover:bg-primary/80 transition duration-[200ms] hstack gap-2">
       Continue Reading <span class="mdi mdi-arrow-right"></span>
     </button>
   </article>
@@ -28,18 +28,18 @@ Use utility classes to compose bespoke, highly interactive layouts directly in y
 
 ```html
 <article
-  class="w-full p-4 bg-body border border-subtle rounded-16 shadow-md hover:border-primary/50 transition duration-300"
+  class="w-full p-4 bg-body border border-subtle rounded-[16px] shadow-md hover:border-primary/50 transition duration-[300ms]"
   style="max-width:520px;"
 >
   <div class="hstack justify-between items-center mb-4">
-    <span class="badge badge-soft-primary hstack gap-2 text-xs px-3 py-1 rounded-full font-700">
+    <span class="badge badge-soft-primary hstack gap-2 text-xs px-3 py-1 rounded-full fw-bold">
       <span class="mdi mdi-cube-outline"></span> Utility-first
     </span>
-    <span class="text-xs text-subtle font-600">Active Concept</span>
+    <span class="text-xs text-subtle fw-semibold">Active Concept</span>
   </div>
-  <h2 class="text-28 font-800 leading-34 mb-2">Compose directly in HTML</h2>
-  <p class="text-subtle leading-24 mb-5">...</p>
-  <button class="btn btn-primary hover:bg-primary/80 transition duration-200 hstack gap-2">
+  <h2 class="text-[28px] font-extrabold leading-[34px] mb-2">Compose directly in HTML</h2>
+  <p class="text-subtle leading-[24px] mb-5">...</p>
+  <button class="btn btn-primary hover:bg-primary/80 transition duration-[200ms] hstack gap-2">
     Continue Reading <span class="mdi mdi-arrow-right"></span>
   </button>
 </article>
@@ -51,24 +51,24 @@ Components provide a stable, standard, accessible base. Utilities let you custom
 
 ::html
 <div class="docs-preview py-4 flex gap-3 flex-wrap items-center">
-  <button class="btn btn-outline-primary px-4 py-3 rounded-100 hstack gap-2 hover:bg-primary/10 transition">
+  <button class="btn btn-outline-primary px-4 py-3 rounded-full hstack gap-2 hover:bg-primary/10 transition">
     <span class="mdi mdi-filter-variant"></span> Filter Results
   </button>
-  <button class="btn btn-soft-danger px-4 py-3 rounded-100 hstack gap-2 hover:bg-danger/20 transition">
+  <button class="btn btn-soft-danger px-4 py-3 rounded-full hstack gap-2 hover:bg-danger/20 transition">
     <span class="mdi mdi-trash-can-outline"></span> Delete Account
   </button>
 </div>
 ::end
 
 ```html
-<button class="btn btn-outline-primary px-4 py-3 rounded-100 hstack gap-2 hover:bg-primary/10 transition">
+<button class="btn btn-outline-primary px-4 py-3 rounded-full hstack gap-2 hover:bg-primary/10 transition">
   <span class="mdi mdi-filter-variant"></span> Filter Results
 </button>
 ```
 
 ## Strict Class Grammar & Order
 
-Aksara UI features a highly scalable, predictable utility naming syntax. To keep class names highly readable and eliminate runtime compiling overhead, variants must adhere strictly to the following composition order:
+Aksara UI features a highly scalable, predictable utility naming syntax. To keep class names readable and the runtime engine small, variants must adhere strictly to the following composition order:
 
 ```text
 [theme:][breakpoint:][state:]utility[-value][/level]
@@ -76,7 +76,7 @@ Aksara UI features a highly scalable, predictable utility naming syntax. To keep
 
 ### 1. Strict Variant Order Rule
 
-Variants **MUST ONLY** be composed in the following order. The pre-compiled generator strictly validates and rejects out-of-order combinations:
+Variants **MUST ONLY** be composed in the following order. Both the stylesheet generator and the runtime engine reject out-of-order combinations: an unknown or misordered variant produces no CSS rule at all.
 
 ```text
 theme ➔ breakpoint ➔ state ➔ utility
@@ -127,21 +127,25 @@ theme ➔ breakpoint ➔ state ➔ utility
 
 - **Theme variants**: `dark`, `light`
 - **Breakpoint variants**: `sm` (576px), `md` (768px), `lg` (992px), `xl` (1200px), `2xl` (1400px), `3xl` (1600px)
-- **State variants**: `hover`, `focus`, `active`, `disabled`, `checked`, `selected`, `visited`, `first`, `last`, `odd`, `even`
+- **State variants**: `hover`, `focus`, `active`, `disabled`, `checked`, `selected`, `visited`, `first`, `last`, `odd`, `even`, plus `group-hover` (styles a child while a `.group` ancestor is hovered)
+
+The stylesheet precompiles the most common variants: responsive layout classes (`md:col-6`, `lg:d-flex`, `md:gap-3`, `md:sticky-top`, ...) and `hover:`/`focus:`/`active:` for colors, `bg-body`, `bg-subtle`, `bg-transparent`, `text-body`, `border`, `border-subtle`, `underline` and `ring`. Every other valid combination (`md:text-center`, `last:border-0`, `disabled:opacity-[.5]`) is generated on demand by `Aksara.init()`.
 
 ### 3. Color Alpha Levels
 
-Slash `/` is exclusively used to denote semantic color opacity levels (from `0` to `100`% alpha):
+Slash `/` is exclusively used to denote color opacity levels (from `0` to `100`% alpha). It works with the `bg-`, `text-`, `border-`, `decoration-` and `ring-` prefixes and the palette colors `primary`, `secondary`, `tertiary`, `success`, `danger`, `warning`, `info`, `dark` and `light`. The rules are generated on demand by `Aksara.init()`:
 
 - `bg-primary/10` = Primary background with 10% opacity
 - `text-danger/80` = Danger text color with 80% opacity
-- `border-subtle/50` = Subtle border color with 50% opacity
+- `border-dark/10` = Dark border color with 10% opacity
+
+Surface tokens such as `bg-body` or `border-subtle` have no opacity form; use an arbitrary value instead (`border-[rgb(var(--aksara-dark)/.1)]`).
 
 ---
 
 ## Aksara Core Differences
 
-- **Zero Runtime Overhead**: 100% static generated CSS. No JIT compilers, no runtime scripts, and no complex Node.js build steps needed for users.
+- **Static First, Runtime When Needed**: Components and utility scales are precompiled. Only arbitrary, opacity and extra variant classes are generated in the browser, and only when they appear in the DOM. No Node.js build step is needed.
 - **Strict Logical Grammar**: Predictable order prevents inconsistent, competing responsive declarations.
 - **RTL-First Logical Layouts**: Fully native logical properties (e.g. `ms-*` using `margin-inline-start`) instead of physical offsets (`ml-*`, `pl-*`).
 - **Gentle UI Color Palette**: Flat, soft, sleek visual styles suited for high-end professional dashboards.

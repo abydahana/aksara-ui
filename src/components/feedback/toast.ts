@@ -43,8 +43,8 @@ export function Toast(props: ToastProps): string {
     ? `
       <div class="toast-header">
         <strong class="me-auto">${escapeHtml(title)}</strong>
-        ${time ? `<small class="text-muted ms-auto">${escapeHtml(time)}</small>` : ""}
-        ${dismissible ? `<button type="button" class="close" data-dismiss="${id ? `#${id}` : "toast"}" aria-label="Close"></button>` : ""}
+        ${time ? `<small class="text-subtle ms-auto">${escapeHtml(time)}</small>` : ""}
+        ${dismissible ? `<button type="button" class="close" data-dismiss="" aria-label="Close"></button>` : ""}
       </div>
     `
     : "";

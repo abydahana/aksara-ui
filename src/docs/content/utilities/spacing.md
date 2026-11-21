@@ -1,6 +1,6 @@
 # Spacing System
 
-Aksara UI features a comprehensive, precompiled rem-based spacing system to manage margin, padding, flex/grid gaps, and negative offsets. It uses a quarter-rem scale where `1` equals `.25rem`, `2` equals `.5rem`, `3` equals `.75rem`, and `4` equals `1rem`. It relies strictly on **logical properties** for out-of-the-box RTL compliance.
+Aksara UI ships a precompiled rem-based spacing system for margin, padding, flex/grid gaps, inset and negative offsets. It uses a single `0..5` scale: `0` = `0`, `1` = `.25rem`, `2` = `.5rem`, `3` = `1rem`, `4` = `1.5rem` and `5` = `3rem`. Any other value is an arbitrary class (`p-[.75rem]`, `mt-[2rem]`), generated on demand by `Aksara.init()`. It relies strictly on **logical properties** for out-of-the-box RTL compliance.
 
 ---
 
@@ -10,11 +10,11 @@ Change card structures or alignments by mixing structural logical spacing utilit
 
 ::html
 <div class="docs-preview">
-  <div class="card p-4 bg-body border border-subtle rounded-16">
+  <div class="card p-4 bg-body border border-subtle rounded-[16px]">
     <span class="badge badge-soft-primary mb-3">Padding: p-4</span>
-    <h4 class="mt-0 mb-2 font-800">Spacing Showcase Box</h4>
+    <h4 class="mt-0 mb-2 font-extrabold">Spacing Showcase Box</h4>
     <p class="text-subtle text-sm mb-5 mt-0">
-      This card wraps content using 1rem of logical padding. Its label uses <code>mb-3</code> to push text down.
+      This card wraps content using 1.5rem of logical padding. Its label uses <code>mb-3</code> to push text down.
     </p>
 
     <div class="hstack gap-4 flex-wrap">
@@ -28,9 +28,9 @@ Change card structures or alignments by mixing structural logical spacing utilit
 ::end
 
 ```html
-<div class="card p-4 bg-body border border-subtle rounded-16">
+<div class="card p-4 bg-body border border-subtle rounded-[16px]">
   <span class="badge badge-soft-primary mb-3">Padding: p-4</span>
-  <h4 class="mt-0 mb-2 font-800">Spacing Showcase Box</h4>
+  <h4 class="mt-0 mb-2 font-extrabold">Spacing Showcase Box</h4>
   <p class="text-subtle text-sm mb-5 mt-0">...</p>
 
   <div class="hstack gap-4">...</div>
@@ -150,7 +150,8 @@ Aksara UI uses a streamlined, Bootstrap-compatible **0 to 5** spacing scale for 
 
 - **Margin Utilities**: `m-{0..5}`, `mt-{0..5}`, `mb-{0..5}`, `ms-{0..5}`, `me-{0..5}`, `mx-{0..5}`, `my-{0..5}`.
 - **Padding Utilities**: `p-{0..5}`, `pt-{0..5}`, `pb-{0..5}`, `ps-{0..5}`, `pe-{0..5}`, `px-{0..5}`, `py-{0..5}`.
-- **Gap Utilities**: `gap-{0..5}`, `row-gap-{0..5}`, `col-gap-{0..5}`.
+- **Gap Utilities**: `gap-{0..5}`, `gap-x-{0..5}`, `gap-y-{0..5}`, `row-gap-{0..5}`, `col-gap-{0..5}`, and the grid gutters `g-{0..5}`, `gx-{0..5}`, `gy-{0..5}`.
+- **Other values**: `p-[.75rem]`, `gap-[1.25rem]`, `md:px-[2rem]` (arbitrary, generated on demand). There is no `p-6` or `p-24`.
 
 ---
 

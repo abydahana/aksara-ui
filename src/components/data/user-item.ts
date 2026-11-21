@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, safeUrl, toAttributes } from "../utils";
 import { Avatar, type AvatarProps } from "./avatar";
 
 export interface UserItemProps {
@@ -12,6 +12,8 @@ export interface UserItemProps {
   status?: "online" | "offline" | "busy" | "away";
   href?: string;
   action?: string;
+  /** Extra attributes for the profile link (e.g. `{ "data-link": "" }` for a SPA router). */
+  linkAttributes?: Record<string, unknown>;
   className?: string;
   attributes?: Record<string, unknown>;
 }
@@ -28,6 +30,7 @@ export function UserItem(props: UserItemProps): string {
     status,
     href,
     action,
+    linkAttributes,
     className = "",
     attributes
   } = props;
@@ -53,18 +56,18 @@ export function UserItem(props: UserItemProps): string {
 
   const cleanHandle = handle ? handle.replace(/^@/, "").trim() : "";
   const handleHtml = cleanHandle
-    ? `<div class="user-item-handle text-subtle text-xs text-truncate">@${escapeHtml(cleanHandle)}</div>`
+    ? `<div class="user-item-handle text-subtle text-sm truncate">@${escapeHtml(cleanHandle)}</div>`
     : "";
 
   const hasDistinctSubtitle = Boolean(subtitle && (!cleanHandle || subtitle.replace(/^@/, "").trim() !== cleanHandle));
   const subtitleHtml = hasDistinctSubtitle
-    ? `<div class="user-item-subtitle text-subtle ${cleanHandle ? "text-xs" : "text-sm"} text-truncate mt-1">${escapeHtml(subtitle!)}</div>`
+    ? `<div class="user-item-subtitle text-subtle ${cleanHandle ? "text-xs" : "text-sm"} truncate mt-1">${escapeHtml(subtitle!)}</div>`
     : "";
 
   const contentCol = `
     <div class="user-item-info flex-1 min-w-0">
       <div class="d-flex align-items-center">
-        <span class="user-item-name font-bold text-sm text-truncate text-body">${escapeHtml(name)}</span>
+        <span class="user-item-name fw-bold text-sm truncate text-body">${escapeHtml(name)}</span>
         ${verifiedBadge}
       </div>
       ${handleHtml}
@@ -74,7 +77,7 @@ export function UserItem(props: UserItemProps): string {
 
   const leftPart = href
     ? `
-      <a href="${escapeHtml(href)}" data-link class="d-flex align-items-center gap-3 text-decoration-none flex-1 min-w-0">
+      <a href="${escapeHtml(safeUrl(href))}" class="user-item-link d-flex align-items-center gap-3 no-underline flex-1 min-w-0"${toAttributes(linkAttributes)}>
         ${avatarHtml}
         ${contentCol}
       </a>

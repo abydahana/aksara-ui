@@ -25,7 +25,7 @@ export function SettingsGroup(props: SettingsGroupProps = {}): string {
 
   if (!title) return groupHtml.trim();
 
-  return `<div><p class="text-xs font-800 uppercase tracking-wider text-subtle mb-2 px-1">${escapeHtml(title)}</p><div class="${groupClasses}">${children}</div></div>`.trim();
+  return `<div><p class="text-xs fw-bold uppercase tracking-wider text-subtle mb-2 px-1">${escapeHtml(title)}</p>${groupHtml}</div>`.trim();
 }
 
 export const settingsGroup = SettingsGroup;
@@ -105,17 +105,17 @@ export function SettingsItem(props: SettingsItemProps): string {
   });
 
   const iconHtml = icon
-    ? `<span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" aria-hidden="true">${icon}</span>`
+    ? `<span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" aria-hidden="true">${icon}</span>`
     : "";
 
   const labelBlock = description
-    ? `<span class="flex-1 min-w-0"><span class="font-600 block">${escapeHtml(label)}</span><span class="text-subtle text-sm block mt-1">${escapeHtml(description)}</span></span>`
-    : `<span class="flex-1 font-600">${escapeHtml(label)}</span>`;
+    ? `<span class="flex-1 min-w-0"><span class="fw-semibold block">${escapeHtml(label)}</span><span class="text-subtle text-sm block mt-1">${escapeHtml(description)}</span></span>`
+    : `<span class="flex-1 fw-semibold">${escapeHtml(label)}</span>`;
 
   const valueHtml = value ? `<span class="text-subtle text-sm">${escapeHtml(value)}</span>` : "";
 
   const chevronHtml = showChevron
-    ? `<span class="text-subtle opacity-50 text-sm ms-1" aria-hidden="true">&#8250;</span>`
+    ? `<span class="text-subtle opacity-[.5] text-sm ms-1" aria-hidden="true">&#8250;</span>`
     : "";
 
   return `<${Tag} class="${classes}"${baseAttrs}><div class="flex items-center gap-3">${iconHtml}${labelBlock}${valueHtml}${trailing}${chevronHtml}</div></${Tag}>`.trim();

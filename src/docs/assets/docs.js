@@ -212,7 +212,7 @@ function currentTheme() {
         : "light";
 }
 function applyStoredTheme() {
-    const stored = (localStorage.getItem("aksara-theme") || localStorage.getItem("aksara-docs-theme"));
+    const stored = localStorage.getItem("aksara-theme");
     const preferred = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     setTheme(stored || preferred);
 }
@@ -233,7 +233,7 @@ function setTheme(theme) {
         }
     }
     localStorage.setItem("aksara-theme", next);
-    localStorage.setItem("aksara-docs-theme", next);
+    localStorage.setItem("aksara-theme", next);
     if (themeButton) {
         const icon = themeButton.querySelector(".mdi");
         if (icon) {

@@ -6,7 +6,7 @@ Aksara UI ships with two first-class themes: light and dark. Component surfaces,
 
 ## Activating Themes
 
-To apply a theme, toggle the `data-theme` attribute on the root html element:
+Themes are driven by the `data-theme` attribute on the root html element (set it from JavaScript with `Aksara.setTheme()`, see below):
 
 ```html
 <!-- Light Mode (Default) -->
@@ -98,30 +98,25 @@ Aksara UI provides powerful optional **adaptive utilities** that automatically t
 
 ## Dynamic Theme Switching Code
 
-Below is a lightweight, modern JavaScript snippet to automate theme switching. It reads user preferences from local storage and falls back to system preferences if none exist:
+Aksara UI manages the root theme for you. On `DOMContentLoaded`, `Aksara.init()` reads the saved preference (`localStorage["aksara-theme"]`, default `"system"`) and writes `data-theme` plus the `.light` / `.dark` class on `<html>`. In `"system"` mode it follows `prefers-color-scheme` live. Use the built-in API instead of writing the attribute yourself, otherwise the next `Aksara.init()` on the document resets it:
 
 ```js
-// Retrieve stored theme, or default to matching system color preferences
-const getPreferredTheme = () => {
-  const stored = localStorage.getItem("app-theme");
-  if (stored) return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-};
+// "light", "dark" or "system"; persisted to localStorage and applied to <html>
+Aksara.setTheme("dark");
 
-// Apply theme to document element
-const setTheme = (theme) => {
-  document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("app-theme", theme);
-};
+// Current preference ("light" | "dark" | "system")
+const current = Aksara.getTheme();
 
-// Initialize theme on app load
-setTheme(getPreferredTheme());
-
-// Example Toggle Function
+// Example toggle
 const toggleTheme = () => {
-  const current = document.documentElement.getAttribute("data-theme");
-  setTheme(current === "dark" ? "light" : "dark");
+  const effective = document.documentElement.getAttribute("data-theme");
+  Aksara.setTheme(effective === "dark" ? "light" : "dark");
 };
+
+// React to changes
+document.documentElement.addEventListener("aksara:theme:change", (event) => {
+  console.log("Theme is now", event.detail.theme);
+});
 ```
 
 ---
@@ -135,9 +130,9 @@ See the contrast side-by-side! Below are identical HTML card components rendered
   <div class="row gap-4">
     <!-- Light Mode Container -->
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-16 border" style="background-color: #fbfcff; border-color: #d7deea; color: #172033;">
+      <div class="p-4 rounded-[16px] border" style="background-color: #fbfcff; border-color: #d7deea; color: #172033;">
         <span class="badge badge-soft-primary mb-3">Light Sandbox</span>
-        <h4 class="mt-0 mb-2 font-800" style="color: #172033;">Aksara UI Soft Light</h4>
+        <h4 class="mt-0 mb-2 font-extrabold" style="color: #172033;">Aksara UI Soft Light</h4>
         <p class="text-sm mb-5 mt-0" style="color: #64748b; line-height: 1.6;">
           Adaptive utilities automatically render elegant bright surfaces with soft contrast lines and highly readable primary accents.
         </p>
@@ -147,9 +142,9 @@ See the contrast side-by-side! Below are identical HTML card components rendered
 
     <!-- Dark Mode Container -->
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-16 border" style="background-color: #0b1020; border-color: #334155; color: #f8fafc;">
+      <div class="p-4 rounded-[16px] border" style="background-color: #0b1020; border-color: #334155; color: #f8fafc;">
         <span class="badge badge-soft-primary mb-3">Dark Sandbox</span>
-        <h4 class="mt-0 mb-2 font-800" style="color: #f8fafc;">Aksara UI Deep Dark</h4>
+        <h4 class="mt-0 mb-2 font-extrabold" style="color: #f8fafc;">Aksara UI Deep Dark</h4>
         <p class="text-sm mb-5 mt-0" style="color: #aebacc; line-height: 1.6;">
           Automatically toggling to dark mode adjusts backgrounds to an ultra-comfortable dark shade, keeping typography crisp.
         </p>
@@ -163,9 +158,9 @@ See the contrast side-by-side! Below are identical HTML card components rendered
 
 ```html
 <!-- Simply use adaptive utility variables. They handle both states natively! -->
-<div class="p-4 rounded-16 border border-body bg-body text-body">
+<div class="p-4 rounded-[16px] border border-body bg-body text-body">
   <span class="badge badge-soft-primary mb-3">Card Label</span>
-  <h4 class="mt-0 mb-2 font-800">Adaptive Card</h4>
+  <h4 class="mt-0 mb-2 font-extrabold">Adaptive Card</h4>
   <p class="text-subtle text-sm mb-5 mt-0">
     This element remains stunning across all display settings without writing theme code.
   </p>

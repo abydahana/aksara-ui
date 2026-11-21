@@ -16,28 +16,28 @@ Explore Bento card variations below, featuring highlight cards with subtle gradi
       <div class="bento-header">
         <div>
           <span class="badge badge-soft-primary mb-2">⭐ Featured Highlight</span>
-          <h3 class="bento-title text-2xl font-800">Aksara UI v1.1.0</h3>
-          <p class="bento-subtitle">Ultra-fast static CSS, zero runtime JS dependencies, and RTL-first.</p>
+          <h3 class="bento-title text-2xl font-extrabold">Aksara UI v1.4.0</h3>
+          <p class="bento-subtitle">Static-first CSS, dependency-free JavaScript, and RTL-first.</p>
         </div>
-        <button class="btn btn-sm btn-icon btn-soft-primary" data-clipboard="npm install @abydahana/aksara-ui" data-clipboard-success="✓" aria-label="Copy install command">
+        <button class="btn btn-sm btn-icon btn-soft-primary" data-clipboard="npm install @abydahana/aksara-ui @mdi/font" data-clipboard-success="✓" aria-label="Copy install command">
           <span class="mdi mdi-content-copy"></span>
         </button>
       </div>
       <div class="bento-body">
         <div class="p-4 rounded-xl bg-body border border-subtle hstack gap-4 flex-wrap">
           <div>
-            <div class="text-xs text-subtle font-700 uppercase">Utilities</div>
-            <div class="text-xl font-800 text-primary">7.7k+</div>
+            <div class="text-xs text-subtle fw-bold uppercase">Utilities</div>
+            <div class="text-xl font-extrabold text-primary">7.7k+</div>
           </div>
           <div class="vr"></div>
           <div>
-            <div class="text-xs text-subtle font-700 uppercase">Runtime</div>
-            <div class="text-xl font-800 text-success">0 KB</div>
+            <div class="text-xs text-subtle fw-bold uppercase">Runtime</div>
+            <div class="text-xl font-extrabold text-success">0 KB</div>
           </div>
           <div class="vr"></div>
           <div>
-            <div class="text-xs text-subtle font-700 uppercase">AOT Rules</div>
-            <div class="text-xl font-800 text-info">9.6k+</div>
+            <div class="text-xs text-subtle fw-bold uppercase">AOT Rules</div>
+            <div class="text-xl font-extrabold text-info">9.6k+</div>
           </div>
         </div>
       </div>
@@ -60,12 +60,12 @@ Explore Bento card variations below, featuring highlight cards with subtle gradi
         <span class="mdi mdi-lightning-bolt text-warning text-2xl"></span>
       </div>
       <div class="bento-body">
-        <div class="text-4xl font-900 text-success mt-2">100<span class="text-lg text-subtle font-500">/100</span></div>
+        <div class="text-4xl font-black text-success mt-2">100<span class="text-lg text-subtle font-medium">/100</span></div>
         <p class="text-xs text-subtle mt-1">Out-of-the-box 100 Lighthouse score for all static sites.</p>
       </div>
       <div class="bento-footer">
         <span class="badge badge-dot bg-success"></span>
-        <span class="text-xs text-subtle">AOT Precompiled</span>
+        <span class="text-xs text-subtle">Static first</span>
       </div>
     </article>
 
@@ -171,7 +171,7 @@ Combine a compact 1-column card (`bento-col-1`) with a wide 2-column showcase ca
       <div class="bento-header">
         <div>
           <span class="badge badge-soft-primary mb-2">Exhibition Feature · 16:9</span>
-          <h3 class="bento-title text-xl font-800">Alpine Vista at Twilight</h3>
+          <h3 class="bento-title text-xl font-extrabold">Alpine Vista at Twilight</h3>
           <p class="bento-subtitle">Dolomites National Park · 24mm Ultra-Wide · HDR Exposure</p>
         </div>
         <div class="hstack gap-1">
@@ -191,7 +191,7 @@ Combine a compact 1-column card (`bento-col-1`) with a wide 2-column showcase ca
             <span class="badge badge-soft-info">Ultra HD</span>
             <span class="badge badge-soft-warning">DCI-P3</span>
           </div>
-          <div style="position: absolute; bottom: 12px; left: 12px; color: #ffffff;" class="text-xs font-600">
+          <div style="position: absolute; bottom: 12px; left: 12px; color: #ffffff;" class="text-xs fw-semibold">
             ISO 64 · 24mm · f/8.0 · 30s
           </div>
         </div>
@@ -286,27 +286,27 @@ Combine a compact 1-column specification sidebar (`bento-col-1`) with a sweeping
         <div class="p-3 rounded-lg bg-subtle border border-subtle mb-3 vstack gap-2 text-xs">
           <div class="hstack justify-between">
             <span class="text-subtle">Camera:</span>
-            <span class="font-600">Sony α7 IV</span>
+            <span class="fw-semibold">Sony α7 IV</span>
           </div>
           <div class="hstack justify-between">
             <span class="text-subtle">Lens:</span>
-            <span class="font-600">FE 85mm F1.4</span>
+            <span class="fw-semibold">FE 85mm F1.4</span>
           </div>
           <div class="hstack justify-between">
             <span class="text-subtle">Shutter:</span>
-            <span class="font-600 font-mono">1/1600s</span>
+            <span class="fw-semibold font-mono">1/1600s</span>
           </div>
           <div class="hstack justify-between">
             <span class="text-subtle">Aperture:</span>
-            <span class="font-600 font-mono">f/1.8</span>
+            <span class="fw-semibold font-mono">f/1.8</span>
           </div>
           <div class="hstack justify-between">
             <span class="text-subtle">ISO:</span>
-            <span class="font-600 font-mono">100</span>
+            <span class="fw-semibold font-mono">100</span>
           </div>
         </div>
 
-        <div class="text-xs text-subtle mb-1 font-600">Color Palette</div>
+        <div class="text-xs text-subtle mb-1 fw-semibold">Color Palette</div>
         <div class="hstack gap-2">
           <span style="inline-size: 18px; block-size: 18px; border-radius: 99px; background: #6366f1;"></span>
           <span style="inline-size: 18px; block-size: 18px; border-radius: 99px; background: #ec4899;"></span>
@@ -328,7 +328,7 @@ Combine a compact 1-column specification sidebar (`bento-col-1`) with a sweeping
       <div class="bento-header">
         <div>
           <span class="badge badge-soft-danger mb-2">Editor's Choice · Cinema 21:9</span>
-          <h3 class="bento-title text-2xl font-800">Neon Nocturne: Rain Over Shinjuku</h3>
+          <h3 class="bento-title text-2xl font-extrabold">Neon Nocturne: Rain Over Shinjuku</h3>
           <p class="bento-subtitle">Atmospheric reflections and neon light-trails captured across Tokyo's neon corridors.</p>
         </div>
         <div class="hstack gap-2">
@@ -422,7 +422,7 @@ Equal 50/50 balance across desktop screens using two `bento-col-2` cards inside 
       <div class="bento-header">
         <div>
           <span class="badge badge-soft-primary mb-2">Series A · Architecture</span>
-          <h3 class="bento-title text-lg font-700">Monochrome Geometries</h3>
+          <h3 class="bento-title text-lg fw-bold">Monochrome Geometries</h3>
           <p class="bento-subtitle">Brutalist curves and modern concrete shadows</p>
         </div>
         <span class="mdi mdi-domain text-primary text-2xl"></span>
@@ -453,7 +453,7 @@ Equal 50/50 balance across desktop screens using two `bento-col-2` cards inside 
       <div class="bento-header">
         <div>
           <span class="badge badge-soft-success mb-2">Series B · Wilderness</span>
-          <h3 class="bento-title text-lg font-700">Emerald Forest Canopy</h3>
+          <h3 class="bento-title text-lg fw-bold">Emerald Forest Canopy</h3>
           <p class="bento-subtitle">Macro chlorophyll patterns & rainforest morning dew</p>
         </div>
         <span class="mdi mdi-leaf text-success text-2xl"></span>
@@ -525,7 +525,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
       <div class="bento-header">
         <div>
           <span class="badge badge-soft-warning mb-2">⭐ Centerpiece Gallery</span>
-          <h3 class="bento-title text-2xl font-800">Deep Space Nebula</h3>
+          <h3 class="bento-title text-2xl font-extrabold">Deep Space Nebula</h3>
           <p class="bento-subtitle">James Webb Space Telescope composite imagery</p>
         </div>
         <span class="mdi mdi-telescope text-warning text-2xl"></span>
@@ -569,7 +569,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
       </div>
       <div class="bento-body">
         <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #022c22 0%, #059669 60%, #34d399 100%); min-height: 90px; display: flex; align-items: center; justify-content: center; position: relative;">
-          <span class="text-xs font-mono text-white">KP-Index: 7.2 · Norway</span>
+          <span class="text-xs font-mono text-light">KP-Index: 7.2 · Norway</span>
         </div>
       </div>
       <div class="bento-footer">
@@ -588,7 +588,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
       </div>
       <div class="bento-body">
         <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%); min-height: 80px; display: flex; align-items: center; justify-content: center;">
-          <span class="mdi mdi-white-balance-sunny text-white text-2xl"></span>
+          <span class="mdi mdi-white-balance-sunny text-light text-2xl"></span>
         </div>
       </div>
       <div class="bento-footer">
@@ -606,7 +606,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
       </div>
       <div class="bento-body">
         <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #334155 0%, #94a3b8 100%); min-height: 80px; display: flex; align-items: center; justify-content: center;">
-          <span class="mdi mdi-moon-waning-crescent text-white text-2xl"></span>
+          <span class="mdi mdi-moon-waning-crescent text-light text-2xl"></span>
         </div>
       </div>
       <div class="bento-footer">
@@ -672,7 +672,7 @@ For photo series shot across three harmonious moments, use three standard cards 
       </div>
       <div class="bento-footer">
         <span class="text-xs text-subtle">Color Temp: 3800K</span>
-        <span class="text-xs font-600">Part I</span>
+        <span class="text-xs fw-semibold">Part I</span>
       </div>
     </article>
 
@@ -693,7 +693,7 @@ For photo series shot across three harmonious moments, use three standard cards 
       </div>
       <div class="bento-footer">
         <span class="text-xs text-subtle">Color Temp: 5600K</span>
-        <span class="text-xs font-600">Part II</span>
+        <span class="text-xs fw-semibold">Part II</span>
       </div>
     </article>
 
@@ -714,7 +714,7 @@ For photo series shot across three harmonious moments, use three standard cards 
       </div>
       <div class="bento-footer">
         <span class="text-xs text-subtle">Color Temp: 7200K</span>
-        <span class="text-xs font-600">Part III</span>
+        <span class="text-xs fw-semibold">Part III</span>
       </div>
     </article>
 

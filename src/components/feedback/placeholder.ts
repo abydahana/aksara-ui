@@ -1,4 +1,4 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, normalizeSize } from "../utils";
 
 export interface PlaceholderProps {
   animation?: "glow" | "wave";
@@ -14,7 +14,7 @@ export function Placeholder(props: PlaceholderProps = {}): string {
   const classes = classNames(
     "placeholder",
     animation && `placeholder-${animation}`,
-    size && `placeholder-${size}`,
+    size && `placeholder-${normalizeSize(size)}`,
     variant && `bg-${variant}`,
     className
   );

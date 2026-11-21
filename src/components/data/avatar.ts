@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, safeCssLength, safeUrl, toAttributes, normalizeSize } from "../utils";
 
 export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 export type AvatarShape = "circle" | "rounded" | "square";
@@ -14,9 +14,16 @@ export interface AvatarProps {
   shape?: AvatarShape;
   status?: AvatarStatus | boolean;
   variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "dark" | "light";
+  /**
+   * Apply the tinted variant background/text (`bg-{variant}/15 text-{variant}`) when there
+   * is no image. Defaults to `true`; set `false` to style the fallback yourself.
+   */
+  tinted?: boolean;
   className?: string;
   attributes?: Record<string, unknown>;
 }
+
+const AVATAR_VARIANTS = ["primary", "secondary", "success", "danger", "warning", "info", "dark", "light"] as const;
 
 export function Avatar(props: AvatarProps = {}): string {
   const {
@@ -28,12 +35,14 @@ export function Avatar(props: AvatarProps = {}): string {
     height,
     shape = "circle",
     status,
-    variant = "primary",
+    variant: variantProp = "primary",
+    tinted = true,
     className = "",
     attributes = {}
   } = props;
 
-  const shapeClass = shape === "circle" ? "rounded-full" : shape === "rounded" ? "rounded-8" : "rounded-none";
+  const variant = (AVATAR_VARIANTS as readonly string[]).includes(variantProp) ? variantProp : "primary";
+  const shapeClass = shape === "circle" ? "rounded-full" : shape === "rounded" ? "rounded-[8px]" : "rounded-0";
 
   // Use size if provided, otherwise default to "md" if no explicit width/height
   const effectiveSize = size || (!width && !height ? "md" : undefined);
@@ -43,22 +52,19 @@ export function Avatar(props: AvatarProps = {}): string {
     "avatar",
     sizeClass,
     shapeClass,
-    !src &&
-      !className.includes("bg-") &&
-      !className.includes("feed-card-avatar") &&
-      `avatar-${variant} bg-${variant}/15 text-${variant}`,
-    "position-relative inline-flex items-center justify-center font-bold select-none shrink-0",
+    !src && tinted && !className.includes("bg-") && `avatar-${variant} bg-${variant}/15 text-${variant}`,
+    "position-relative inline-flex items-center justify-center fw-bold select-none shrink-0",
     className
   );
 
   const customStyles: string[] = [];
   if (width !== undefined) {
-    const w = typeof width === "number" ? `${width}px` : width;
-    customStyles.push(`width:${w}`, `min-width:${w}`);
+    const w = safeCssLength(width, "");
+    if (w) customStyles.push(`width:${w}`, `min-width:${w}`);
   }
   if (height !== undefined) {
-    const h = typeof height === "number" ? `${height}px` : height;
-    customStyles.push(`height:${h}`, `min-height:${h}`);
+    const h = safeCssLength(height, "");
+    if (h) customStyles.push(`height:${h}`, `min-height:${h}`);
   }
 
   const attrs = { ...attributes };
@@ -73,12 +79,12 @@ export function Avatar(props: AvatarProps = {}): string {
 
   let contentHtml: string;
   if (src) {
-    contentHtml = `<img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" class="avatar-img w-full h-full object-cover block" loading="lazy" />`;
+    contentHtml = `<img src="${escapeHtml(safeUrl(src))}" alt="${escapeHtml(alt)}" class="avatar-img w-full h-full object-cover block" loading="lazy" />`;
   } else if (initials) {
     contentHtml = `<span class="avatar-initials uppercase text-center leading-none">${escapeHtml(initials)}</span>`;
   } else {
     // Default fallback icon
-    contentHtml = `<span class="avatar-fallback mdi mdi-account opacity-75"></span>`;
+    contentHtml = `<span class="avatar-fallback mdi mdi-account opacity-[.75]"></span>`;
   }
 
   let statusHtml = "";
@@ -89,7 +95,7 @@ export function Avatar(props: AvatarProps = {}): string {
     else if (status === "away") statusVariant = "bg-warning";
 
     const statusKey = typeof status === "string" ? status : "online";
-    statusHtml = `<span class="avatar-status position-absolute rounded-full ${statusVariant} border-2" data-status="${statusKey}" aria-hidden="true"></span>`;
+    statusHtml = `<span class="avatar-status position-absolute rounded-full ${statusVariant} border-2" data-status="${escapeHtml(statusKey)}" aria-hidden="true"></span>`;
   }
 
   return `
@@ -131,7 +137,7 @@ export function AvatarGroup(props: AvatarGroupProps = {}): string {
   const extraPill =
     extraCount > 0
       ? `
-        <span class="avatar avatar-${size} rounded-full bg-subtle text-subtle text-xs font-bold inline-flex items-center justify-center border-2">
+        <span class="avatar avatar-${escapeHtml(size)} rounded-full bg-subtle text-subtle text-xs fw-bold inline-flex items-center justify-center border-2">
           +${extraCount}
         </span>
       `.trim()
@@ -146,3 +152,19 @@ export function AvatarGroup(props: AvatarGroupProps = {}): string {
 }
 
 export const avatarGroup = AvatarGroup;
+
+export interface AvatarStackProps {
+  children?: string;
+  size?: AvatarSize;
+  className?: string;
+  attributes?: Record<string, unknown>;
+}
+
+export function AvatarStack(props: AvatarStackProps = {}): string {
+  const { children = "", size, className = "", attributes } = props;
+  const classes = classNames("avatar-stack", size && `avatar-stack-${normalizeSize(size)}`, className);
+  const baseAttrs = toAttributes(attributes);
+  return `<div class="${classes}"${baseAttrs}>${children}</div>`.trim();
+}
+
+export const avatarStack = AvatarStack;

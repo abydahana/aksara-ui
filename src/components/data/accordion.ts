@@ -30,17 +30,22 @@ export interface AccordionItemProps {
 export function AccordionItem(props: AccordionItemProps): string {
   const { id, title, body, expanded = false, className = "" } = props;
 
+  // The runtime (Accordion in aksara.ts) toggles `aria-expanded` on the button and the
+  // `hidden` attribute on the panel, so the initial markup must use the same contract.
   const buttonClasses = classNames("accordion-button", expanded && "accordion-button-active", !expanded && "collapsed");
 
   const panelClasses = classNames("accordion-panel", expanded && "accordion-panel-open");
 
-  const targetSelector = id.startsWith("#") ? id : `#${id}`;
-  const rawId = id.replace(/^#/, "");
+  const rawId = String(id).replace(/^#/, "");
+  const targetSelector = `#${rawId}`;
+  const buttonId = `${rawId}-button`;
 
+  // `text-base` resets the heading font-size (h2 is 1.75rem and the button uses font:inherit).
   return `
     <div class="${classNames("accordion-item", className)}">
-      <h2 class="accordion-header m-0">
+      <h2 class="accordion-header m-0 text-base">
         <button
+          id="${escapeHtml(buttonId)}"
           class="${buttonClasses}"
           type="button"
           data-accordion="${escapeHtml(targetSelector)}"
@@ -51,7 +56,7 @@ export function AccordionItem(props: AccordionItemProps): string {
           <span class="accordion-icon" aria-hidden="true"></span>
         </button>
       </h2>
-      <div id="${escapeHtml(rawId)}" class="${panelClasses}" role="region">
+      <div id="${escapeHtml(rawId)}" class="${panelClasses}" role="region" aria-labelledby="${escapeHtml(buttonId)}"${expanded ? "" : " hidden"}>
         <div class="accordion-body">
           ${body}
         </div>

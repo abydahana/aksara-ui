@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, type ComponentSize, normalizeSize } from "../utils";
 import { Input } from "./input";
 import { Button } from "../buttons/button";
 import { Dropdown, DropdownItem, DropdownMenu } from "../overlay/dropdown";
@@ -36,10 +36,10 @@ export function DropdownSelect(props: DropdownSelectProps): string {
   const selectedOption = options.find((opt) => opt.value === defaultValue) ?? options[0];
   const isFormSelect = variant === "form-select";
 
-  const dropdownSizeClass = size ? `dropdown-${size}` : "dropdown-md";
-  const menuSizeClass = size && size !== "md" ? `dropdown-menu-${size}` : "";
-  const selectSizeClass = size ? `form-select-${size}` : "";
-  const chipSizeClass = size ? `chip-${size}` : "chip-md";
+  const dropdownSizeClass = size ? `dropdown-${normalizeSize(size)}` : "dropdown-md";
+  const menuSizeClass = size && size !== "md" ? `dropdown-menu-${normalizeSize(size)}` : "";
+  const selectSizeClass = size ? `form-select-${normalizeSize(size)}` : "";
+  const chipSizeClass = size ? `chip-${normalizeSize(size)}` : "chip-md";
 
   const hiddenInput = Input({
     type: "hidden",
@@ -48,14 +48,14 @@ export function DropdownSelect(props: DropdownSelectProps): string {
   });
 
   const triggerIcon = selectedOption?.icon
-    ? `<i class="mdi ${escapeHtml(selectedOption.icon)} ${escapeHtml(selectedOption.iconClass ?? "")} me-2 select-current-icon"></i>`
+    ? `<i class="${classNames("mdi", selectedOption.icon, selectedOption.iconClass, "me-2 select-current-icon")}"></i>`
     : "";
 
   const triggerBtn = isFormSelect
-    ? `<button type="button" class="form-select ${selectSizeClass} ${btnClassName} text-start d-flex align-items-center justify-content-between cursor-pointer" data-dropdown="" aria-haspopup="true" aria-expanded="false">
-      <div class="d-flex align-items-center min-w-0 flex-1 me-2 text-truncate">
+    ? `<button type="button" class="${classNames("form-select", selectSizeClass, btnClassName, "text-start d-flex align-items-center justify-content-between cursor-pointer")}" data-dropdown="" aria-haspopup="true" aria-expanded="false">
+      <div class="d-flex align-items-center min-w-0 flex-1 me-2 truncate">
         ${triggerIcon}
-        <span class="select-current-label text-truncate">${escapeHtml(selectedOption?.label ?? "")}</span>
+        <span class="select-current-label truncate">${escapeHtml(selectedOption?.label ?? "")}</span>
       </div>
     </button>`
     : Button({
@@ -63,7 +63,7 @@ export function DropdownSelect(props: DropdownSelectProps): string {
         variant: "secondary",
         soft: true,
         size: size === "md" ? undefined : size,
-        className: `${btnClassName || `composer-chip-btn ${chipSizeClass}`}`,
+        className: btnClassName || `dropdown-select-toggle ${chipSizeClass}`,
         attributes: {
           "data-dropdown": "",
           "aria-haspopup": "true",
@@ -71,8 +71,8 @@ export function DropdownSelect(props: DropdownSelectProps): string {
         },
         children: `
           ${triggerIcon}
-          <span class="select-current-label text-truncate flex-1 min-w-0 text-start">${escapeHtml(selectedOption?.label ?? "")}</span>
-          <i class="mdi mdi-chevron-down ms-1 opacity-60 shrink-0"></i>
+          <span class="select-current-label truncate flex-1 min-w-0 text-start">${escapeHtml(selectedOption?.label ?? "")}</span>
+          <i class="mdi mdi-chevron-down ms-1 opacity-3 shrink-0"></i>
         `
       });
 
@@ -87,7 +87,7 @@ export function DropdownSelect(props: DropdownSelectProps): string {
           "data-icon-class": opt.iconClass ?? ""
         },
         content: `
-          ${opt.icon ? `<i class="mdi ${escapeHtml(opt.icon)} ${escapeHtml(opt.iconClass ?? "")} me-2"></i>` : ""}
+          ${opt.icon ? `<i class="${classNames("mdi", opt.icon, opt.iconClass, "me-2")}"></i>` : ""}
           <span>${escapeHtml(opt.label)}</span>
         `
       })

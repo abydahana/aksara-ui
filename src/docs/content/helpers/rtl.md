@@ -13,14 +13,14 @@ Below are two identical card containers. The right card is wrapped inside a `dir
   <div class="row gap-4">
     <!-- Left-to-Right Sandbox -->
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-16 border bg-body text-body" dir="ltr">
+      <div class="p-4 rounded-[16px] border bg-body text-body" dir="ltr">
         <div class="hstack justify-between mb-3">
           <span class="badge badge-soft-primary">LTR Container</span>
           <span class="text-xs text-subtle">dir="ltr"</span>
         </div>
         <!-- Align start, margin start border -->
         <div class="ps-4 border-start border-primary border-4 text-start">
-          <h4 class="mt-0 mb-1 font-700">Logical Spacing</h4>
+          <h4 class="mt-0 mb-1 fw-bold">Logical Spacing</h4>
           <p class="m-0 text-subtle text-xs">Border and padding are placed on the flow-start side.</p>
         </div>
       </div>
@@ -28,14 +28,14 @@ Below are two identical card containers. The right card is wrapped inside a `dir
 
     <!-- Right-to-Left Sandbox -->
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-16 border bg-body text-body" dir="rtl">
+      <div class="p-4 rounded-[16px] border bg-body text-body" dir="rtl">
         <div class="hstack justify-between mb-3">
           <span class="badge badge-soft-primary">RTL Container</span>
           <span class="text-xs text-subtle">dir="rtl"</span>
         </div>
         <!-- Align start, margin start border -->
         <div class="ps-4 border-start border-primary border-4 text-start">
-          <h4 class="mt-0 mb-1 font-700">التباعد المنطقي</h4>
+          <h4 class="mt-0 mb-1 fw-bold">التباعد المنطقي</h4>
           <p class="m-0 text-subtle text-xs">يتم وضع الحدود والحشوة تلقائيًا على جانب البداية.</p>
         </div>
       </div>
@@ -61,7 +61,7 @@ Below are two identical card containers. The right card is wrapped inside a `dir
 
 ## Logical Properties Mappings
 
-Aksara UI precompiles high-performance logical properties directly in the preflight stylesheet. Below is a translation guide comparing legacy utility naming against modern logical naming:
+Aksara UI precompiles its spacing, border, alignment and inset utilities with logical properties. Below is a translation guide comparing legacy utility naming against modern logical naming:
 
 ::html
 <div class="table-responsive">
@@ -77,38 +77,38 @@ Aksara UI precompiles high-performance logical properties directly in the prefli
     <tbody>
       <tr>
         <td><code>ms-3</code></td>
-        <td><code>margin-inline-start: 10px</code></td>
-        <td><code>margin-left: 10px</code></td>
+        <td><code>margin-inline-start: 1rem</code></td>
+        <td><code>margin-left: 1rem</code></td>
         <td>Flips to right side.</td>
       </tr>
       <tr>
         <td><code>me-3</code></td>
-        <td><code>margin-inline-end: 10px</code></td>
-        <td><code>margin-right: 10px</code></td>
+        <td><code>margin-inline-end: 1rem</code></td>
+        <td><code>margin-right: 1rem</code></td>
         <td>Flips to left side.</td>
       </tr>
       <tr>
         <td><code>ps-5</code></td>
-        <td><code>padding-inline-start: 20px</code></td>
-        <td><code>padding-left: 20px</code></td>
+        <td><code>padding-inline-start: 3rem</code></td>
+        <td><code>padding-left: 3rem</code></td>
         <td>Flips to right side.</td>
       </tr>
       <tr>
         <td><code>pe-5</code></td>
-        <td><code>padding-inline-end: 20px</code></td>
-        <td><code>padding-right: 20px</code></td>
+        <td><code>padding-inline-end: 3rem</code></td>
+        <td><code>padding-right: 3rem</code></td>
         <td>Flips to left side.</td>
       </tr>
       <tr>
         <td><code>border-start</code></td>
-        <td><code>border-inline-start-width: 1px</code></td>
-        <td><code>border-left-width: 1px</code></td>
+        <td><code>border-inline-start: 1px solid</code></td>
+        <td><code>border-left: 1px solid</code></td>
         <td>Flips to right side.</td>
       </tr>
       <tr>
         <td><code>border-end</code></td>
-        <td><code>border-inline-end-width: 1px</code></td>
-        <td><code>border-right-width: 1px</code></td>
+        <td><code>border-inline-end: 1px solid</code></td>
+        <td><code>border-right: 1px solid</code></td>
         <td>Flips to left side.</td>
       </tr>
       <tr>
@@ -124,15 +124,15 @@ Aksara UI precompiles high-performance logical properties directly in the prefli
         <td>Aligns left.</td>
       </tr>
       <tr>
-        <td><code>start-10</code></td>
-        <td><code>inset-inline-start: 10px</code></td>
-        <td><code>left: 10px</code></td>
+        <td><code>start-3</code></td>
+        <td><code>inset-inline-start: 1rem</code></td>
+        <td><code>left: 1rem</code></td>
         <td>Flips to right side.</td>
       </tr>
       <tr>
-        <td><code>end-10</code></td>
-        <td><code>inset-inline-end: 10px</code></td>
-        <td><code>right: 10px</code></td>
+        <td><code>end-3</code></td>
+        <td><code>inset-inline-end: 1rem</code></td>
+        <td><code>right: 1rem</code></td>
         <td>Flips to left side.</td>
       </tr>
     </tbody>
@@ -148,7 +148,7 @@ Legacy frameworks precompile classes like `.pl-3` (`padding-left`) or `.text-rig
 
 Aksara UI **does not compile or export** coordinates:
 
-- `ml-10`, `mr-10`, `pl-10`, `pr-10` — **REJECTED** (Not generated)
+- `ml-3`, `mr-3`, `pl-3`, `pr-3` — **REJECTED** (Not generated)
 - `text-left`, `text-right` — **REJECTED** (Not generated)
 - `border-l`, `border-r`, `border-t`, `border-b` — **REJECTED** (Not generated)
 

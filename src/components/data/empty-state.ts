@@ -43,9 +43,9 @@ export function EmptyState(props: EmptyStateProps): string {
     `.trim()
     : "";
 
-  const titleHtml = `<h3 class="empty-state-title fs-5 font-bold mb-2 text-body">${escapeHtml(title)}</h3>`;
+  const titleHtml = `<h3 class="empty-state-title text-xl fw-bold mb-2 text-body">${escapeHtml(title)}</h3>`;
   const descHtml = description
-    ? `<p class="empty-state-desc text-subtle text-sm max-w-md mx-auto mb-4 leading-relaxed">${escapeHtml(description)}</p>`
+    ? `<p class="empty-state-desc text-subtle text-sm max-w-[28rem] mx-auto mb-4 leading-relaxed">${escapeHtml(description)}</p>`
     : "";
   const actionsHtml = actions
     ? `<div class="empty-state-actions d-flex align-items-center justify-content-center gap-2 flex-wrap">${actions}</div>`

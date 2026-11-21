@@ -1,4 +1,4 @@
-import { classNames, toAttributes, type ComponentSize } from "../utils";
+import { classNames, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export type InputType =
   | "text"
@@ -51,7 +51,7 @@ export function Input(props: InputProps = {}): string {
   } = props;
 
   const controlClass = type === "color" ? "form-control form-control-color" : "form-control";
-  const sizeClass = size ? `form-control-${size}` : "";
+  const sizeClass = size ? `form-control-${normalizeSize(size)}` : "";
 
   const classes = classNames(controlClass, sizeClass, isInvalid && "is-invalid", isValid && "is-valid", className);
 

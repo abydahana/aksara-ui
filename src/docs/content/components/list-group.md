@@ -132,33 +132,33 @@ Navigate to a detail page. Icon on the left, label in the middle, value + chevro
   <div class="list-group" style="max-width:520px;">
     <a class="list-group-item list-group-item-action" href="#">
       <div class="flex items-center gap-3">
-        <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-lock-outline"></span></span>
-        <span class="flex-1 font-600">Private profile</span>
+        <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-lock-outline"></span></span>
+        <span class="flex-1 fw-semibold">Private profile</span>
         <span class="text-subtle text-sm">Public</span>
-        <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+        <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
       </div>
     </a>
     <a class="list-group-item list-group-item-action" href="#">
       <div class="flex items-center gap-3">
-        <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#06b6d4;"><span class="mdi mdi-at"></span></span>
-        <span class="flex-1 font-600">Tags and mentions</span>
+        <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#06b6d4;"><span class="mdi mdi-at"></span></span>
+        <span class="flex-1 fw-semibold">Tags and mentions</span>
         <span class="text-subtle text-sm">Everyone</span>
-        <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+        <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
       </div>
     </a>
     <a class="list-group-item list-group-item-action" href="#">
       <div class="flex items-center gap-3">
-        <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-account-clock-outline"></span></span>
-        <span class="flex-1 font-600">Online status</span>
+        <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-account-clock-outline"></span></span>
+        <span class="flex-1 fw-semibold">Online status</span>
         <span class="text-subtle text-sm">Active</span>
-        <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+        <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
       </div>
     </a>
     <a class="list-group-item list-group-item-action" href="#">
       <div class="flex items-center gap-3">
-        <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-cancel"></span></span>
-        <span class="flex-1 font-600">Blocked profiles</span>
-        <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+        <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-cancel"></span></span>
+        <span class="flex-1 fw-semibold">Blocked profiles</span>
+        <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
       </div>
     </a>
   </div>
@@ -169,12 +169,12 @@ Navigate to a detail page. Icon on the left, label in the middle, value + chevro
 <div class="list-group">
   <a class="list-group-item list-group-item-action" href="#">
     <div class="flex items-center gap-3">
-      <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg">
+      <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg">
         <span class="mdi mdi-lock-outline"></span>
       </span>
-      <span class="flex-1 font-600">Private profile</span>
+      <span class="flex-1 fw-semibold">Private profile</span>
       <span class="text-subtle text-sm">Public</span>
-      <span class="text-subtle opacity-50 text-sm ms-1">›</span>
+      <span class="text-subtle opacity-[.5] text-sm ms-1">›</span>
     </div>
   </a>
 </div>
@@ -189,8 +189,8 @@ Icon on the left, label in the middle, toggle switch on the right.
   <div class="list-group" style="max-width:520px;">
     <div class="list-group-item">
       <div class="flex items-center gap-3">
-        <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#06b6d4;"><span class="mdi mdi-water-alert"></span></span>
-        <span class="flex-1 font-600">Floods &amp; Inundations</span>
+        <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#06b6d4;"><span class="mdi mdi-water-alert"></span></span>
+        <span class="flex-1 fw-semibold">Floods &amp; Inundations</span>
         <div class="form-switch ms-auto">
           <input type="checkbox" role="switch" class="form-check-input" checked />
         </div>
@@ -198,8 +198,8 @@ Icon on the left, label in the middle, toggle switch on the right.
     </div>
     <div class="list-group-item">
       <div class="flex items-center gap-3">
-        <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#f59e0b;"><span class="mdi mdi-sine-wave"></span></span>
-        <span class="flex-1 font-600">Earthquakes &amp; Tremors</span>
+        <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#f59e0b;"><span class="mdi mdi-sine-wave"></span></span>
+        <span class="flex-1 fw-semibold">Earthquakes &amp; Tremors</span>
         <div class="form-switch ms-auto">
           <input type="checkbox" role="switch" class="form-check-input" checked />
         </div>
@@ -207,8 +207,8 @@ Icon on the left, label in the middle, toggle switch on the right.
     </div>
     <div class="list-group-item">
       <div class="flex items-center gap-3">
-        <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-fire"></span></span>
-        <span class="flex-1 font-600">Wildfires &amp; Hazmat</span>
+        <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-fire"></span></span>
+        <span class="flex-1 fw-semibold">Wildfires &amp; Hazmat</span>
         <div class="form-switch ms-auto">
           <input type="checkbox" role="switch" class="form-check-input" checked />
         </div>
@@ -222,10 +222,10 @@ Icon on the left, label in the middle, toggle switch on the right.
 <div class="list-group">
   <div class="list-group-item">
     <div class="flex items-center gap-3">
-      <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg">
+      <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg">
         <span class="mdi mdi-water-alert"></span>
       </span>
-      <span class="flex-1 font-600">Floods &amp; Inundations</span>
+      <span class="flex-1 fw-semibold">Floods &amp; Inundations</span>
       <div class="form-switch ms-auto">
         <input type="checkbox" role="switch" class="form-check-input" checked />
       </div>
@@ -244,7 +244,7 @@ Label with supporting description text, and a trailing control (select or switch
     <div class="list-group-item">
       <div class="flex items-center gap-4">
         <div class="flex-1 min-w-0">
-          <span class="font-600 block">Default Proximity Alert Radius</span>
+          <span class="fw-semibold block">Default Proximity Alert Radius</span>
           <span class="text-subtle text-sm block mt-1">Prioritize reports occurring within this distance from your coordinates.</span>
         </div>
         <select class="form-select form-select-sm shrink-0" style="width:auto;min-width:140px;">
@@ -257,7 +257,7 @@ Label with supporting description text, and a trailing control (select or switch
     <div class="list-group-item">
       <div class="flex items-center gap-4">
         <div class="flex-1 min-w-0">
-          <span class="font-600 block">Verified reports only</span>
+          <span class="fw-semibold block">Verified reports only</span>
           <span class="text-subtle text-sm block mt-1">Only display observations that have passed community or authority verification.</span>
         </div>
         <div class="form-switch shrink-0">
@@ -274,7 +274,7 @@ Label with supporting description text, and a trailing control (select or switch
   <div class="list-group-item">
     <div class="flex items-center gap-4">
       <div class="flex-1 min-w-0">
-        <span class="font-600 block">Verified reports only</span>
+        <span class="fw-semibold block">Verified reports only</span>
         <span class="text-subtle text-sm block mt-1">Only display verified observations.</span>
       </div>
       <div class="form-switch shrink-0">
@@ -295,7 +295,7 @@ Same pattern with description text but no icon — matches notification or prefe
     <div class="list-group-item">
       <div class="flex items-center justify-between gap-4">
         <div>
-          <span class="font-600 block">Disaster &amp; Critical Alerts</span>
+          <span class="fw-semibold block">Disaster &amp; Critical Alerts</span>
           <span class="text-subtle text-sm block mt-1">Receive urgent notifications for high-severity hazards nearby</span>
         </div>
         <div class="form-switch shrink-0 ms-4">
@@ -306,7 +306,7 @@ Same pattern with description text but no icon — matches notification or prefe
     <div class="list-group-item">
       <div class="flex items-center justify-between gap-4">
         <div>
-          <span class="font-600 block">Verification Updates</span>
+          <span class="fw-semibold block">Verification Updates</span>
           <span class="text-subtle text-sm block mt-1">Get notified when community verifies or updates your observation</span>
         </div>
         <div class="form-switch shrink-0 ms-4">
@@ -317,7 +317,7 @@ Same pattern with description text but no icon — matches notification or prefe
     <div class="list-group-item">
       <div class="flex items-center justify-between gap-4">
         <div>
-          <span class="font-600 block">Activity &amp; Interactions</span>
+          <span class="fw-semibold block">Activity &amp; Interactions</span>
           <span class="text-subtle text-sm block mt-1">Updates about upvotes, comments, and community notes</span>
         </div>
         <div class="form-switch shrink-0 ms-4">
@@ -328,7 +328,7 @@ Same pattern with description text but no icon — matches notification or prefe
     <div class="list-group-item">
       <div class="flex items-center justify-between gap-4">
         <div>
-          <span class="font-600 block">Audio Chime / Alert Sound</span>
+          <span class="fw-semibold block">Audio Chime / Alert Sound</span>
           <span class="text-subtle text-sm block mt-1">Play audio notification sound when receiving urgent alerts</span>
         </div>
         <div class="form-switch shrink-0 ms-4">
@@ -345,7 +345,7 @@ Same pattern with description text but no icon — matches notification or prefe
   <div class="list-group-item">
     <div class="flex items-center justify-between gap-4">
       <div>
-        <span class="font-600 block">Disaster &amp; Critical Alerts</span>
+        <span class="fw-semibold block">Disaster &amp; Critical Alerts</span>
         <span class="text-subtle text-sm block mt-1"
           >Receive urgent notifications for high-severity hazards nearby</span
         >
@@ -357,3 +357,37 @@ Same pattern with description text but no icon — matches notification or prefe
   </div>
 </div>
 ```
+
+---
+
+## Horizontal, Numbered & Contextual Items
+
+- `list-group-horizontal` lays items out in a row; `list-group-horizontal-{sm,md,lg,xl,2xl,3xl}` does so from that breakpoint up.
+- `list-group-numbered` (on an `<ol>`) prefixes each item with its number.
+- `list-group-item-{primary,secondary,success,danger,warning,info,light,dark}` tints a single item.
+
+::html
+<div class="docs-preview">
+  <div class="list-group list-group-horizontal mb-3">
+    <div class="list-group-item">Daily</div>
+    <div class="list-group-item list-group-item-primary">Weekly</div>
+    <div class="list-group-item">Monthly</div>
+  </div>
+  <ol class="list-group list-group-numbered m-0">
+    <li class="list-group-item">Create an account</li>
+    <li class="list-group-item list-group-item-success">Verify your email</li>
+    <li class="list-group-item">Invite your team</li>
+  </ol>
+</div>
+::end
+
+```html
+<div class="list-group list-group-horizontal-md">...</div>
+
+<ol class="list-group list-group-numbered">
+  <li class="list-group-item">Create an account</li>
+  <li class="list-group-item list-group-item-success">Verify your email</li>
+</ol>
+```
+
+The `ListGroup` string component exposes these as `horizontal`, `numbered` and (on `ListGroupItem`) `variant` props.

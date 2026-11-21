@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { createRequire } from "node:module";
+import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import {
   input,
@@ -65,6 +67,8 @@ import {
   mediaPreviewModal,
   Avatar,
   AvatarGroup,
+  AvatarStack,
+  avatarStack,
   bentoGrid,
   BentoGrid,
   bentoCard,
@@ -74,6 +78,10 @@ import {
   timeline,
   Timeline
 } from "../components/index";
+import { resolveRuntimeRule } from "../generator/aksara";
+import { colors as buildColors } from "../generator/palette";
+import { runComponentChecks } from "./components";
+import { runDocsChecks } from "./docs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "../..");
@@ -107,8 +115,26 @@ function escapeClass(value: string): string {
     .join("");
 }
 
+/** Declarations of every rule (any nesting) keyed by each selector in its selector list. */
+const ruleIndex = new Map<string, string[]>();
+for (const match of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+  const declarations = match[2].replace(/\s+/g, " ").replace(/: /g, ":").trim();
+  for (const selector of match[1].split(",")) {
+    const key = selector.trim();
+    ruleIndex.set(key, [...(ruleIndex.get(key) ?? []), declarations]);
+  }
+}
+
+/** True when some rule for exactly `selector` contains `declaration` (format-independent). */
+function ruleHas(selector: string, declaration: string): boolean {
+  const wanted = declaration.replace(/\s+/g, " ").trim();
+  return (ruleIndex.get(selector) ?? []).some((declarations) => declarations.includes(wanted));
+}
+
+/** The class itself has a rule (a longer class sharing the prefix, like `.nav-link` for `nav`, does not count). */
 function hasClass(name: string): boolean {
-  return css.includes(`.${escapeClass(name)}`);
+  const escaped = escapeClass(name).replace(/[\\^$.*+?()[\]{}|/]/g, (char) => `\\${char}`);
+  return new RegExp(`\\.${escaped}(?![\\w-]|\\\\)`).test(css);
 }
 
 function hasExactClassRule(name: string): boolean {
@@ -120,27 +146,10 @@ function hasExactClassRule(name: string): boolean {
   "lg:col-3",
   "2xl:col",
   "3xl:col",
-  "hover:bg-primary/80",
-  "focus:bg-primary/20",
-  "active:bg-danger/20",
-  "disabled:opacity-50",
-  "checked:ring",
-  "checked:ring-primary",
-  "selected:bg-primary/10",
-  "selected:text-primary",
-  "visited:text-primary",
-  "first:border-primary",
-  "last:border-danger",
-  "odd:bg-primary/10",
-  "even:bg-success/10",
-  "dark:md:hover:border",
-  "dark:lg:focus:bg-primary/20",
-  "dark:sm:active:-mx-3",
-  "text-primary/20",
-  "bg-primary/10",
-  "border-danger/50",
-  "w-1/2",
   "w-100",
+  "w-full",
+  "h-100",
+  "h-full",
   "bg-body",
   "text-body",
   "border-subtle",
@@ -149,14 +158,12 @@ function hasExactClassRule(name: string): boolean {
   "-mx-2",
   "ps-4",
   "pe-4",
-  "mx-[-1rem]",
-  "sticky-lg-top",
-  "hover:translate-y-[-2px]",
+  "lg:sticky-top",
   "border-top",
   "border-bottom",
   "border-start",
   "border-end",
-  "text-14",
+  "text-sm",
   "underline",
   "uppercase",
   "truncate",
@@ -172,14 +179,18 @@ function hasExactClassRule(name: string): boolean {
   "scrollbar-none",
   "skeleton",
   "timeline",
-  "leading-24",
-  "tracking-2",
+  "leading-tight",
+  "tracking-wide",
   "transition",
-  "duration-200",
   "ease-in-out",
-  "scale-95",
-  "rotate-45",
-  "translate-x-10",
+  "translate-x-3",
+  "opacity-3",
+  "border-5",
+  "rounded-0",
+  "rounded-xl",
+  "z-auto",
+  "font-extralight",
+  "blur-2xl",
   "form-control",
   "form-check",
   "form-radio",
@@ -193,31 +204,31 @@ function hasExactClassRule(name: string): boolean {
   "btn-md",
   "btn-lg",
   "btn-xl",
-  "btn-xxl",
+  "btn-2xl",
   "form-control-xs",
   "form-control-sm",
   "form-control-md",
   "form-control-lg",
   "form-control-xl",
-  "form-control-xxl",
+  "form-control-2xl",
   "form-select-xs",
   "form-select-sm",
   "form-select-md",
   "form-select-lg",
   "form-select-xl",
-  "form-select-xxl",
+  "form-select-2xl",
   "badge-xs",
   "badge-sm",
   "badge-md",
   "badge-lg",
   "badge-xl",
-  "badge-xxl",
+  "badge-2xl",
   "btn-close-xs",
   "btn-close-sm",
   "btn-close-md",
   "btn-close-lg",
   "btn-close-xl",
-  "btn-close-xxl",
+  "btn-close-2xl",
   "btn-icon",
   "btn-ghost",
   "btn-group",
@@ -329,6 +340,152 @@ function hasExactClassRule(name: string): boolean {
   (name) => assert(!hasExactClassRule(name), `Forbidden CSS class generated: ${name}`)
 );
 
+// ── Variants of static utilities beyond hover/focus/active are generated on demand ──
+{
+  const staticLookup = (utility: string): string | null =>
+    css.match(new RegExp(`^\\.${escapeClass(utility)}(?:,[^{]*)? \\{\\n([^}]*)\\}`, "m"))?.[1].replace(/\s+/g, "") ??
+    null;
+  (
+    [
+      ["checked:ring-primary", ":checked{"],
+      ["selected:text-primary", '[aria-selected="true"]{'],
+      ["visited:text-primary", ":visited{"],
+      ["first:border-primary", ":first-child{"],
+      ["last:border-danger", ":last-child{"],
+      ["dark:md:hover:border", '@media (min-width:48rem){[data-theme="dark"] .dark\\:md\\:hover\\:border:hover'],
+      ["dark:sm:active:-mx-3", "!important"]
+    ] as const
+  ).forEach(([name, fragment]) => {
+    const generated = resolveRuntimeRule(name, staticLookup);
+    assert(generated?.includes(fragment), `Runtime must generate ${name} from the static utility (got ${generated})`);
+  });
+  ["hover:bg-subtle", "hover:underline", "focus:border-primary", "active:bg-primary"].forEach((name) =>
+    assert(hasClass(name), `Missing static interactive variant .${name}`)
+  );
+  assert(
+    !hasClass("checked:ring") && !hasClass("odd:bg-primary"),
+    "Non-interactive state variants must be runtime-only"
+  );
+}
+
+// ── Color opacity utilities are resolved on demand by the runtime engine ──
+// Only levels that Aksara's own components emit are precompiled (for server-rendered
+// markup); every other level is generated on demand.
+{
+  const walkFiles = (target: string): string[] =>
+    fs.statSync(target).isFile()
+      ? [target]
+      : fs.readdirSync(target).flatMap((name) => walkFiles(path.join(target, name)));
+  const componentSources = [path.join(root, "src/components"), path.join(root, "src/generator/aksara.ts")]
+    .flatMap(walkFiles)
+    .map((file) => fs.readFileSync(file, "utf8"))
+    .join("\n");
+  const staticColorOpacityClasses = (
+    css.match(/^\.[^\s{,:]*(?:bg|text|border|decoration|ring)-[a-z]+\\\/\d+/gm) ?? []
+  ).map((selector) => selector.slice(1).replace(/\\/g, ""));
+  const notFromComponents = staticColorOpacityClasses.filter((name) => !componentSources.includes(name));
+  assert(
+    notFromComponents.length === 0,
+    `Color opacity levels must not be generated statically unless components emit them: ${notFromComponents.join(" ")}`
+  );
+  assert(staticColorOpacityClasses.length < 20, "Color opacity levels must stay runtime-generated");
+}
+for (const name of Object.keys(buildColors)) {
+  assert(css.includes(`--aksara-${name}:`), `Runtime color opacity palette name has no token: --aksara-${name}`);
+  assert(
+    resolveRuntimeRule(`bg-${name}/10`) === `.bg-${name}\\/10{background-color:rgb(var(--aksara-${name}) / 0.1)}`,
+    `Runtime engine must resolve bg-${name}/10`
+  );
+}
+(
+  [
+    ["bg-primary/12", ".bg-primary\\/12{background-color:rgb(var(--aksara-primary) / 0.12)}"],
+    ["text-primary/20", ".text-primary\\/20{color:rgb(var(--aksara-primary) / 0.2)}"],
+    ["border-danger/50", ".border-danger\\/50{border-color:rgb(var(--aksara-danger) / 0.5)}"],
+    ["decoration-info/0", ".decoration-info\\/0{text-decoration-color:rgb(var(--aksara-info) / 0)}"],
+    ["ring-success/100", ".ring-success\\/100{--aksara-ring-color:rgb(var(--aksara-success) / 1)}"],
+    ["hover:bg-primary/80", ".hover\\:bg-primary\\/80:hover{background-color:rgb(var(--aksara-primary) / 0.8)}"],
+    ["odd:bg-primary/10", ".odd\\:bg-primary\\/10:nth-child(odd){background-color:rgb(var(--aksara-primary) / 0.1)}"],
+    [
+      "group-hover:bg-light/5",
+      ".group:hover .group-hover\\:bg-light\\/5{background-color:rgb(var(--aksara-light) / 0.05)}"
+    ],
+    [
+      "dark:lg:focus:bg-primary/20",
+      '@media (min-width:62rem){[data-theme="dark"] .dark\\:lg\\:focus\\:bg-primary\\/20:focus,.dark .dark\\:lg\\:focus\\:bg-primary\\/20:focus{background-color:rgb(var(--aksara-primary) / 0.2)}}'
+    ]
+  ] as const
+).forEach(([name, expected]) => assert(resolveRuntimeRule(name) === expected, `Runtime rule mismatch for ${name}`));
+["bg-primary/101", "bg-black/60", "bg-white/10", "bg-panel/90", "w-1/2", "bg-primary"].forEach((name) =>
+  assert(resolveRuntimeRule(name) === null, `Runtime engine must not resolve ${name}`)
+);
+
+// ── Numeric utilities use the 0..5 scale; typography is semantic; other values are arbitrary ──
+{
+  const ruleOf = (name: string): string | undefined =>
+    css.match(new RegExp(`^\\.${escapeClass(name)}(?:,[^{]*)? \\{\\n  ([^\\n]*)`, "m"))?.[1];
+  const staticSizing = (css.match(/^\.[wh]-[^\s{,:]+(?=[ ,])/gm) ?? []).map((rule) => rule.slice(1).replace(/\\/g, ""));
+  const allowedSizing = ["w-100", "h-100", "w-full", "h-full", "w-auto", "h-auto", "w-screen", "h-screen"];
+  const unexpectedSizing = staticSizing.filter((name) => !name.includes("[") && !allowedSizing.includes(name));
+  assert(
+    unexpectedSizing.length === 0,
+    `Only full/auto/screen sizing may be static; use arbitrary values instead: ${unexpectedSizing.slice(0, 8).join(" ")}`
+  );
+  assert(
+    resolveRuntimeRule("w-[33.3333%]") === ".w-\\[33\\.3333\\%\\]{width:33.3333%}",
+    "Runtime engine must resolve fractional widths"
+  );
+  const outOfScale = css.match(/^\.-?(?:rounded|radius|border|z|opacity|translate-[xy])-(?:[6-9]|\d{2,})[ ,]/gm) ?? [];
+  assert(
+    outOfScale.length === 0,
+    `Numeric utilities above 5 must not be generated: ${outOfScale.slice(0, 5).join(" ")}`
+  );
+  const numericOnlySemantic = css.match(/^\.(?:text|leading|tracking|scale|skew-[xy])-\d+ /gm) ?? [];
+  assert(
+    numericOnlySemantic.length === 0,
+    `Numeric text/leading/tracking/scale/skew must not be generated: ${numericOnlySemantic[0]}`
+  );
+  (
+    [
+      ["rounded-0", "border-radius:0 !important"],
+      ["rounded-xl", "border-radius:var(--aksara-radius-xl) !important"],
+      ["border-5", "border-width:5px;"],
+      ["opacity-0", "opacity:0"],
+      ["opacity-3", "opacity:0.6"],
+      ["opacity-5", "opacity:1"],
+      ["translate-x-3", "transform:translateX(1rem)"]
+    ] as const
+  ).forEach(([name, declaration]) =>
+    assert(ruleOf(name) === declaration, `.${name} should be "${declaration}", got "${ruleOf(name)}"`)
+  );
+  (
+    [
+      ["rounded-[12px]", ".rounded-\\[12px\\]{border-radius:12px !important}"],
+      ["text-[13px]", ".text-\\[13px\\]{font-size:13px}"],
+      ["leading-[22px]", ".leading-\\[22px\\]{line-height:22px}"],
+      ["z-[1050]", ".z-\\[1050\\]{z-index:1050}"],
+      ["scale-[.95]", ".scale-\\[\\.95\\]{transform:scale(.95)}"],
+      ["disabled:opacity-[.5]", ".disabled\\:opacity-\\[\\.5\\]:disabled{opacity:.5}"]
+    ] as const
+  ).forEach(([name, expected]) => assert(resolveRuntimeRule(name) === expected, `Runtime rule mismatch for ${name}`));
+}
+
+// ── Material Design Icons: separate entry + required peer dependency ──
+const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+assert(pkg.peerDependencies?.["@mdi/font"], "@mdi/font must be declared as a peer dependency");
+assert(!pkg.peerDependenciesMeta?.["@mdi/font"]?.optional, "@mdi/font peer dependency must not be optional");
+assert(!pkg.dependencies?.["@mdi/font"], "@mdi/font must not be a regular dependency");
+assert(pkg.exports["./css/icons"] === "./dist/icons.css", "Missing ./css/icons export");
+const iconsCss = fs.readFileSync(path.join(root, "dist/icons.css"), "utf8");
+assert(
+  iconsCss.includes('@import "@mdi/font/css/materialdesignicons.min.css"'),
+  "dist/icons.css must import the @mdi/font peer dependency"
+);
+assert(!/\.mdi-[a-z0-9-]+::?before/.test(css), "aksara.css must not bundle Material Design Icons glyph rules");
+assert(!css.includes("Material Design Icons"), "aksara.css must not bundle the Material Design Icons font-face");
+assert(!fs.existsSync(path.join(root, "dist/fonts")), "dist/fonts must not be shipped; fonts come from @mdi/font");
+assert(js.includes("Material Design Icons are not loaded"), "Runtime must report a missing icon stylesheet");
+
 assert(!css.includes("data-bs-toggle"), "Forbidden data-bs-toggle token generated");
 assert(!css.includes("--aksara-primary:13 110 253"), "Bootstrap-like primary token should not be used");
 assert(css.includes("--aksara-primary:15 23 42"), "Slate Aksara primary token missing");
@@ -344,7 +501,47 @@ assert(hasExactClassRule("border-base"), "Missing border-base utility class");
 assert(css.includes("--aksara-overlay-bg:rgb(15 23 42/.46)"), "Light overlay token missing");
 assert(css.includes("--aksara-overlay-bg:rgb(0 0 0/.62)"), "Dark overlay token missing");
 assert(css.includes("--aksara-radius:1rem"), "Base rounded theme radius token missing");
-assert(css.includes("--aksara-radius-xl:1rem"), "Extra large rounded theme radius should resolve to the base radius");
+{
+  // Radius tokens grow strictly: 2xs < xs < sm < md < lg < xl < 2xl < 3xl.
+  const radiusScale = ["2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"].map((size) =>
+    Number.parseFloat(css.match(new RegExp(`--aksara-radius-${size}:([.\\d]+)rem`))?.[1] ?? "NaN")
+  );
+  assert(
+    radiusScale.every((value, index) => index === 0 || value > radiusScale[index - 1]),
+    `Radius tokens must be strictly increasing: ${radiusScale.join(" < ")}`
+  );
+  assert(css.includes("--aksara-radius-xl:1.25rem"), "rounded-xl must sit between lg (1rem) and 2xl (1.5rem)");
+  // Semantic-only families: no numeric radius, z-index, font weight; no xxl size names; no text-md alias.
+  const forbidden =
+    css.match(
+      /^\.(?:rounded|radius)-[1-9][ ,]|^\.(?:rounded|radius)-(?:top|bottom|start|end)(?:-(?:start|end))?-[1-9][ ,]|^\.z-\d+[ ,]|^\.font-\d00[ ,]|^\.(?:duration|rotate|backdrop-saturate)-\d+[ ,]|^\.[a-z-]+-xxl[ ,]|^\.text-md[ ,]/gm
+    ) ?? [];
+  assert(
+    forbidden.length === 0,
+    `Removed numeric/alias classes are generated again: ${forbidden.slice(0, 6).join(" ")}`
+  );
+  assert(ruleHas(".rounded-0", "border-radius:0"), "rounded-0 must remove radius");
+  for (const [name, weight] of [
+    ["fw-light", "300"],
+    ["fw-normal", "400"],
+    ["fw-semibold", "600"],
+    ["fw-bold", "700"],
+    ["fw-bolder", "800"],
+    ["fw-black", "900"]
+  ] as const) {
+    assert(ruleHas(`.${name}`, `font-weight:${weight}`), `${name} must set font-weight ${weight}`);
+  }
+  assert(!hasExactClassRule("font-bold"), "font-bold was removed in favour of fw-bold");
+  assert(!hasExactClassRule("font-semibold"), "font-semibold was removed in favour of fw-semibold");
+  assert(resolveRuntimeRule("z-[1050]") === ".z-\\[1050\\]{z-index:1050}", "z-index must use arbitrary values");
+  (
+    [
+      ["duration-[200ms]", ".duration-\\[200ms\\]{transition-duration:200ms}"],
+      ["rotate-[45deg]", ".rotate-\\[45deg\\]{transform:rotate(45deg)}"],
+      ["backdrop-saturate-[150%]", ".backdrop-saturate-\\[150\\%\\]{backdrop-filter:saturate(150%)}"]
+    ] as const
+  ).forEach(([name, expected]) => assert(resolveRuntimeRule(name) === expected, `Runtime rule mismatch for ${name}`));
+}
 assert(css.includes("--aksara-scrollbar-thumb:rgb(100 116 139/.32)"), "Light scrollbar token missing");
 assert(css.includes("--aksara-scrollbar-thumb:rgb(174 186 204/.28)"), "Dark scrollbar token missing");
 assert(
@@ -352,7 +549,7 @@ assert(
   "Custom scrollbar thumb styling missing"
 );
 assert(
-  css.includes(".modal {\n  position:fixed") && css.includes("background:var(--aksara-overlay-bg)"),
+  ruleHas(".modal", "position:fixed") && css.includes("background:var(--aksara-overlay-bg)"),
   "Modal backdrop should use theme-aware overlay token"
 );
 assert(
@@ -366,13 +563,13 @@ assert(
   "Modal dialog should support draggable transform offsets"
 );
 assert(css.includes(".modal-body") && css.includes("overflow:auto"), "Modal body should own scrolling");
-assert(css.includes(".modal-header {\n  cursor:grab"), "Modal header should expose draggable affordance");
+assert(ruleHas(".modal-header", "cursor:grab"), "Modal header should expose draggable affordance");
 assert(
-  css.includes(".btn {\n  display:inline-flex") && css.includes("border-radius:var(--aksara-radius)"),
+  ruleHas(".btn", "display:inline-flex") && css.includes("border-radius:var(--aksara-radius)"),
   "Buttons should use base rounded theme radius"
 );
 assert(
-  css.includes(".card {\n  color:var(--aksara-text-body)") && css.includes("border-radius:var(--aksara-radius)"),
+  ruleHas(".card", "color:var(--aksara-text-body)") && css.includes("border-radius:var(--aksara-radius)"),
   "Cards should use base rounded theme radius"
 );
 assert(
@@ -388,7 +585,7 @@ assert(
   "Form controls should use base rounded theme radius"
 );
 assert(
-  css.includes(".tooltip {\n  position:absolute") &&
+  ruleHas(".tooltip", "position:absolute") &&
     css.includes("background:var(--aksara-tooltip-bg)") &&
     css.includes("color:var(--aksara-tooltip-text)"),
   "Tooltip should use theme-aware tokens"
@@ -425,33 +622,38 @@ assert(
 assert(css.includes(".col-auto"), "col-auto utility must exist");
 assert(css.includes(".row-cols-auto"), "row-cols-auto utility must exist");
 assert(css.includes(".row-cols-2"), "row-cols-2 utility must exist");
-assert(css.includes(".col-md-6"), "col-md-6 Bootstrap responsive utility must exist");
-assert(css.includes(".col-md-auto"), "col-md-auto Bootstrap responsive utility must exist");
-assert(css.includes(".g-md-3"), "g-md-3 Bootstrap responsive gutter utility must exist");
+assert(hasClass("md:col-6"), "md:col-6 responsive utility must exist");
+assert(hasClass("md:col-auto"), "md:col-auto responsive utility must exist");
+assert(hasClass("md:g-3"), "md:g-3 responsive gutter utility must exist");
+for (const infix of ["col-md-6", "col-md-auto", "col-lg", "g-md-3", "gx-lg-2", "sticky-lg-top", "sticky-top-md"]) {
+  assert(!hasClass(infix), `${infix}: breakpoints are prefix-only (md:..), Bootstrap infix names must not exist`);
+}
 assert(css.split("\n").length > 1000, "dist/aksara.css should be readable, not one-line minified output");
 assert(minCss.split("\n").length <= 2, "dist/aksara.min.css should be true minified one-line output");
 assert(minCss.length < css.length, "dist/aksara.min.css should be smaller than readable CSS");
 
-assert(css.includes(".p-1 {\n  padding:.25rem"), "p-1 should generate quarter-rem padding");
-assert(css.includes(".p-2 {\n  padding:.5rem"), "p-2 should generate half-rem padding");
-assert(css.includes(".p-3 {\n  padding:1rem"), "p-3 should generate one-rem padding");
-assert(css.includes(".p-4 {\n  padding:1.5rem"), "p-4 should generate 1.5-rem padding");
-assert(css.includes(".p-5 {\n  padding:3rem"), "p-5 should generate 3-rem padding");
-assert(css.includes(".sticky-lg-top"), "sticky-lg-top must be generated");
+assert(ruleHas(".p-1", "padding:.25rem"), "p-1 should generate quarter-rem padding");
+assert(ruleHas(".p-2", "padding:.5rem"), "p-2 should generate half-rem padding");
+assert(ruleHas(".p-3", "padding:1rem"), "p-3 should generate one-rem padding");
+assert(ruleHas(".p-4", "padding:1.5rem"), "p-4 should generate 1.5-rem padding");
+assert(ruleHas(".p-5", "padding:3rem"), "p-5 should generate 3-rem padding");
+assert(hasClass("lg:sticky-top"), "lg:sticky-top must be generated");
 assert(css.includes("margin-inline:-1rem"), "mx-[-1rem] must use margin-inline:-1rem");
-assert(css.includes(".gap-2 {\n  gap:.5rem"), "gap-2 should generate half-rem gap");
+assert(ruleHas(".gap-2", "gap:.5rem"), "gap-2 should generate half-rem gap");
 assert(
   css.includes("padding-inline:var(--aksara-container-padding,1rem)"),
   "Container should default to one-rem horizontal padding"
 );
-assert(css.includes(".card-body {\n  padding:1rem"), "Card body should default to one-rem padding");
+assert(ruleHas(".card-body", "padding:1rem"), "Card body should default to one-rem padding");
 assert(
-  css.includes(".modal-body {\n  min-height:0") && css.includes("padding:1rem"),
+  ruleHas(".modal-body", "min-height:0") && css.includes("padding:1rem"),
   "Modal body should default to one-rem padding"
 );
-assert(css.includes(".w-100 {\n  width:100%"), "w-100 should generate 100% width");
-assert(css.includes(".w-1\\/2 {\n  width:50%"), "w-1/2 should generate 50% width");
-assert(css.includes(".w-2\\/5 {\n  width:40%"), "w-2/5 should generate 40% width");
+assert(ruleHas(".w-100", "width:100%"), "w-100 should generate 100% width");
+assert(
+  !hasExactClassRule("w-1/2") && !hasExactClassRule("w-50") && !hasExactClassRule("w-30"),
+  "Fraction and percentage widths must be arbitrary (w-[50%])"
+);
 assert(css.includes("border-inline-end-color:currentColor"), "Spinner active stroke should follow current text color");
 assert(
   css.includes("color-mix(in srgb,currentColor 22%,transparent)"),
@@ -461,19 +663,28 @@ assert(
   css.includes(".badge-dot.text-success") && css.includes("background-color:rgb(var(--aksara-success) / 1)"),
   "Badge dot should support semantic text color utilities"
 );
-assert(css.includes(".btn-warning {\n  color:rgb(var(--aksara-light))"), "Warning button foreground should stay light");
-assert(css.includes(".btn-info {\n  color:rgb(var(--aksara-light))"), "Info button foreground should stay light");
-assert(css.includes(".btn-sm {\n  min-height:1.75rem"), "Small buttons should be compact enough for dense tables");
+assert(
+  ruleHas(".btn-warning", "color:var(--aksara-warning-foreground,rgb(var(--aksara-light)))"),
+  "Warning button foreground should stay light"
+);
+assert(
+  ruleHas(".btn-info", "color:var(--aksara-info-foreground,rgb(var(--aksara-light)))"),
+  "Info button foreground should stay light"
+);
+assert(ruleHas(".btn-sm", "min-height:1.75rem"), "Small buttons should be compact enough for dense tables");
 assert(
   css.includes(".btn-sm.btn-icon") && css.includes("inline-size:1.75rem"),
   "Small icon buttons should stay compact"
 );
-assert(css.includes("form {\n  margin:0"), "Forms should not add default block margin");
+assert(ruleHas("form", "margin:0"), "Forms should not add default block margin");
 assert(
-  css.includes(".badge-warning {\n  color:rgb(var(--aksara-light))"),
+  ruleHas(".badge-warning", "color:var(--aksara-warning-foreground,rgb(var(--aksara-light)))"),
   "Warning badge foreground should stay light"
 );
-assert(css.includes(".badge-info {\n  color:rgb(var(--aksara-light))"), "Info badge foreground should stay light");
+assert(
+  ruleHas(".badge-info", "color:var(--aksara-info-foreground,rgb(var(--aksara-light)))"),
+  "Info badge foreground should stay light"
+);
 assert(css.includes(".progress-bar.bg-success"), "Progress bars should support semantic background utilities");
 assert(css.includes(".progress-bar.bg-warning"), "Progress bars should support readable warning fills");
 assert(css.includes(".progress-bar.bg-danger"), "Progress bars should support danger fills");
@@ -513,7 +724,7 @@ assert(
     css.includes(".input-group-sm"),
   "Input group should support buttons and addons with border-radius stripping and size matching"
 );
-assert(!css.includes(".btn:hover {\n  transform:translateY(-1px)"), "Buttons should not lift on hover by default");
+assert(!ruleHas(".btn:hover", "transform:translateY(-1px)"), "Buttons should not lift on hover by default");
 assert(
   css.includes(".breadcrumb-dot .breadcrumb-item+ .breadcrumb-item::before"),
   "Breadcrumb dot separator class missing"
@@ -530,7 +741,25 @@ assert(
   css.includes("[dir='rtl'] .offcanvas") && css.includes("[dir='rtl'] .offcanvas-end"),
   "Offcanvas should include RTL transform overrides"
 );
-assert(js.includes("window.Aksara=Aksara"), "Global Aksara namespace missing");
+// The browser bundles must actually execute and expose window.Aksara.
+for (const bundle of ["dist/aksara.js", "dist/aksara.min.js"]) {
+  const sandbox: Record<string, unknown> = { console };
+  sandbox.window = sandbox;
+  vm.runInNewContext(fs.readFileSync(path.join(root, bundle), "utf8"), sandbox, { filename: bundle });
+  const globalAksara = (sandbox.window as { Aksara?: { init?: unknown; modal?: unknown } }).Aksara;
+  assert(typeof globalAksara?.init === "function", `${bundle} must execute and expose window.Aksara`);
+}
+assert(
+  !fs.readFileSync(path.join(root, "dist/aksara.min.js"), "utf8").includes("%+${"),
+  "Minified JS must keep template-literal whitespace (calc(-${a}% + ${b}px))"
+);
+{
+  const cjs = createRequire(import.meta.url)(path.join(root, "dist/aksara.cjs"));
+  assert(
+    typeof cjs.default?.init === "function" && typeof cjs.Modal === "function",
+    "dist/aksara.cjs must be CommonJS"
+  );
+}
 assert(js.includes("data-modal"), "Modal data API missing");
 assert(js.includes("data-modal-close"), "Modal close data API missing");
 assert(
@@ -604,7 +833,10 @@ assert(docsLoader.includes("bindDocsScrollspy"), "Docs scrollspy binding missing
 assert(docsLoader.includes("toggleMenu"), "Docs mobile menu toggle missing");
 assert(docsLoader.includes("toggleTheme"), "Docs theme toggle behavior missing");
 assert(docsLoader.includes("toggleGroup"), "Docs group collapse behavior missing");
-assert(docsLoader.includes("aksara-docs-theme"), "Docs theme persistence missing");
+assert(
+  docsLoader.includes('localStorage.setItem("aksara-theme"'),
+  "Docs theme persistence must share the runtime aksara-theme key"
+);
 assert(docsLoader.includes("docs-menu-open"), "Docs mobile menu state missing");
 assert(docsCss.includes("position: fixed"), "Docs mobile topbar/sheet fixed positioning missing");
 assert(docsCss.includes("translateY(100%)"), "Docs mobile menu should be a bottom sheet");
@@ -775,13 +1007,10 @@ assert(
   docsContent.includes("placeholder text-primary block") && docsContent.includes("width:96px"),
   "Docs content manifest missing tinted placeholder sample"
 );
+assert(docsContent.includes("Static Sizing Utilities"), "Docs content manifest missing updated sizing documentation");
 assert(
-  docsContent.includes("Percentage Sizing (Bootstrap Compatible)"),
-  "Docs content manifest missing updated sizing documentation"
-);
-assert(
-  docsContent.includes("Fraction Widths") && docsContent.includes("w-1/2"),
-  "Docs content manifest missing fraction width documentation"
+  docsContent.includes("Arbitrary Sizes") && docsContent.includes("w-[33.3333%]"),
+  "Docs content manifest missing arbitrary sizing documentation"
 );
 assert(docsContent.includes('"/components/progress"'), "Docs content manifest missing progress route");
 assert(docsContent.includes('"/components/spinner"'), "Docs content manifest missing spinner route");
@@ -979,21 +1208,18 @@ assert(
   QuoteCard({
     author: { name: "User", handle: "@user" },
     content: "Quoted message"
-  }).includes("feed-quote-card"),
+  }).includes("quote-card"),
   "QuoteCard failed"
 );
 assert(quoteCard({ author: { name: "A" } }).includes("quote-card"), "quoteCard failed");
 
 assert(GuestGate({ title: "Login to see" }).includes("guest-gate-wrapper"), "GuestGate failed");
-assert(
-  guestGate({ variant: "slide", title: "Slide Lock" }).includes("clips-guest-gate-slide"),
-  "guestGate slide failed"
-);
+assert(guestGate({ variant: "slide", title: "Slide Lock" }).includes("guest-gate-slide"), "guestGate slide failed");
 assert(AuthPromptModal({ title: "Sign in now" }).includes("authPromptModal"), "AuthPromptModal failed");
-assert(AuthModal({ title: "Sign in modal" }).includes("auth-prompt-modal-dialog"), "AuthModal failed");
+assert(AuthModal({ title: "Sign in modal" }).includes("auth-modal"), "AuthModal failed");
 
 assert(css.includes(".chip"), "Missing .chip in generated CSS");
-assert(css.includes(".composer-chip-btn"), "Missing .composer-chip-btn in generated CSS");
+assert(css.includes(".dropdown-select-toggle"), "Missing .dropdown-select-toggle in generated CSS");
 
 // Verify Theme Manager & Clipboard in JS
 assert(js.includes("setTheme"), "Missing setTheme in JS runtime");
@@ -1026,5 +1252,99 @@ assert(
   fs.existsSync(path.join(root, "dist/components/feedback/skeleton.js")),
   "Missing dist/components/feedback/skeleton.js"
 );
+
+// ── Inset Scale & Logical Positioning (integer 0..5 scale matching spacing) ──
+assert(hasExactClassRule("top-0"), "Missing top-0 in CSS");
+assert(hasExactClassRule("top-1"), "Missing top-1 in CSS");
+assert(hasExactClassRule("top-2"), "Missing top-2 in CSS");
+assert(hasExactClassRule("top-3"), "Missing top-3 in CSS");
+assert(hasExactClassRule("top-4"), "Missing top-4 in CSS");
+assert(hasExactClassRule("top-5"), "Missing top-5 in CSS");
+assert(hasExactClassRule("-top-1"), "Missing -top-1 in CSS");
+assert(hasExactClassRule("-top-3"), "Missing -top-3 in CSS");
+assert(hasExactClassRule("inset-0"), "Missing inset-0 in CSS");
+assert(hasExactClassRule("inset-3"), "Missing inset-3 in CSS");
+assert(hasExactClassRule("inset-x-2"), "Missing inset-x-2 in CSS");
+assert(hasExactClassRule("inset-y-3"), "Missing inset-y-3 in CSS");
+assert(hasExactClassRule("inset-block-start-3"), "Missing inset-block-start-3 in CSS");
+assert(hasExactClassRule("inset-inline-start-3"), "Missing inset-inline-start-3 in CSS");
+
+// Verify old pixel-scale inset utilities (e.g. top-10 = 10px, top-20 = 20px) are removed
+assert(!hasExactClassRule("top-10"), "top-10 should not exist as a bare class; use top-[10px] or integer scale");
+assert(!hasExactClassRule("top-20"), "top-20 should not exist as a bare class; use top-[20px] or integer scale");
+assert(!hasExactClassRule("bottom-10"), "bottom-10 should not exist as a bare class");
+assert(!hasExactClassRule("start-10"), "start-10 should not exist as a bare class");
+
+// ── Strict Prohibition of Decimal Utility Classes ──
+assert(!hasExactClassRule("p-1.5"), "p-1.5 must not exist as a generated rule");
+assert(!hasExactClassRule("g-1.5"), "g-1.5 must not exist as a generated rule");
+assert(!hasExactClassRule("m-2.5"), "m-2.5 must not exist as a generated rule");
+assert(!hasExactClassRule("gap-1.5"), "gap-1.5 must not exist as a generated rule");
+assert(!hasExactClassRule("top-1.5"), "top-1.5 must not exist as a generated rule");
+
+// ── Font Size & Typography (Standardize on text-*, remove redundant fs-*) ──
+assert(!hasExactClassRule("fs-1"), "fs-1 should be removed in favor of text-*");
+assert(!hasExactClassRule("fs-4"), "fs-4 should be removed in favor of text-*");
+assert(!hasExactClassRule("fs-6"), "fs-6 should be removed in favor of text-*");
+assert(!hasExactClassRule("fs-8"), "fs-8 should be removed in favor of text-*");
+assert(hasExactClassRule("text-xs"), "Missing text-xs in CSS");
+assert(hasExactClassRule("text-sm"), "Missing text-sm in CSS");
+assert(hasExactClassRule("text-base"), "Missing text-base in CSS");
+assert(hasExactClassRule("text-xl"), "Missing text-xl in CSS");
+assert(hasExactClassRule("text-2xl"), "Missing text-2xl in CSS");
+
+// ── Generic Structural Utilities & Components ──
+assert(css.includes(".avatar-stack"), "Missing .avatar-stack in CSS");
+assert(css.includes(".list-group-divider-inset"), "Missing .list-group-divider-inset in CSS");
+assert(css.includes(".list-group-inset"), "Missing .list-group-inset in CSS");
+
+assert(AvatarStack({ children: Avatar({ initials: "A" }) }).includes("avatar-stack"), "AvatarStack failed");
+assert(avatarStack().includes("avatar-stack"), "avatarStack failed");
+
+// ── `.border` (shorthand resets color) must precede border color utilities ──
+{
+  const borderRule = css.search(/^\.border \{/m);
+  ["border-primary", "border-danger", "border-subtle", "border-body", "border-transparent"].forEach((name) => {
+    const colorRule = css.search(new RegExp(`^\\.${name} \\{`, "m"));
+    assert(borderRule >= 0 && colorRule > borderRule, `.${name} must come after .border so it can override its color`);
+  });
+  assert(
+    /^\.rounded-lg,\s*\.radius-lg \{/m.test(css) && !/^\.radius-lg \{/m.test(css),
+    "radius-* must share the rounded-* rule instead of duplicating it"
+  );
+}
+
+// ── Components must only emit utilities that exist (statically or via the runtime engine) ──
+{
+  const definedClasses = new Set<string>();
+  for (const match of css.matchAll(/\.((?:\\.|[\w-])+)/g)) definedClasses.add(match[1].replace(/\\(.)/g, "$1"));
+  const utilityLike =
+    /^(?:[a-z0-9]+:)*-?(?:[mp][tbsexy]?|w|h|min-w|max-w|min-h|max-h|mw|mh|top|bottom|start|end|inset|gap|text|bg|border|rounded|radius|shadow|font|fw|fs|leading|tracking|z|opacity|flex|d|items|justify|self|order|grow|shrink|translate|rotate|scale|transition|duration|ease|cursor|select|overflow|whitespace|ring|decoration)-.*[^-]$/;
+  const walkTs = (dir: string): string[] =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) return walkTs(full);
+      return entry.name.endsWith(".ts") ? [full] : [];
+    });
+  const undefinedUtilities: string[] = [];
+  for (const file of [...walkTs(path.join(root, "src/components")), path.join(root, "src/generator/aksara.ts")]) {
+    const source = fs.readFileSync(file, "utf8");
+    const classStrings = [
+      ...[...source.matchAll(/class(?:Name)?=\\?["']([^"'$]*)/g)].map((m) => m[1]),
+      ...[...source.matchAll(/classNames\(\s*["'`]([^"'`$]*)/g)].map((m) => m[1])
+    ];
+    for (const token of classStrings.flatMap((value) => value.split(/\s+/)).filter(Boolean)) {
+      if (!utilityLike.test(token) || definedClasses.has(token) || resolveRuntimeRule(token)) continue;
+      undefinedUtilities.push(`${token} (${path.relative(root, file)})`);
+    }
+  }
+  assert(
+    undefinedUtilities.length === 0,
+    `Components emit undefined utility classes:\n${[...new Set(undefinedUtilities)].join("\n")}`
+  );
+}
+
+runComponentChecks();
+runDocsChecks();
 
 console.log("Aksara UI acceptance checks passed.");

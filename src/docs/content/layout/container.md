@@ -6,7 +6,7 @@ Containers center content and provide horizontal page padding.
 
 ::html
 <div class="docs-preview">
-  <div class="container bg-primary/10 border border-primary/20 rounded-12 p-5">
+  <div class="container bg-primary/10 border border-primary/20 rounded-[12px] p-5">
     Fixed max-width container
   </div>
 </div>
@@ -20,7 +20,7 @@ Containers center content and provide horizontal page padding.
 
 ::html
 <div class="docs-preview">
-  <div class="container-fluid bg-success/10 border border-success/20 rounded-12 p-5">
+  <div class="container-fluid bg-success/10 border border-success/20 rounded-[12px] p-5">
     Full-width fluid container
   </div>
 </div>
@@ -34,7 +34,7 @@ Containers center content and provide horizontal page padding.
 
 ```html
 <main class="container py-5">
-  <h1 class="text-32 font-800">Dashboard</h1>
+  <h1 class="text-[32px] font-extrabold">Dashboard</h1>
   <div class="row gap-5">
     <section class="col-12 lg:col-8">Main content</section>
     <aside class="col-12 lg:col-4">Side content</aside>

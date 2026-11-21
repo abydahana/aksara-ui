@@ -1,6 +1,6 @@
 # Strict Variant Grammar
 
-Aksara UI uses a highly advanced, structured, and predictable variant grammar to apply utilities conditionally. This keeps utility-first class lists structured, clean, and highly readable.
+Aksara UI uses a structured and predictable variant grammar to apply utilities conditionally. This keeps utility-first class lists structured, clean, and highly readable.
 
 ---
 
@@ -12,7 +12,7 @@ Combined utility class names MUST always follow this single, strict direction:
 [theme:][breakpoint:][state:]utility[-value][/level]
 ```
 
-To ensure predictable compilation and uniform readability across the entire code base, variants **must only** be composed in this exact structural hierarchy:
+To ensure predictable output and uniform readability across the entire code base, variants **must only** be composed in this exact structural hierarchy:
 
 ```text
 Theme ➔ Breakpoint ➔ State ➔ Utility
@@ -20,14 +20,25 @@ Theme ➔ Breakpoint ➔ State ➔ Utility
 
 - **Theme**: `dark` or `light`
 - **Breakpoint**: `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`
-- **State**: `hover`, `focus`, `active`, `disabled`, `checked`, `selected`, `visited`, `first`, `last`, `odd`, `even`
+- **State**: `hover`, `focus`, `active`, `disabled`, `checked`, `selected`, `visited`, `first`, `last`, `odd`, `even`, `group-hover`
 - **Utility**: Spacing, borders, displays, typography, colors, animations, etc.
+
+---
+
+## Precompiled vs On-Demand Variants
+
+Only the most common variants ship in the static stylesheet:
+
+- **Responsive layout**: `col-*`, `d-*`, `flex`, `grid`, `hidden`, `flex-row` / `flex-col`, `g-*` / `gx-*` / `gy-*`, `gap-*` and `sticky-{bp}-top` at every breakpoint (`md:col-6`, `lg:d-flex`, `md:gap-3`).
+- **Interaction states**: `hover:`, `focus:` and `active:` for palette colors, `bg-body`, `bg-subtle`, `bg-transparent`, `text-body`, `border`, `border-subtle`, `underline` and `ring` (`hover:bg-subtle`, `focus:border-primary`).
+
+Every other valid combination is generated on demand by `Aksara.init()` the first time it appears in the DOM: `md:text-center`, `last:border-0`, `odd:bg-subtle`, `disabled:opacity-[.5]`, `dark:md:hover:border-primary`. The variant must wrap an existing static utility or an arbitrary class; `md:foo` produces nothing.
 
 ---
 
 ## Valid vs Invalid Stacking
 
-The precompiler and parser **will reject** class declarations that violate this order. This guarantees that utility classes are easily scan-readable.
+The stylesheet generator and the runtime engine **reject** class names that violate this order (or use an unknown variant): no CSS rule is generated, so the class has no effect. This guarantees that utility classes are easily scan-readable.
 
 ::html
 <div class="table-responsive">
@@ -101,7 +112,7 @@ Aksara UI uses a mobile-first responsive architecture. Unprefixed utilities appl
       <tr>
         <td><code>3xl</code></td>
         <td><code>1600px</code></td>
-        <td><code>3xl:max-w-1000</code></td>
+        <td><code>3xl:max-w-[1000px]</code></td>
       </tr>
     </tbody>
   </table>
@@ -138,12 +149,12 @@ States apply custom classes during interactive triggers or structural conditions
       <tr>
         <td><code>active</code></td>
         <td><code>:active</code></td>
-        <td><code>active:scale-95</code></td>
+        <td><code>active:scale-[.95]</code></td>
       </tr>
       <tr>
         <td><code>disabled</code></td>
         <td><code>:disabled</code></td>
-        <td><code>disabled:opacity-50</code></td>
+        <td><code>disabled:opacity-[.5]</code></td>
       </tr>
       <tr>
         <td><code>checked</code></td>
@@ -163,12 +174,12 @@ States apply custom classes during interactive triggers or structural conditions
       <tr>
         <td><code>first</code></td>
         <td><code>:first-child</code></td>
-        <td><code>first:border-top-0</code></td>
+        <td><code>first:border-0</code></td>
       </tr>
       <tr>
         <td><code>last</code></td>
         <td><code>:last-child</code></td>
-        <td><code>last:border-bottom-0</code></td>
+        <td><code>last:border-0</code></td>
       </tr>
       <tr>
         <td><code>odd</code></td>
@@ -193,12 +204,12 @@ Hover and focus the elements below to witness responsive, state-based, and theme
 
 ::html
 <div class="docs-preview">
-  <div class="p-4 rounded-16 border border-subtle bg-body transition duration-200 dark:md:hover:border-primary hover:border-primary">
-    <h4 class="mt-0 mb-2 font-700 hstack gap-2"><span class="mdi mdi-layers-outline text-primary"></span> Responsive Hover Wrapper</h4>
+  <div class="p-4 rounded-[16px] border border-subtle bg-body transition duration-[200ms] dark:md:hover:border-primary hover:border-primary">
+    <h4 class="mt-0 mb-2 fw-bold hstack gap-2"><span class="mdi mdi-layers-outline text-primary"></span> Responsive Hover Wrapper</h4>
     <p class="text-subtle text-sm mb-4 mt-0">
-      This box transitions its border color on hover when viewed on viewports <code>md</code> and larger.
+      This box transitions its border color on hover. In dark mode the <code>dark:md:hover:border-primary</code> variant applies it on <code>md</code> viewports and larger.
     </p>
-    <button class="btn btn-soft-primary hover:bg-primary text-primary hover:text-light transition duration-150 hstack gap-2">
+    <button class="btn btn-soft-primary hover:bg-primary text-primary hover:text-light transition duration-[150ms] hstack gap-2">
       <span class="mdi mdi-gesture-tap"></span> Interactive State Button
     </button>
   </div>
@@ -206,12 +217,12 @@ Hover and focus the elements below to witness responsive, state-based, and theme
 ::end
 
 ```html
-<!-- Border changes on hover at medium viewports, with a transition -->
-<div class="border border-subtle dark:md:hover:border-primary transition duration-200">...</div>
+<!-- In dark mode, the border changes on hover at medium viewports and up -->
+<div class="border border-subtle dark:md:hover:border-primary transition duration-[200ms]">...</div>
 
 <!-- Button changes text & background colors smoothly on hover -->
 <button
-  class="btn btn-soft-primary hover:bg-primary text-primary hover:text-light transition duration-150 hstack gap-2"
+  class="btn btn-soft-primary hover:bg-primary text-primary hover:text-light transition duration-[150ms] hstack gap-2"
 >
   <span class="mdi mdi-gesture-tap"></span> Interactive State Button
 </button>

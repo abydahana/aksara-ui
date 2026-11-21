@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export interface SelectOption {
   label: string;
@@ -42,7 +42,7 @@ export function Select(props: SelectProps = {}): string {
     attributes
   } = props;
 
-  const sizeClass = size ? `form-select-${size}` : "";
+  const sizeClass = size ? `form-select-${normalizeSize(size)}` : "";
 
   const classes = classNames("form-select", sizeClass, isInvalid && "is-invalid", isValid && "is-valid", className);
 

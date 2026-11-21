@@ -11,7 +11,7 @@ Explore Aksara UI's default button states. Hover over the buttons to see smooth 
 ::html
 <div class="docs-preview">
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Solid Semantic Variants</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Solid Semantic Variants</h4>
     <div class="docs-row">
       <button class="btn btn-primary">Primary</button>
       <button class="btn btn-secondary">Secondary</button>
@@ -25,7 +25,7 @@ Explore Aksara UI's default button states. Hover over the buttons to see smooth 
   </div>
 
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Translucent Soft Variants</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Translucent Soft Variants</h4>
     <div class="docs-row">
       <button class="btn btn-soft-primary">Soft Primary</button>
       <button class="btn btn-soft-success">Soft Success</button>
@@ -36,7 +36,7 @@ Explore Aksara UI's default button states. Hover over the buttons to see smooth 
   </div>
 
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Outline & Border Variants</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Outline & Border Variants</h4>
     <div class="docs-row">
       <button class="btn btn-outline-primary">Outline Primary</button>
       <button class="btn btn-outline-success">Outline Success</button>
@@ -46,7 +46,7 @@ Explore Aksara UI's default button states. Hover over the buttons to see smooth 
   </div>
 
   <div>
-    <h4 class="mt-0 mb-3 font-700 text-sm">Size & Structural Modifiers</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Size & Structural Modifiers</h4>
     <div class="docs-row">
       <button class="btn btn-primary btn-sm">Small Button</button>
       <button class="btn btn-primary">Default Size</button>
@@ -56,7 +56,7 @@ Explore Aksara UI's default button states. Hover over the buttons to see smooth 
   </div>
 
   <div class="mt-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Anchor Buttons</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Anchor Buttons</h4>
     <div class="docs-row">
       <a class="btn btn-primary" href="#/components/buttons">Primary Link</a>
       <a class="btn btn-outline-primary" href="#/components/buttons">Outline Link</a>
@@ -129,7 +129,7 @@ Adjust button scales to fit layout constraints:
 ::html
 <div class="docs-preview">
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Button Sizes</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Button Sizes</h4>
     <div class="docs-row items-center">
       <button class="btn btn-primary btn-sm">Small</button>
       <button class="btn btn-primary">Default</button>
@@ -138,7 +138,7 @@ Adjust button scales to fit layout constraints:
   </div>
 
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Anchor Sizes</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Anchor Sizes</h4>
     <div class="docs-row items-center">
       <a class="btn btn-outline-primary btn-sm" href="#/components/buttons">Small Link</a>
       <a class="btn btn-outline-primary" href="#/components/buttons">Default Link</a>
@@ -251,7 +251,7 @@ Combine multiple buttons into a single cohesive row using the `.btn-group` wrapp
 ::html
 <div class="docs-preview">
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Solid Button Group</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Solid Button Group</h4>
     <div class="btn-group">
       <button class="btn btn-primary">Left</button>
       <button class="btn btn-primary">Middle</button>
@@ -260,7 +260,7 @@ Combine multiple buttons into a single cohesive row using the `.btn-group` wrapp
   </div>
 
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Outline Button Group</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Outline Button Group</h4>
     <div class="btn-group">
       <button class="btn btn-outline-primary">Left</button>
       <button class="btn btn-outline-primary">Middle</button>
@@ -269,7 +269,7 @@ Combine multiple buttons into a single cohesive row using the `.btn-group` wrapp
   </div>
 
   <div>
-    <h4 class="mt-0 mb-3 font-700 text-sm">Icon Toolbar Group</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Icon Toolbar Group</h4>
     <div class="btn-group">
       <button class="btn btn-soft-primary btn-icon" aria-label="Align Left">
         <span class="mdi mdi-format-align-left"></span>

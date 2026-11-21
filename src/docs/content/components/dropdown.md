@@ -245,3 +245,22 @@ menu.addEventListener("aksara:dropdown:show", (event) => {
   console.log("Dropdown menu rendered!", event.detail.instance);
 });
 ```
+
+---
+
+## Menu Modifiers
+
+- `dropdown-menu-end` aligns the menu to the inline end of its trigger (right in LTR, left in RTL).
+- `dropdown-menu-dark` renders a dark menu surface regardless of the page theme.
+
+```html
+<div class="dropdown">
+  <button class="btn btn-soft-secondary" data-dropdown="#accountMenu">Account</button>
+  <div id="accountMenu" class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+    <a class="dropdown-item" href="#">Profile</a>
+    <a class="dropdown-item" href="#">Sign out</a>
+  </div>
+</div>
+```
+
+The `DropdownMenu` string component maps its `end` and `dark` props to these classes.

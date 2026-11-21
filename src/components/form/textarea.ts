@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export interface TextareaProps {
   name?: string;
@@ -36,7 +36,7 @@ export function Textarea(props: TextareaProps = {}): string {
   } = props;
 
   const isAutoGrow = autoGrow || rows === 1;
-  const sizeClass = size ? `form-control-${size}` : "";
+  const sizeClass = size ? `form-control-${normalizeSize(size)}` : "";
 
   const classes = classNames(
     "form-control",

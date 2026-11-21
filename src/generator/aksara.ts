@@ -273,8 +273,36 @@ export class Component {
     this.cleanups.splice(0).forEach((cleanup) => cleanup());
     instances.delete(this);
     const ctor = this.constructor as typeof Component & { componentName?: string };
+    if (ctor.componentName) registry.get(ctor.componentName)?.delete(this.element);
     emit(this.element, `${ctor.componentName || "component"}:destroy`, { instance: this });
   }
+}
+
+// ── Overlay stack ──────────────────────────────────────────────────────────────
+// Open modals/offcanvases in opening order. Escape and focus trapping only apply to
+// the topmost overlay, and the page scroll stays locked until the last one closes.
+const overlayStack: Component[] = [];
+let scrollLockCount = 0;
+
+function pushOverlay(overlay: Component, lockScroll: boolean): void {
+  if (!overlayStack.includes(overlay)) overlayStack.push(overlay);
+  if (lockScroll && typeof document !== "undefined") {
+    scrollLockCount += 1;
+    document.documentElement.style.overflow = "hidden";
+  }
+}
+
+function popOverlay(overlay: Component, lockScroll: boolean): void {
+  const index = overlayStack.indexOf(overlay);
+  if (index >= 0) overlayStack.splice(index, 1);
+  if (lockScroll && typeof document !== "undefined") {
+    scrollLockCount = Math.max(0, scrollLockCount - 1);
+    if (scrollLockCount === 0) document.documentElement.style.overflow = "";
+  }
+}
+
+function isTopOverlay(overlay: Component): boolean {
+  return overlayStack[overlayStack.length - 1] === overlay;
 }
 
 export class Modal extends Component {
@@ -301,7 +329,7 @@ export class Modal extends Component {
     this.element.setAttribute("aria-hidden", this.isOpen ? "false" : "true");
 
     this.on(this.element, "click", (event: Event) => {
-      if (event.target === this.element) {
+      if (this.isBackdropClick(event)) {
         if (this.backdrop === "static") {
           const staticClass = `${(this.constructor as typeof Modal).componentName}-static`;
           this.element.classList.add(staticClass);
@@ -325,6 +353,11 @@ export class Modal extends Component {
     this.scrollLock = getBooleanOption(this.options, this.element, component, "scrollLock", true);
     this.draggable = getBooleanOption(this.options, this.element, component, "draggable", true);
     return this;
+  }
+
+  /** A click on the full-screen `.modal` wrapper (outside the dialog) is a backdrop click. */
+  isBackdropClick(event: Event): boolean {
+    return event.target === this.element;
   }
 
   bindDrag(): void {
@@ -407,7 +440,7 @@ export class Modal extends Component {
     this.isOpen = true;
     this.element.classList.add("modal-open");
     this.element.setAttribute("aria-hidden", "false");
-    if (this.scrollLock) document.documentElement.style.overflow = "hidden";
+    pushOverlay(this, this.scrollLock);
     if (this.focus) this.focusFirst();
     emit(this.element, "modal:show", { instance: this });
     return this;
@@ -419,7 +452,7 @@ export class Modal extends Component {
     this.element.classList.remove("modal-open");
     this.element.setAttribute("aria-hidden", "true");
     this.resetPosition();
-    if (this.scrollLock) document.documentElement.style.overflow = "";
+    popOverlay(this, this.scrollLock);
     if (this.previousFocus && typeof this.previousFocus.focus === "function") this.previousFocus.focus();
     emit(this.element, "modal:hide", { instance: this });
     return this;
@@ -437,7 +470,7 @@ export class Modal extends Component {
   }
 
   onKeydown(event: KeyboardEvent): void {
-    if (!this.isOpen) return;
+    if (!this.isOpen || !isTopOverlay(this)) return;
     if (event.key === "Escape") {
       if (this.keyboard) {
         event.preventDefault();
@@ -539,8 +572,13 @@ export class Dropdown extends Component {
     }
 
     if (this.trigger) {
-      this.trigger.setAttribute("aria-haspopup", "true");
+      this.trigger.setAttribute("aria-haspopup", "menu");
       this.trigger.setAttribute("aria-expanded", "false");
+      if (this.menu) {
+        if (!this.menu.id) this.menu.id = `aksara-dropdown-${Math.random().toString(36).slice(2, 9)}`;
+        this.trigger.setAttribute("aria-controls", this.menu.id);
+        this.menu.setAttribute("role", this.menu.getAttribute("role") || "menu");
+      }
       this.on(this.trigger, "click", (event: Event) => {
         const customEvent = event as Event & { __aksaraDropdownHandled?: boolean };
         if (customEvent.__aksaraDropdownHandled) return;
@@ -559,7 +597,28 @@ export class Dropdown extends Component {
     });
 
     this.on(document, "keydown", (event: Event) => {
-      if (this.keyboard && (event as KeyboardEvent).key === "Escape") this.hide();
+      const key = (event as KeyboardEvent).key;
+      if (!this.isOpen || !this.keyboard) return;
+      if (key === "Escape") {
+        // Return focus to the trigger when the menu had focus.
+        const hadFocus = Boolean(this.menu?.contains(document.activeElement));
+        this.hide();
+        if (hadFocus) this.trigger?.focus();
+        return;
+      }
+      if (key === "ArrowDown" || key === "ArrowUp" || key === "Home" || key === "End") {
+        const items = Array.from(
+          this.menu?.querySelectorAll<HTMLElement>(".dropdown-item:not(.disabled):not(:disabled)") ?? []
+        );
+        if (!items.length) return;
+        event.preventDefault();
+        const current = items.indexOf(document.activeElement as HTMLElement);
+        let next = 0;
+        if (key === "End") next = items.length - 1;
+        else if (key === "ArrowDown") next = current < 0 ? 0 : (current + 1) % items.length;
+        else if (key === "ArrowUp") next = current < 0 ? items.length - 1 : (current - 1 + items.length) % items.length;
+        items[next].focus();
+      }
     });
 
     if (this.menu) {
@@ -635,7 +694,7 @@ export class Dropdown extends Component {
 
     this.menu.style.display = "block";
     this.menu.style.position = "absolute";
-    this.menu.style.zIndex = "1000";
+    this.menu.style.zIndex = "1060"; // portaled to <body>: must sit above modals (1050) and offcanvas (1045)
     this.menu.style.overscrollBehavior = "contain";
 
     const triggerRect = this.trigger.getBoundingClientRect();
@@ -666,9 +725,13 @@ export class Dropdown extends Component {
     const isRtl =
       document.documentElement.getAttribute("dir") === "rtl" || document.body?.getAttribute("dir") === "rtl";
 
+    // `.dropdown-menu-end` aligns the menu's end edge with the trigger's end edge.
+    const alignEnd = this.menu.classList.contains("dropdown-menu-end") !== isRtl;
+    const alignedLeft = alignEnd ? triggerRect.right - menuRect.width : triggerRect.left;
+
     if (placement === "top") {
       top = triggerRect.top - menuRect.height - gap;
-      left = isRtl ? triggerRect.right - menuRect.width : triggerRect.left;
+      left = alignedLeft;
     } else if (placement === "start") {
       top = triggerRect.top;
       left = isRtl ? triggerRect.right + gap : triggerRect.left - menuRect.width - gap;
@@ -677,7 +740,7 @@ export class Dropdown extends Component {
       left = isRtl ? triggerRect.left - menuRect.width - gap : triggerRect.right + gap;
     } else {
       top = triggerRect.bottom + gap;
-      left = isRtl ? triggerRect.right - menuRect.width : triggerRect.left;
+      left = alignedLeft;
     }
 
     const viewportWidth = window.innerWidth;
@@ -910,12 +973,31 @@ export class FloatingText extends Component {
     const ctor = this.constructor as typeof FloatingText;
     this.tip = document.createElement("div");
     this.tip.className = ctor.componentName;
+    this.tip.id = `aksara-${ctor.componentName}-${Math.random().toString(36).slice(2, 9)}`;
+    const body = document.createElement("div");
     if (this.html) {
-      this.tip.innerHTML = this.content;
+      body.innerHTML = this.content;
     } else {
-      this.tip.textContent = this.content;
+      body.textContent = this.content;
+    }
+    // Popovers support a title (`title` option or `data-popover-title`).
+    const title =
+      ctor.componentName === "popover"
+        ? (this.options.title as string | undefined) || this.element.getAttribute("data-popover-title")
+        : null;
+    if (title) {
+      const header = document.createElement("div");
+      header.className = "popover-header";
+      header.textContent = title;
+      body.className = "popover-body";
+      this.tip.append(header, body);
+    } else {
+      this.tip.append(...Array.from(body.childNodes));
     }
     this.tip.setAttribute("role", ctor.role);
+    // Screen readers announce the tooltip/popover as the trigger's description.
+    const describedBy = (this.element.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+    this.element.setAttribute("aria-describedby", [...describedBy, this.tip.id].join(" "));
 
     let containerEl: HTMLElement = document.body;
     if (typeof this.container === "string" && this.container !== "body") {
@@ -937,6 +1019,11 @@ export class FloatingText extends Component {
   hide(): this {
     if (!this.tip) return this;
     const ctor = this.constructor as typeof FloatingText;
+    const remaining = (this.element.getAttribute("aria-describedby") || "")
+      .split(/\s+/)
+      .filter((id) => id && id !== this.tip?.id);
+    if (remaining.length) this.element.setAttribute("aria-describedby", remaining.join(" "));
+    else this.element.removeAttribute("aria-describedby");
     this.tip.remove();
     this.tip = null;
     emit(this.element, `${ctor.componentName}:hide`, { instance: this });
@@ -1317,18 +1404,16 @@ export class Tabs extends Component {
     if (!initial) {
       initial = tabs.find((tab) => tab.getAttribute("aria-selected") === "true") || tabs[0];
     }
-    if (initial) this.show(initial);
+    if (initial) this.show(initial, false);
   }
 
   getSliderTrack(): HTMLElement | null {
     const wrapper =
       this.element.closest(".tabs-wrapper") ||
-      this.element.closest(".feed-main-col, main, .page-container, [data-tabs-wrapper]") ||
+      this.element.closest("main, .page-container, [data-tabs-wrapper]") ||
       this.element.parentElement;
-    return (
-      wrapper?.querySelector<HTMLElement>(".tabs-slider-track, [data-tabs-slider]") ||
-      document.querySelector<HTMLElement>(".tabs-slider-track, [data-tabs-slider]")
-    );
+    // Scoped to this tab set's wrapper; a page-wide lookup would bind another tab set's slider.
+    return wrapper?.querySelector<HTMLElement>(".tabs-slider-track, [data-tabs-slider]") ?? null;
   }
 
   bindSliderGestures(): void {
@@ -1343,14 +1428,15 @@ export class Tabs extends Component {
     let isSwiping = false;
     let isVertical = false;
 
-    track.addEventListener(
+    this.on(
+      track,
       "touchstart",
-      (e: TouchEvent) => {
+      ((e: TouchEvent) => {
         if (e.touches.length !== 1) return;
         const target = e.target as HTMLElement | null;
         if (
           target?.closest(
-            "input, textarea, select, [contenteditable='true'], video, audio, .carousel, .bento-carousel, .media-grid-scroll, .map-canvas-container, [data-prevent-swipe]"
+            "input, textarea, select, [contenteditable='true'], video, audio, .carousel, [data-prevent-swipe]"
           )
         ) {
           return;
@@ -1362,13 +1448,14 @@ export class Tabs extends Component {
         deltaY = 0;
         isSwiping = false;
         isVertical = false;
-      },
+      }) as EventListener,
       { passive: true }
     );
 
-    track.addEventListener(
+    this.on(
+      track,
       "touchmove",
-      (e: TouchEvent) => {
+      ((e: TouchEvent) => {
         if (e.touches.length !== 1 || isVertical) return;
         const touch = e.touches[0];
         deltaX = touch.clientX - startX;
@@ -1397,7 +1484,7 @@ export class Tabs extends Component {
           track.style.transition = "none";
           track.style.transform = `translate3d(calc(-${safeIdx * 100}% + ${currentDelta}px), 0, 0)`;
         }
-      },
+      }) as EventListener,
       { passive: false }
     );
 
@@ -1419,8 +1506,8 @@ export class Tabs extends Component {
       }
     };
 
-    track.addEventListener("touchend", onTouchEnd, { passive: true });
-    track.addEventListener("touchcancel", onTouchEnd, { passive: true });
+    this.on(track, "touchend", onTouchEnd, { passive: true });
+    this.on(track, "touchcancel", onTouchEnd, { passive: true });
   }
 
   show(tab: HTMLElement, animate = true): this {
@@ -1463,7 +1550,14 @@ export class Tabs extends Component {
       track.style.transform = `translate3d(-${targetIndex * 100}%, 0, 0)`;
     }
 
-    tab.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    // Keep the active tab visible inside its own (horizontally scrolling) tab list,
+    // without scrolling the page; skipped on initial activation.
+    if (animate) {
+      const list = tab.parentElement;
+      if (list && list.scrollWidth > list.clientWidth) {
+        list.scrollTo({ left: tab.offsetLeft - (list.clientWidth - tab.offsetWidth) / 2, behavior: "smooth" });
+      }
+    }
     emit(this.element, "tabs:show", { tab, panel, index: targetIndex, instance: this });
     return this;
   }
@@ -1531,6 +1625,11 @@ export class Carousel extends Component {
     this.show(this.index);
     this.on(element, "click", (event: Event) => {
       const target = event.target as Element;
+      const indicator = target.closest<HTMLElement>("[data-carousel-to]");
+      if (indicator) {
+        this.show(Number(indicator.getAttribute("data-carousel-to")));
+        return;
+      }
       const action = target.closest<HTMLElement>("[data-carousel]");
       if (!action) return;
       const value = action.getAttribute("data-carousel");
@@ -1582,6 +1681,12 @@ export class Carousel extends Component {
     this.items.forEach((item, itemIndex) => {
       item.hidden = itemIndex !== this.index;
     });
+    this.element.querySelectorAll<HTMLElement>("[data-carousel-to]").forEach((indicator) => {
+      const isActive = Number(indicator.getAttribute("data-carousel-to")) === this.index;
+      indicator.classList.toggle("active", isActive);
+      if (isActive) indicator.setAttribute("aria-current", "true");
+      else indicator.removeAttribute("aria-current");
+    });
     emit(this.element, "carousel:show", { index: this.index, instance: this });
     return this;
   }
@@ -1617,13 +1722,29 @@ export class Carousel extends Component {
 export class Offcanvas extends Modal {
   static override componentName = "offcanvas";
 
+  constructor(element: HTMLElement, options: OffcanvasOptions = {}) {
+    super(element, options);
+    // The panel is the element itself, so "outside" means outside the panel.
+    this.on(document, "pointerdown", (event: Event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!this.isOpen || !isTopOverlay(this) || !target || this.element.contains(target)) return;
+      if (target.closest("[data-offcanvas], [data-offcanvas-toggle]")) return;
+      if (this.backdrop === "static") return;
+      if (this.backdrop) this.hide();
+    });
+  }
+
+  override isBackdropClick(): boolean {
+    return false;
+  }
+
   override show(): this {
     if (this.isOpen) return this;
     this.previousFocus = document.activeElement as HTMLElement | null;
     this.isOpen = true;
     this.element.classList.add("offcanvas-open");
     this.element.setAttribute("aria-hidden", "false");
-    if (this.scrollLock) document.documentElement.style.overflow = "hidden";
+    pushOverlay(this, this.scrollLock);
     if (this.focus) this.focusFirst();
     emit(this.element, "offcanvas:show", { instance: this });
     return this;
@@ -1634,7 +1755,7 @@ export class Offcanvas extends Modal {
     this.isOpen = false;
     this.element.classList.remove("offcanvas-open");
     this.element.setAttribute("aria-hidden", "true");
-    if (this.scrollLock) document.documentElement.style.overflow = "";
+    popOverlay(this, this.scrollLock);
     if (this.previousFocus && typeof this.previousFocus.focus === "function") this.previousFocus.focus();
     emit(this.element, "offcanvas:hide", { instance: this });
     return this;
@@ -1676,6 +1797,100 @@ function resolveDismissTargets(trigger: Element): HTMLElement[] {
 
   const localTarget = trigger.closest<HTMLElement>(".alert,.toast,.modal,.offcanvas,.dropdown,.popover,.tooltip");
   return localTarget ? [localTarget] : [];
+}
+
+// ── Delegated data API ─────────────────────────────────────────────────────────
+// One document-level listener per event type: works for content rendered after
+// init() and never accumulates per-element listeners across SPA re-renders.
+let delegatedDataApiBound = false;
+
+function setCollapse(panel: HTMLElement, open: boolean, trigger: HTMLElement | null): void {
+  panel.classList.toggle("collapse-show", open);
+  panel.classList.toggle("show", open);
+  const id = panel.id ? `#${panel.id}` : null;
+  document.querySelectorAll<HTMLElement>("[data-collapse],[data-collapse-target]").forEach((item) => {
+    const selector = item.getAttribute("data-collapse-target") || item.getAttribute("data-collapse");
+    if (item === trigger || (id && selector === id)) item.setAttribute("aria-expanded", String(open));
+  });
+  emit(panel, open ? "collapse:show" : "collapse:hide", { trigger });
+}
+
+function autogrowTextarea(textarea: HTMLTextAreaElement): void {
+  textarea.style.height = "auto";
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+
+function bindDelegatedDataApi(): void {
+  if (delegatedDataApiBound || typeof document === "undefined") return;
+  delegatedDataApiBound = true;
+
+  document.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const collapseTrigger = target.closest<HTMLElement>("[data-collapse],[data-collapse-target]");
+    if (collapseTrigger) {
+      const selector =
+        collapseTrigger.getAttribute("data-collapse-target") || collapseTrigger.getAttribute("data-collapse");
+      const panel = selector ? document.querySelector<HTMLElement>(selector) : null;
+      if (panel) {
+        event.preventDefault();
+        setCollapse(panel, !panel.classList.contains("collapse-show"), collapseTrigger);
+      }
+      return;
+    }
+
+    const chipRemove = target.closest<HTMLElement>("[data-chip-remove]");
+    if (chipRemove) {
+      const chip = chipRemove.closest<HTMLElement>(".chip");
+      if (!chip) return;
+      event.preventDefault();
+      // Cancelable: listeners can call preventDefault() to keep the chip.
+      const removeEvent = new CustomEvent("aksara:chip:remove", { bubbles: true, cancelable: true, detail: { chip } });
+      if (chip.dispatchEvent(removeEvent)) chip.remove();
+      return;
+    }
+
+    const spyLink = target.closest<HTMLAnchorElement>("[data-scrollspy-link]");
+    if (spyLink) {
+      const container = document.querySelector<HTMLElement>(spyLink.getAttribute("data-scrollspy-container") || "");
+      const section = container?.querySelector<HTMLElement>(spyLink.getAttribute("href") || "");
+      if (container && section) {
+        event.preventDefault();
+        container.scrollTo({ top: section.offsetTop - container.offsetTop, behavior: "smooth" });
+      }
+    }
+  });
+
+  document.addEventListener("input", (event) => {
+    const field = event.target;
+    if (field instanceof HTMLTextAreaElement && field.matches('[data-role="autogrow"]')) autogrowTextarea(field);
+  });
+
+  // Scrollspy: highlight the link of the section nearest the container's top edge.
+  document.addEventListener(
+    "scroll",
+    (event) => {
+      const container = event.target instanceof HTMLElement ? event.target : null;
+      if (!container?.id) return;
+      const links = document.querySelectorAll<HTMLAnchorElement>(
+        `[data-scrollspy-link][data-scrollspy-container="#${container.id}"]`
+      );
+      if (!links.length) return;
+      let active: HTMLAnchorElement | null = null;
+      for (const link of Array.from(links)) {
+        const section = container.querySelector<HTMLElement>(link.getAttribute("href") || "");
+        if (section && section.offsetTop - container.offsetTop <= container.scrollTop + 8) active = link;
+      }
+      active = active ?? links[0];
+      links.forEach((link) => {
+        link.classList.toggle("active", link === active);
+        if (link === active) link.setAttribute("aria-current", "true");
+        else link.removeAttribute("aria-current");
+      });
+    },
+    true
+  );
 }
 
 function bindDataApi(): void {
@@ -1852,7 +2067,6 @@ export interface AksaraNamespace {
 
 const injectedArbitraryRules = new Set<string>();
 let arbitrarySheet: CSSStyleSheet | null = null;
-let arbitraryRuleIndex = 0;
 
 function getArbitrarySheet(): CSSStyleSheet | null {
   if (typeof document === "undefined") return null;
@@ -1877,7 +2091,7 @@ function getArbitrarySheet(): CSSStyleSheet | null {
   return arbitrarySheet;
 }
 
-function escapeArbitraryClass(className: string): string {
+export function escapeArbitraryClass(className: string): string {
   return Array.from(className)
     .map((char, index) => {
       if (/^[a-zA-Z_-]$/.test(char)) return char;
@@ -1889,7 +2103,11 @@ function escapeArbitraryClass(className: string): string {
     .join("");
 }
 
-const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
+const cssColorValuePattern =
+  /^(#[0-9a-fA-F]{3,8}$|(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color|color-mix|light-dark)\(|var\(--|currentColor$|transparent$)/i;
+const cssImageValuePattern = /^(url|image-set|(repeating-)?(linear|radial|conic)-gradient)\(/i;
+
+export const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
   m: (v) => `margin:${v}`,
   mt: (v) => `margin-block-start:${v}`,
   mb: (v) => `margin-block-end:${v}`,
@@ -1927,6 +2145,12 @@ const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
   inset: (v) => `inset:${v}`,
   "inset-x": (v) => `inset-inline:${v}`,
   "inset-y": (v) => `inset-block:${v}`,
+  "inset-block-start": (v) => `inset-block-start:${v}`,
+  "inset-block-end": (v) => `inset-block-end:${v}`,
+  "inset-inline-start": (v) => `inset-inline-start:${v}`,
+  "inset-inline-end": (v) => `inset-inline-end:${v}`,
+  "inset-block": (v) => `inset-block:${v}`,
+  "inset-inline": (v) => `inset-inline:${v}`,
   "translate-x": (v) => `transform:translateX(${v})`,
   "translate-y": (v) => `transform:translateY(${v})`,
   rotate: (v) => `transform:rotate(${v})`,
@@ -1934,7 +2158,8 @@ const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
   "skew-x": (v) => `transform:skewX(${v})`,
   "skew-y": (v) => `transform:skewY(${v})`,
   rounded: (v) => `border-radius:${v}`,
-  border: (v) => `border-width:${v}`,
+  // `border-[#ccc]` is a color; `border-[2px]` / `border-[var(--w)]` stay widths.
+  border: (v) => (cssColorValuePattern.test(v) && !/^var\(/i.test(v) ? `border-color:${v}` : `border-width:${v}`),
   "border-t": (v) => `border-top-width:${v}`,
   "border-b": (v) => `border-bottom-width:${v}`,
   "border-s": (v) => `border-inline-start-width:${v}`,
@@ -1949,9 +2174,9 @@ const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
     if (/^(start|center|end|justify|left|right|inline-start|inline-end)$/i.test(v)) {
       return `text-align:${v}`;
     }
-    return /^(#[0-9a-fA-F]+|rgb|hsl|var\(--|currentColor|transparent)/i.test(v) ? `color:${v}` : `font-size:${v}`;
+    return cssColorValuePattern.test(v) ? `color:${v}` : `font-size:${v}`;
   },
-  bg: (v) => `background-color:${v}`,
+  bg: (v) => (cssImageValuePattern.test(v) ? `background-image:${v}` : `background-color:${v}`),
   "bg-color": (v) => `background-color:${v}`,
   overscroll: (v) => `overscroll-behavior:${v}`,
   "overscroll-x": (v) => `overscroll-behavior-x:${v}`,
@@ -1990,10 +2215,29 @@ const runtimeArbitraryPropertyMap: Record<string, (v: string) => string> = {
   "overflow-x": (v) => `overflow-x:${v}`,
   "overflow-y": (v) => `overflow-y:${v}`,
   shadow: (v) => `box-shadow:${v}`,
-  "box-shadow": (v) => `box-shadow:${v}`
+  "box-shadow": (v) => `box-shadow:${v}`,
+  flex: (v) => `flex:${v}`,
+  grow: (v) => `flex-grow:${v}`,
+  "flex-grow": (v) => `flex-grow:${v}`,
+  shrink: (v) => `flex-shrink:${v}`,
+  "flex-shrink": (v) => `flex-shrink:${v}`,
+  order: (v) => `order:${v}`,
+  backdrop: (v) => `backdrop-filter:${v}`,
+  "backdrop-filter": (v) => `backdrop-filter:${v}`,
+  "backdrop-blur": (v) => `backdrop-filter:blur(${v})`,
+  "backdrop-saturate": (v) => `backdrop-filter:saturate(${v})`,
+  filter: (v) => `filter:${v}`,
+  blur: (v) => `filter:blur(${v})`,
+  transition: (v) => `transition:${v}`,
+  duration: (v) => `transition-duration:${v}`,
+  ease: (v) => `transition-timing-function:${v}`,
+  delay: (v) => `transition-delay:${v}`,
+  "line-clamp": (v) => `display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:${v};overflow:hidden`,
+  whitespace: (v) => `white-space:${v}`,
+  "white-space": (v) => `white-space:${v}`
 };
 
-const runtimeBreakpoints: Record<string, string> = {
+export const runtimeBreakpoints: Record<string, string> = {
   sm: "36rem",
   md: "48rem",
   lg: "62rem",
@@ -2002,7 +2246,7 @@ const runtimeBreakpoints: Record<string, string> = {
   "3xl": "100rem"
 };
 
-const runtimeStateSelectors: Record<string, string> = {
+export const runtimeStateSelectors: Record<string, string> = {
   hover: ":hover",
   focus: ":focus",
   active: ":active",
@@ -2016,7 +2260,7 @@ const runtimeStateSelectors: Record<string, string> = {
   even: ":nth-child(even)"
 };
 
-function parseModifiersAndUtility(className: string): { modifiers: string[]; utility: string } {
+export function parseModifiersAndUtility(className: string): { modifiers: string[]; utility: string } {
   const parts: string[] = [];
   let bracketDepth = 0;
   let current = "";
@@ -2037,13 +2281,50 @@ function parseModifiersAndUtility(className: string): { modifiers: string[]; uti
   return { modifiers: parts, utility };
 }
 
-function injectArbitraryClass(className: string): void {
-  if (injectedArbitraryRules.has(className)) return;
-  injectedArbitraryRules.add(className);
+/**
+ * Semantic palette names that support on-demand color opacity utilities
+ * (`bg-primary/10`, `border-danger/30`, `hover:text-info/80`, ...).
+ * Must stay in sync with the `colors` map in `src/generator/build.ts`
+ * (enforced by the acceptance tests).
+ */
+const runtimeColorNames = [
+  "primary",
+  "secondary",
+  "tertiary",
+  "success",
+  "danger",
+  "warning",
+  "info",
+  "dark",
+  "light"
+] as const;
 
-  const { modifiers, utility } = parseModifiersAndUtility(className);
-  if (!utility) return;
+const runtimeColorOpacityProperties: Record<string, string> = {
+  bg: "background-color",
+  text: "color",
+  border: "border-color",
+  decoration: "text-decoration-color",
+  ring: "--aksara-ring-color"
+};
 
+const runtimeColorOpacityPattern = new RegExp(
+  `^(${Object.keys(runtimeColorOpacityProperties).join("|")})-(${runtimeColorNames.join("|")})\\/(\\d{1,3})$`
+);
+
+/**
+ * Color opacity utilities are not shipped in the static stylesheet (101 levels x
+ * 5 properties x 9 colors would add thousands of rules). They are resolved on
+ * demand, like arbitrary bracket classes, once `Aksara.init()` has run.
+ */
+function resolveColorOpacity(utility: string): string | null {
+  const match = utility.match(runtimeColorOpacityPattern);
+  if (!match) return null;
+  const level = Number(match[3]);
+  if (level > 100) return null;
+  return `${runtimeColorOpacityProperties[match[1]]}:rgb(var(--aksara-${match[2]}) / ${level / 100})`;
+}
+
+export function resolveArbitraryDeclarations(utility: string): string | null {
   let prop: string;
   let val: string;
   let isNegative = false;
@@ -2057,7 +2338,7 @@ function injectArbitraryClass(className: string): void {
     val = bracketMatch[2];
   } else {
     const match = utility.match(/^(-)?([a-zA-Z0-9_-]+)-\[(.+)\]$/);
-    if (!match) return;
+    if (!match) return null;
     isNegative = Boolean(match[1]);
     prop = match[2];
     val = match[3];
@@ -2081,52 +2362,237 @@ function injectArbitraryClass(className: string): void {
     val = `-${val}`;
   }
 
+  // A value must stay a single declaration value: `w-[1px;position:fixed]` or
+  // `bg-[red;}body{...]` would otherwise inject extra declarations or rules.
+  if (!val || /[;{}]/.test(val) || /[;{}]/.test(prop)) return null;
+
   const resolver = runtimeArbitraryPropertyMap[prop];
-  const declarations = resolver ? resolver(val) : `${prop}:${val}`;
-  const escaped = escapeArbitraryClass(className);
-  let selector = `.${escaped}`;
+  return resolver ? resolver(val) : `${prop}:${val}`;
+}
 
-  let stateSelector = "";
-  let themeVariant = "";
-  let breakpointVariant = "";
+/**
+ * Margin, padding and radius utilities carry `!important` (they must beat component
+ * CSS). Static and runtime-generated classes share this rule so `p-3 md:p-[2rem]`
+ * behaves the same whether the class was precompiled or generated on demand.
+ */
+export function shouldUseImportant(utility: string): boolean {
+  if (/^(rounded|radius)(-|$)/.test(utility)) return true;
+  return /^-?m[tbeasxy]?-(auto|\d+|\[.+\])$/.test(utility) || /^p[tbeasxy]?-(auto|\d+|\[.+\])$/.test(utility);
+}
 
-  for (const v of modifiers) {
-    if (v === "dark" || v === "light") themeVariant = v;
-    else if (runtimeBreakpoints[v]) breakpointVariant = v;
-    else if (runtimeStateSelectors[v]) stateSelector += runtimeStateSelectors[v];
-    else if (v === "group-hover") selector = `.group:hover .${escaped}`;
+export function withImportant(declarations: string): string {
+  return declarations
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((decl) => (decl.includes("!important") ? decl : `${decl} !important`))
+    .join(";");
+}
+
+const themeVariantNames = ["dark", "light"];
+const breakpointOrder = Object.keys(runtimeBreakpoints);
+
+interface ParsedVariants {
+  theme: string | null;
+  breakpoint: string | null;
+  states: string[];
+  groupHover: boolean;
+}
+
+/**
+ * Validates variant prefixes: known names only, in `theme -> breakpoint -> state`
+ * order. Unknown or misordered variants return null instead of silently producing
+ * an unconditional rule (`print:m-[3px]` must not become `margin:3px` everywhere).
+ */
+function parseVariants(modifiers: string[]): ParsedVariants | null {
+  const parsed: ParsedVariants = { theme: null, breakpoint: null, states: [], groupHover: false };
+  let stage = 0;
+  for (const variant of modifiers) {
+    let next: number;
+    if (themeVariantNames.includes(variant)) next = 1;
+    else if (runtimeBreakpoints[variant]) next = 2;
+    else if (runtimeStateSelectors[variant] || variant === "group-hover") next = 3;
+    else return null;
+    if (next < stage || (next === stage && next !== 3)) return null;
+    stage = next;
+    if (next === 1) parsed.theme = variant;
+    else if (next === 2) parsed.breakpoint = variant;
+    else if (variant === "group-hover") parsed.groupHover = true;
+    else parsed.states.push(variant);
   }
+  return parsed;
+}
 
-  selector += stateSelector;
-  let rule = `${selector}{${declarations}}`;
+/** Static utility declarations, looked up for variants (`hover:bg-subtle`, `last:border-0`). */
+export type StaticUtilityLookup = (utility: string) => string | null;
 
-  if (themeVariant) {
-    rule =
-      themeVariant === "dark"
-        ? `[data-theme="dark"] ${selector},.dark ${selector}{${declarations}}`
-        : `[data-theme="light"] ${selector},.light ${selector}{${declarations}}`;
-  }
+function unescapeCssIdentifier(value: string): string {
+  return value
+    .replace(/\\([0-9a-fA-F]{1,6})\s?/g, (_, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/\\(.)/g, "$1");
+}
 
-  if (breakpointVariant) {
-    rule = `@media (min-width:${runtimeBreakpoints[breakpointVariant]}){${rule}}`;
-  }
+let staticUtilityIndex: Map<string, string> | null = null;
+let staticClassNames: Set<string> | null = null;
+let indexedSheetCount = -1;
 
-  const sheet = getArbitrarySheet();
-  if (sheet) {
+/**
+ * Indexes the page's own stylesheets once (rebuilt when stylesheets are added):
+ * single-class rules give the declarations of static utilities, and every leading
+ * class name tells which variant classes already exist statically.
+ * Cross-origin sheets without CORS cannot be read and are skipped.
+ */
+function indexStaticStylesheets(): void {
+  if (typeof document === "undefined") return;
+  const sheets = document.styleSheets;
+  if (staticUtilityIndex && staticClassNames && sheets.length === indexedSheetCount) return;
+  staticUtilityIndex = new Map();
+  staticClassNames = new Set();
+  indexedSheetCount = sheets.length;
+  const visit = (rules: CSSRuleList, topLevel: boolean): void => {
+    for (const rule of Array.from(rules)) {
+      const nested = (rule as CSSGroupingRule).cssRules;
+      if (!(rule as CSSStyleRule).selectorText) {
+        if (nested) visit(nested, false);
+        continue;
+      }
+      const styleRule = rule as CSSStyleRule;
+      for (const selector of styleRule.selectorText.split(",")) {
+        const trimmed = selector.trim();
+        const leading = trimmed.match(/^\.((?:\\[0-9a-fA-F]{1,6}\s?|\\.|[\w-])+)/);
+        if (leading) staticClassNames?.add(unescapeCssIdentifier(leading[1]));
+        const simple = trimmed.match(/^\.([a-zA-Z_-][\w-]*)$/);
+        if (topLevel && simple) staticUtilityIndex?.set(simple[1], styleRule.style.cssText);
+      }
+    }
+  };
+  for (const sheet of Array.from(sheets)) {
     try {
-      sheet.insertRule(rule, arbitraryRuleIndex++);
+      visit(sheet.cssRules, true);
     } catch {
-      // Ignore if browser rejects rule syntax
+      // Cross-origin stylesheet without CORS headers
     }
   }
 }
 
+function lookupStaticUtility(utility: string): string | null {
+  indexStaticStylesheets();
+  return staticUtilityIndex?.get(utility) ?? null;
+}
+
+function isStaticallyDefined(className: string): boolean {
+  indexStaticStylesheets();
+  return staticClassNames?.has(className) ?? false;
+}
+
+/** Returns true when a class token may need a runtime-generated rule. */
+function isRuntimeClassToken(token: string): boolean {
+  if (token.includes("[")) return token.endsWith("]");
+  if (token.includes("/") && runtimeColorOpacityPattern.test(parseModifiersAndUtility(token).utility)) return true;
+  return token.includes(":");
+}
+
+interface RuntimeRules {
+  rules: string[];
+  breakpoint: string | null;
+}
+
+function buildRuntimeRules(className: string, lookup: StaticUtilityLookup): RuntimeRules | null {
+  const { modifiers, utility } = parseModifiersAndUtility(className);
+  if (!utility) return null;
+  const variants = parseVariants(modifiers);
+  if (!variants) return null;
+
+  let declarations = resolveColorOpacity(utility) ?? resolveArbitraryDeclarations(utility);
+  // Variants of static utilities (`hover:bg-subtle`) reuse the static declarations.
+  if (!declarations && modifiers.length > 0) declarations = lookup(utility);
+  if (!declarations) return null;
+  if (shouldUseImportant(utility)) declarations = withImportant(declarations);
+
+  const escaped = escapeArbitraryClass(className);
+  const states = variants.states.map((state) => runtimeStateSelectors[state]).join("");
+  const selector = `${variants.groupHover ? ".group:hover " : ""}.${escaped}${states}`;
+  let rule = `${selector}{${declarations}}`;
+  if (variants.theme) {
+    rule = `[data-theme="${variants.theme}"] ${selector},.${variants.theme} ${selector}{${declarations}}`;
+  }
+  const rules = [rule];
+
+  // `.row` uses gutter variables instead of `gap`; mirror the static gap utilities.
+  const gap = modifiers.length === 0 ? utility.match(/^(gap|row-gap|col-gap|gap-x|gap-y)-\[(.+)\]$/) : null;
+  if (gap) {
+    const value = gap[2].replace(/(?<!\\)_/g, " ").replace(/\\_/g, "_");
+    const row = `.row.${escaped}`;
+    if (gap[1] === "gap")
+      rules.push(`${row}{--aksara-gutter-x:${value};--aksara-gutter-y:${value};column-gap:0;row-gap:0}`);
+    else if (gap[1] === "col-gap" || gap[1] === "gap-x") rules.push(`${row}{--aksara-gutter-x:${value};column-gap:0}`);
+    else rules.push(`${row}{--aksara-gutter-y:${value};row-gap:0}`);
+  }
+
+  if (variants.breakpoint) {
+    const media = `@media (min-width:${runtimeBreakpoints[variants.breakpoint]})`;
+    return { rules: rules.map((r) => `${media}{${r}}`), breakpoint: variants.breakpoint };
+  }
+  return { rules, breakpoint: null };
+}
+
+/**
+ * Builds the CSS rules for a runtime utility class: arbitrary bracket classes, color
+ * opacity classes, and variants of static utilities, with theme/breakpoint/state
+ * variants. Pure function; `lookup` resolves static utilities (defaults to the
+ * page's stylesheets). Returns an empty array for classes the engine does not handle.
+ */
+export function resolveRuntimeRules(className: string, lookup: StaticUtilityLookup = lookupStaticUtility): string[] {
+  return buildRuntimeRules(className, lookup)?.rules ?? [];
+}
+
+/** First rule of `resolveRuntimeRules`, or null. */
+export function resolveRuntimeRule(
+  className: string,
+  lookup: StaticUtilityLookup = lookupStaticUtility
+): string | null {
+  return resolveRuntimeRules(className, lookup)[0] ?? null;
+}
+
+// Base rules are kept before media rules, and media rules in breakpoint order, so a
+// runtime `md:w-[50%]` still wins over `w-[100%]` regardless of discovery order.
+let runtimeBaseRuleCount = 0;
+const runtimeMediaRuleCounts: Record<string, number> = {};
+
+function insertRuntimeRule(sheet: CSSStyleSheet, rule: string, breakpoint: string | null): void {
+  let index = runtimeBaseRuleCount;
+  if (breakpoint) {
+    const order = breakpointOrder.indexOf(breakpoint);
+    for (const bp of breakpointOrder.slice(0, order + 1)) index += runtimeMediaRuleCounts[bp] ?? 0;
+  }
+  try {
+    sheet.insertRule(rule, Math.min(index, sheet.cssRules.length));
+    if (breakpoint) runtimeMediaRuleCounts[breakpoint] = (runtimeMediaRuleCounts[breakpoint] ?? 0) + 1;
+    else runtimeBaseRuleCount += 1;
+  } catch {
+    // Ignore if the browser rejects the rule syntax
+  }
+}
+
+function injectArbitraryClass(className: string): void {
+  if (injectedArbitraryRules.has(className)) return;
+  injectedArbitraryRules.add(className);
+  if (!className.includes("[") && !className.includes("/") && isStaticallyDefined(className)) return;
+
+  const built = buildRuntimeRules(className, lookupStaticUtility);
+  if (!built) return;
+
+  const sheet = getArbitrarySheet();
+  if (!sheet) return;
+  for (const rule of built.rules) insertRuntimeRule(sheet, rule, built.breakpoint);
+}
+
 function processElementClasses(el: Element): void {
   const classAttr = el.getAttribute("class");
-  if (!classAttr || !classAttr.includes("[")) return;
+  if (!classAttr || (!classAttr.includes("[") && !classAttr.includes("/") && !classAttr.includes(":"))) return;
   const tokens = classAttr.split(/\s+/);
   for (const token of tokens) {
-    if (token.includes("[") && token.endsWith("]")) {
+    if (isRuntimeClassToken(token)) {
       injectArbitraryClass(token);
     }
   }
@@ -2137,7 +2603,25 @@ function scanArbitraryDom(root: ParentNode = document): void {
   if (root instanceof Element) {
     processElementClasses(root);
   }
-  root.querySelectorAll('[class*="["]').forEach(processElementClasses);
+  root.querySelectorAll('[class*="["],[class*="/"],[class*=":"]').forEach(processElementClasses);
+}
+
+let detachedCleanupScheduled = false;
+
+/**
+ * SPA re-renders remove component elements without calling destroy(). Instances whose
+ * element is no longer in the document are destroyed (listeners and document
+ * handlers released). Checked after the mutation batch, so moved nodes survive.
+ */
+function scheduleDetachedCleanup(): void {
+  if (detachedCleanupScheduled) return;
+  detachedCleanupScheduled = true;
+  queueMicrotask(() => {
+    detachedCleanupScheduled = false;
+    for (const instance of Array.from(instances)) {
+      if (!instance.element.isConnected) instance.destroy();
+    }
+  });
 }
 
 let mutationObserverStarted = false;
@@ -2155,6 +2639,7 @@ function setupArbitraryObserver(): void {
             scanArbitraryDom(node);
           }
         });
+        if (m.removedNodes.length > 0) scheduleDetachedCleanup();
       }
     }
   });
@@ -2167,6 +2652,72 @@ function setupArbitraryObserver(): void {
   });
 }
 
+let iconCheckScheduled = false;
+
+/**
+ * Material Design Icons are a required peer dependency (components render `mdi`
+ * icons). Once the page has loaded, report a missing icon stylesheet instead of
+ * failing silently with blank icons.
+ */
+function scheduleIconStylesheetCheck(): void {
+  if (iconCheckScheduled || typeof window === "undefined" || typeof document === "undefined") return;
+  iconCheckScheduled = true;
+
+  const check = (): void => {
+    if (!document.body) return;
+    const probe = document.createElement("i");
+    probe.className = "mdi mdi-check";
+    probe.setAttribute("aria-hidden", "true");
+    probe.style.cssText = "position:absolute;visibility:hidden;pointer-events:none";
+    document.body.appendChild(probe);
+    const family = getComputedStyle(probe, "::before").fontFamily;
+    probe.remove();
+    if (!/Material Design Icons/i.test(family)) {
+      console.error(
+        '[Aksara UI] Material Design Icons are not loaded. Import "@abydahana/aksara-ui/css/icons" (or link the @mdi/font stylesheet); Aksara components render mdi icons.'
+      );
+    }
+  };
+
+  if (document.readyState === "complete") setTimeout(check, 0);
+  else window.addEventListener("load", check, { once: true });
+}
+
+/**
+ * Mounts a one-off dialog (confirm/alert) in its own wrapper inside a shared host.
+ * Each dialog is destroyed and removed on its own, so opening a second dialog right
+ * after the first one closes is never wiped by the first one's cleanup.
+ */
+function mountTransientDialog(markup: string): { element: HTMLElement; close: () => void } | null {
+  let host = document.getElementById("aksara-dialog-host");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "aksara-dialog-host";
+    document.body.appendChild(host);
+  }
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = markup.trim();
+  host.appendChild(wrapper);
+  const element = wrapper.querySelector<HTMLElement>(".modal");
+  if (!element) {
+    wrapper.remove();
+    return null;
+  }
+  const instance = getInstance(element, Modal);
+  instance.show();
+  return {
+    element,
+    close: () => {
+      instance.hide();
+      setTimeout(() => {
+        instance.destroy();
+        wrapper.remove();
+      }, 200);
+    }
+  };
+}
+
+let themeMediaListenerBound = false;
 let currentTheme: "light" | "dark" | "system" = "system";
 
 function getSystemTheme(): "light" | "dark" {
@@ -2246,7 +2797,7 @@ export const Aksara: AksaraNamespace = {
   Carousel,
   Offcanvas,
   modal: (target, options) => {
-    const args = resolveArgs(target, options, "[data-modal], .modal");
+    const args = resolveArgs(target, options, ".modal");
     return createAll(args.target, Modal, args.options);
   },
   tooltip: (target, options) => {
@@ -2302,8 +2853,7 @@ export const Aksara: AksaraNamespace = {
   initTheme() {
     if (typeof localStorage !== "undefined") {
       try {
-        const saved = (localStorage.getItem("aksara-theme") || localStorage.getItem("aksara-docs-theme")) as
-          "light" | "dark" | "system" | null;
+        const saved = localStorage.getItem("aksara-theme") as "light" | "dark" | "system" | null;
         if (saved && (saved === "light" || saved === "dark" || saved === "system")) {
           currentTheme = saved;
         }
@@ -2312,7 +2862,8 @@ export const Aksara: AksaraNamespace = {
       }
     }
     applyTheme(currentTheme);
-    if (typeof window !== "undefined" && window.matchMedia) {
+    if (!themeMediaListenerBound && typeof window !== "undefined" && window.matchMedia) {
+      themeMediaListenerBound = true;
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
         if (currentTheme === "system") {
           applyTheme("system");
@@ -2323,26 +2874,20 @@ export const Aksara: AksaraNamespace = {
   },
   confirm(options: ConfirmModalOptions): Promise<boolean> {
     if (typeof document === "undefined") return Promise.resolve(false);
-    let host = document.getElementById("aksara-dialog-host");
-    if (!host) {
-      host = document.createElement("div");
-      host.id = "aksara-dialog-host";
-      document.body.appendChild(host);
-    }
 
     const tone = options.tone ?? "danger";
     const confirmLabel = options.confirmLabel ?? "Confirm";
     const cancelLabel = options.cancelLabel ?? "Cancel";
     const icon = options.icon ?? (tone === "danger" ? "mdi-alert-circle-outline" : "mdi-alert-outline");
 
-    host.innerHTML = `
-      <div class="modal fade modal-sm" id="aksaraConfirmModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-confirm-title">
+    const dialog = mountTransientDialog(`
+      <div class="modal fade modal-sm" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-confirm-title">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content overflow-hidden border-0 shadow-lg">
             <div class="modal-body text-center p-4">
-              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} fs-1 d-block mb-2" aria-hidden="true"></i>
-              <h5 id="aksara-confirm-title" class="fs-5 font-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
-              <p class="text-muted mb-0">${escapeHtmlStr(options.message)}</p>
+              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} text-4xl d-block mb-2" aria-hidden="true"></i>
+              <h5 id="aksara-confirm-title" class="text-xl fw-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
+              <p class="text-subtle mb-0">${escapeHtmlStr(options.message)}</p>
             </div>
             <div class="modal-footer p-0 overflow-hidden m-0 w-100 gap-0 d-flex border-top">
               <button class="btn btn-ghost text-body rounded-0 py-3 m-0 text-center w-[50%]" type="button" data-aksara-confirm-cancel>
@@ -2356,44 +2901,30 @@ export const Aksara: AksaraNamespace = {
           </div>
         </div>
       </div>
-    `;
-
-    const modalEl = host.querySelector<HTMLElement>("#aksaraConfirmModal");
-    if (!modalEl) return Promise.resolve(false);
-
-    const modalInstance = Aksara.modal(modalEl);
-    modalInstance.show();
+    `);
+    if (!dialog) return Promise.resolve(false);
 
     return new Promise((resolve) => {
       let settled = false;
       const finish = (value: boolean) => {
         if (settled) return;
         settled = true;
-        modalInstance.hide();
-        setTimeout(() => {
-          if (host) host.innerHTML = "";
-        }, 200);
+        dialog.close();
         resolve(value);
       };
 
-      modalEl.addEventListener("modal:hide", () => finish(false), { once: true });
-      host
-        ?.querySelector("[data-aksara-confirm-cancel]")
+      dialog.element.addEventListener("aksara:modal:hide", () => finish(false), { once: true });
+      dialog.element
+        .querySelector("[data-aksara-confirm-cancel]")
         ?.addEventListener("click", () => finish(false), { once: true });
-      host
-        ?.querySelector("[data-aksara-confirm-accept]")
+      dialog.element
+        .querySelector("[data-aksara-confirm-accept]")
         ?.addEventListener("click", () => finish(true), { once: true });
     });
   },
 
   alert(options: AlertModalOptions): Promise<void> {
     if (typeof document === "undefined") return Promise.resolve();
-    let host = document.getElementById("aksara-dialog-host");
-    if (!host) {
-      host = document.createElement("div");
-      host.id = "aksara-dialog-host";
-      document.body.appendChild(host);
-    }
 
     const tone = options.tone ?? "primary";
     const buttonLabel = options.buttonLabel ?? "OK";
@@ -2405,14 +2936,14 @@ export const Aksara: AksaraNamespace = {
           ? "mdi-alert-outline"
           : "mdi-information-outline");
 
-    host.innerHTML = `
-      <div class="modal fade modal-sm" id="aksaraAlertModal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-alert-title">
+    const dialog = mountTransientDialog(`
+      <div class="modal fade modal-sm" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-alert-title">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content overflow-hidden border-0 shadow-lg">
             <div class="modal-body text-center p-4">
-              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} fs-1 d-block mb-2" aria-hidden="true"></i>
-              <h5 id="aksara-alert-title" class="fs-5 font-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
-              <p class="text-muted mb-0">${escapeHtmlStr(options.message)}</p>
+              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} text-4xl d-block mb-2" aria-hidden="true"></i>
+              <h5 id="aksara-alert-title" class="text-xl fw-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
+              <p class="text-subtle mb-0">${escapeHtmlStr(options.message)}</p>
             </div>
             <div class="modal-footer p-0 overflow-hidden m-0 w-100 gap-0 d-flex border-top">
               <button class="btn btn-ghost text-body rounded-0 py-3 m-0 text-center w-100" type="button" data-aksara-alert-dismiss>
@@ -2422,28 +2953,22 @@ export const Aksara: AksaraNamespace = {
           </div>
         </div>
       </div>
-    `;
-
-    const modalEl = host.querySelector<HTMLElement>("#aksaraAlertModal");
-    if (!modalEl) return Promise.resolve();
-
-    const modalInstance = Aksara.modal(modalEl);
-    modalInstance.show();
+    `);
+    if (!dialog) return Promise.resolve();
 
     return new Promise((resolve) => {
       let settled = false;
       const finish = () => {
         if (settled) return;
         settled = true;
-        modalInstance.hide();
-        setTimeout(() => {
-          if (host) host.innerHTML = "";
-        }, 200);
+        dialog.close();
         resolve();
       };
 
-      modalEl.addEventListener("modal:hide", () => finish(), { once: true });
-      host?.querySelector("[data-aksara-alert-dismiss]")?.addEventListener("click", () => finish(), { once: true });
+      dialog.element.addEventListener("aksara:modal:hide", () => finish(), { once: true });
+      dialog.element
+        .querySelector("[data-aksara-alert-dismiss]")
+        ?.addEventListener("click", () => finish(), { once: true });
     });
   },
 
@@ -2495,6 +3020,7 @@ export const Aksara: AksaraNamespace = {
     setupClipboard(root);
     scanArbitraryDom(root);
     setupArbitraryObserver();
+    scheduleIconStylesheetCheck();
 
     createAll(root.querySelectorAll<HTMLElement>("[data-tooltip]"), Tooltip);
     createAll(root.querySelectorAll<HTMLElement>("[data-popover]"), Popover);
@@ -2509,12 +3035,14 @@ export const Aksara: AksaraNamespace = {
     createAll(Array.from(dropdowns), Dropdown);
 
     createAll(root.querySelectorAll<HTMLElement>(".accordion"), Accordion);
-    createAll(root.querySelectorAll<HTMLElement>(".tabs"), Tabs);
+    createAll(root.querySelectorAll<HTMLElement>(".tabs, [data-tabs-root]"), Tabs);
     createAll(root.querySelectorAll<HTMLElement>(".toast"), Toast);
     createAll(root.querySelectorAll<HTMLElement>(".carousel"), Carousel);
     createAll(root.querySelectorAll<HTMLElement>(".modal"), Modal);
     createAll(root.querySelectorAll<HTMLElement>(".offcanvas"), Offcanvas);
     bindDataApi();
+    bindDelegatedDataApi();
+    root.querySelectorAll?.<HTMLTextAreaElement>('textarea[data-role="autogrow"]').forEach(autogrowTextarea);
     emit(document.documentElement, "init", { root });
     return this;
   },
@@ -2538,28 +3066,8 @@ if (typeof document !== "undefined") {
 
 export default Aksara;
 
-// ── HTML Component Generators ─────────────────────────────────────────────────
-// Inline pure-function HTML string generators.
-// These accept typed props and return HTML strings ready for server-side rendering.
-
-// ── Shared utilities ──────────────────────────────────────────────────────────
-
-function classNames(...classes: (string | undefined | null | false | 0)[]): string {
-  return classes.filter(Boolean).join(" ").trim();
-}
-
-function toAttributes(attributes?: Record<string, unknown>): string {
-  if (!attributes) return "";
-  const parts: string[] = [];
-  for (const [key, value] of Object.entries(attributes)) {
-    if (value === true) {
-      parts.push(key);
-    } else if (value !== false && value !== null && value !== undefined) {
-      parts.push(`${key}="${escapeHtmlStr(value)}"`);
-    }
-  }
-  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
-}
+// HTML string components (ListGroup, SettingsGroup, SidebarNav, ...) live in
+// src/components and ship as `@abydahana/aksara-ui/components`.
 
 function escapeHtmlStr(value: unknown): string {
   return String(value ?? "")
@@ -2569,367 +3077,3 @@ function escapeHtmlStr(value: unknown): string {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
-
-// ── SidebarNav ────────────────────────────────────────────────────────────────
-
-// ── SidebarNavItem ────────────────────────────────────────────────────────────
-
-export interface SidebarNavItemProps {
-  /** Unique ID (used for tab panel targeting) */
-  id?: string;
-  /** Label text */
-  label: string;
-  /** Icon HTML string */
-  icon?: string;
-  /** Badge text or count */
-  badge?: string;
-  /** Active state */
-  active?: boolean;
-  /** Disabled state */
-  disabled?: boolean;
-  /** Link mode: render as <a href="..."> */
-  href?: string;
-  /** Tab mode: render as <button data-tabs="#panelId"> */
-  panelTarget?: string;
-  className?: string;
-  attributes?: Record<string, unknown>;
-}
-
-// ── SidebarNavProps ───────────────────────────────────────────────────────────
-
-export interface SidebarNavProps {
-  items: SidebarNavItemProps[];
-  /** Brand section title at the top */
-  title?: string;
-  /** Brand section subtitle */
-  subtitle?: string;
-  /** Brand icon HTML */
-  brandIcon?: string;
-  className?: string;
-  attributes?: Record<string, unknown>;
-}
-
-/**
- * Sidebar navigation that supports two modes:
- *
- * - **Tab mode** (`panelTarget` prop): renders `<button data-tabs="#panelId">` —
- *   integrates with Aksara's tab JS to show/hide content panels.
- * - **Link mode** (`href` prop): renders `<a href="...">` — plain navigation links.
- *
- * @example Tab mode
- * SidebarNav({
- *   title: "Settings",
- *   items: [
- *     { label: "Privacy", icon: '<span class="mdi mdi-lock-outline">', panelTarget: "#panel-privacy", active: true },
- *     { label: "Notifications", icon: '<span class="mdi mdi-bell-outline">', panelTarget: "#panel-notif" },
- *   ]
- * })
- *
- * @example Link mode
- * SidebarNav({
- *   items: [
- *     { label: "Dashboard", icon: '<span class="mdi mdi-home-outline">', href: "/dashboard", active: true },
- *     { label: "Settings", icon: '<span class="mdi mdi-cog-outline">', href: "/settings" },
- *   ]
- * })
- */
-export function SidebarNav(props: SidebarNavProps): string {
-  const { items = [], title = "", subtitle = "", brandIcon = "", className = "", attributes } = props;
-
-  const baseAttrs = toAttributes(attributes);
-
-  // Brand section
-  const brandHtml = title
-    ? `<div class="sidebar-nav-brand">${brandIcon ? `<span class="sidebar-nav-icon">${brandIcon}</span>` : ""}<div><span class="sidebar-nav-brand-title">${escapeHtmlStr(title)}</span>${subtitle ? `<span class="sidebar-nav-brand-subtitle">${escapeHtmlStr(subtitle)}</span>` : ""}</div></div>`
-    : "";
-
-  // Items
-  const itemsHtml = items
-    .map((item) => {
-      const isLink = Boolean(item.href);
-      const isTab = Boolean(item.panelTarget) && !isLink;
-      const Tag = isLink ? "a" : "button";
-
-      const itemClasses = classNames(
-        "sidebar-nav-item",
-        item.active && "active",
-        item.disabled && "disabled",
-        item.className
-      );
-
-      const itemAttrs = toAttributes({
-        href: isLink ? item.href : undefined,
-        type: !isLink ? "button" : undefined,
-        "data-tabs": isTab ? item.panelTarget : undefined,
-        role: isTab ? "tab" : undefined,
-        "aria-selected": isTab ? (item.active ? "true" : "false") : undefined,
-        tabindex: isTab ? (item.active ? "0" : "-1") : undefined,
-        id: isTab && item.id ? `sidebar-tab-${item.id}` : item.id,
-        "aria-controls": isTab && item.id ? item.id : undefined,
-        disabled: !isLink && item.disabled ? true : undefined,
-        "aria-disabled": item.disabled ? "true" : undefined,
-        "aria-current": isLink && item.active ? "page" : undefined,
-        ...item.attributes
-      });
-
-      const iconHtml = item.icon ? `<span class="sidebar-nav-icon" aria-hidden="true">${item.icon}</span>` : "";
-
-      const badgeHtml = item.badge ? `<span class="sidebar-nav-badge">${escapeHtmlStr(item.badge)}</span>` : "";
-
-      return `<${Tag} class="${itemClasses}"${itemAttrs}>${iconHtml}<span class="sidebar-nav-label">${escapeHtmlStr(item.label)}</span>${badgeHtml}</${Tag}>`;
-    })
-    .join("");
-
-  return `<nav class="${classNames("sidebar-nav", className)}"${baseAttrs}>${brandHtml}${itemsHtml}</nav>`.trim();
-}
-
-export const sidebarNav = SidebarNav;
-
-// ── SidebarNavHeader ──────────────────────────────────────────────────────────
-
-export interface SidebarNavHeaderProps {
-  label: string;
-  className?: string;
-}
-
-/** A group header label inside a SidebarNav */
-export function SidebarNavHeader(props: SidebarNavHeaderProps): string {
-  const { label, className = "" } = props;
-  return `<span class="${classNames("sidebar-nav-header", className)}">${escapeHtmlStr(label)}</span>`;
-}
-
-export const sidebarNavHeader = SidebarNavHeader;
-
-// ── SidebarLayout ─────────────────────────────────────────────────────────────
-
-export interface SidebarLayoutProps {
-  sidebar: string;
-  content: string;
-  className?: string;
-  attributes?: Record<string, unknown>;
-}
-
-/**
- * Two-column layout wrapper: sidebar pane on the left, content area on the right.
- *
- * @example
- * SidebarLayout({
- *   sidebar: SidebarNav({ ... }),
- *   content: '<div class="p-5">Panel content here</div>'
- * })
- */
-export function SidebarLayout(props: SidebarLayoutProps): string {
-  const { sidebar, content, className = "", attributes } = props;
-  const baseAttrs = toAttributes(attributes);
-  return `<div class="${classNames("sidebar-layout", className)}"${baseAttrs}><div class="sidebar-pane">${sidebar}</div><div class="sidebar-content">${content}</div></div>`.trim();
-}
-
-export const sidebarLayout = SidebarLayout;
-
-// ── ListGroup ─────────────────────────────────────────────────────────────────
-
-export interface ListGroupProps {
-  children?: string;
-  flush?: boolean;
-  numbered?: boolean;
-  horizontal?: boolean | "sm" | "md" | "lg" | "xl" | "xxl";
-  className?: string;
-  attributes?: Record<string, unknown>;
-}
-
-export function ListGroup(props: ListGroupProps = {}): string {
-  const { children = "", flush = false, numbered = false, horizontal = false, className = "", attributes } = props;
-
-  const horizontalClass =
-    horizontal === true
-      ? "list-group-horizontal"
-      : typeof horizontal === "string"
-        ? `list-group-horizontal-${horizontal}`
-        : null;
-
-  const classes = classNames(
-    "list-group",
-    flush && "list-group-flush",
-    numbered && "list-group-numbered",
-    horizontalClass,
-    className
-  );
-
-  const Tag = numbered ? "ol" : "div";
-  const baseAttrs = toAttributes(attributes);
-
-  return `<${Tag} class="${classes}"${baseAttrs}>${children}</${Tag}>`.trim();
-}
-
-export const listGroup = ListGroup;
-
-export interface ListGroupItemProps {
-  content?: string;
-  active?: boolean;
-  disabled?: boolean;
-  action?: boolean;
-  href?: string;
-  variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "light" | "dark";
-  className?: string;
-  attributes?: Record<string, unknown>;
-}
-
-export function ListGroupItem(props: ListGroupItemProps = {}): string {
-  const {
-    content = "",
-    active = false,
-    disabled = false,
-    action = false,
-    href,
-    variant,
-    className = "",
-    attributes
-  } = props;
-
-  const isLink = Boolean(href);
-  const Tag = isLink ? "a" : action ? "button" : "div";
-
-  const classes = classNames(
-    "list-group-item",
-    (action || isLink) && "list-group-item-action",
-    active && "active",
-    disabled && "disabled",
-    variant && `list-group-item-${variant}`,
-    className
-  );
-
-  const baseAttrs = toAttributes({
-    href,
-    type: Tag === "button" ? "button" : undefined,
-    disabled: Tag === "button" && disabled ? true : undefined,
-    "aria-current": active ? "true" : undefined,
-    "aria-disabled": disabled ? "true" : undefined,
-    ...attributes
-  });
-
-  return `<${Tag} class="${classes}"${baseAttrs}>${content}</${Tag}>`.trim();
-}
-
-export const listGroupItem = ListGroupItem;
-
-// ── Settings ──────────────────────────────────────────────────────────────────
-
-// ── SettingsGroup ─────────────────────────────────────────────────────────────
-
-export interface SettingsGroupProps {
-  children?: string;
-  /** Optional uppercase heading rendered above the group */
-  title?: string;
-  className?: string;
-  attributes?: Record<string, unknown>;
-}
-
-/**
- * Container for a group of settings-style rows.
- * Renders as `.list-group` with an optional uppercase section heading above.
- */
-export function SettingsGroup(props: SettingsGroupProps = {}): string {
-  const { children = "", title = "", className = "", attributes } = props;
-
-  const baseAttrs = toAttributes(attributes);
-  const groupHtml = `<div class="${classNames("list-group", className)}"${baseAttrs}>${children}</div>`;
-
-  if (!title) return groupHtml.trim();
-
-  return `<div><p class="text-xs font-800 uppercase tracking-wider text-subtle mb-2 px-1">${escapeHtmlStr(title)}</p><div class="${classNames("list-group", className)}">${children}</div></div>`.trim();
-}
-
-export const settingsGroup = SettingsGroup;
-
-// ── SettingsItem ──────────────────────────────────────────────────────────────
-
-export interface SettingsItemProps {
-  /** Main label text */
-  label: string;
-  /** Optional supporting description rendered below the label */
-  description?: string;
-  /** Icon HTML string, e.g. `<span class="mdi mdi-lock-outline">` */
-  icon?: string;
-  /** Value text shown on the right */
-  value?: string;
-  /** Arbitrary trailing HTML on the right, e.g. a switch or select */
-  trailing?: string;
-  /** Renders the item as `<a href>` */
-  href?: string;
-  /** Renders the item as `<button>` (when no href) */
-  action?: boolean;
-  /** Shows a `›` chevron on the trailing edge */
-  showChevron?: boolean;
-  active?: boolean;
-  disabled?: boolean;
-  className?: string;
-  attributes?: Record<string, unknown>;
-}
-
-/**
- * A settings-style row using `.list-group-item` with an inner flex layout.
- * Composable as a link, button, or static element.
- *
- * @example Link row
- * SettingsItem({ label: "Private profile", icon: '<span class="mdi mdi-lock-outline">', value: "Public", showChevron: true, href: "#privacy" })
- *
- * @example Toggle row
- * SettingsItem({ label: "Floods & Inundations", icon: '<span class="mdi mdi-water-alert">', trailing: '<input type="checkbox" role="switch" class="form-check-input" checked />' })
- *
- * @example Description row
- * SettingsItem({ label: "Verified reports only", description: "Only display verified observations.", trailing: '<input type="checkbox" role="switch" class="form-check-input" />' })
- */
-export function SettingsItem(props: SettingsItemProps): string {
-  const {
-    label,
-    description = "",
-    icon = "",
-    value = "",
-    trailing = "",
-    href,
-    action = false,
-    showChevron = false,
-    active = false,
-    disabled = false,
-    className = "",
-    attributes
-  } = props;
-
-  const isLink = Boolean(href);
-  const Tag = isLink ? "a" : action ? "button" : "div";
-
-  const classes = classNames(
-    "list-group-item",
-    (action || isLink) && "list-group-item-action",
-    active && "active",
-    disabled && "disabled",
-    className
-  );
-
-  const baseAttrs = toAttributes({
-    href,
-    type: Tag === "button" ? "button" : undefined,
-    disabled: Tag === "button" && disabled ? true : undefined,
-    "aria-current": active ? "true" : undefined,
-    "aria-disabled": disabled ? "true" : undefined,
-    ...attributes
-  });
-
-  const iconHtml = icon
-    ? `<span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" aria-hidden="true">${icon}</span>`
-    : "";
-
-  const labelBlock = description
-    ? `<span class="flex-1 min-w-0"><span class="font-600 block">${escapeHtmlStr(label)}</span><span class="text-subtle text-sm block mt-1">${escapeHtmlStr(description)}</span></span>`
-    : `<span class="flex-1 font-600">${escapeHtmlStr(label)}</span>`;
-
-  const valueHtml = value ? `<span class="text-subtle text-sm">${escapeHtmlStr(value)}</span>` : "";
-
-  const chevronHtml = showChevron
-    ? `<span class="text-subtle opacity-50 text-sm ms-1" aria-hidden="true">&#8250;</span>`
-    : "";
-
-  return `<${Tag} class="${classes}"${baseAttrs}><div class="flex items-center gap-3">${iconHtml}${labelBlock}${valueHtml}${trailing}${chevronHtml}</div></${Tag}>`.trim();
-}
-
-export const settingsItem = SettingsItem;

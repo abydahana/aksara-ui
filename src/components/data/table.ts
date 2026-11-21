@@ -1,4 +1,4 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, normalizeSize } from "../utils";
 
 export interface TableProps {
   children?: string;
@@ -7,7 +7,7 @@ export interface TableProps {
   borderless?: boolean;
   hover?: boolean;
   small?: boolean;
-  responsive?: boolean | "sm" | "md" | "lg" | "xl" | "xxl";
+  responsive?: boolean | "sm" | "md" | "lg" | "xl" | "2xl" | "xxl";
   dark?: boolean;
   className?: string;
   attributes?: Record<string, unknown>;
@@ -43,8 +43,9 @@ export function Table(props: TableProps = {}): string {
   const tableHtml = `<table class="${tableClasses}"${baseAttrs}>${children}</table>`.trim();
 
   if (responsive) {
-    const responsiveClass = typeof responsive === "string" ? `table-responsive-${responsive}` : "table-responsive";
-    return `<div class="${responsiveClass}">${tableHtml}</div>`.trim();
+    const responsiveClass =
+      typeof responsive === "string" ? `table-responsive-${normalizeSize(responsive)}` : "table-responsive";
+    return `<div class="${classNames(responsiveClass)}">${tableHtml}</div>`.trim();
   }
 
   return tableHtml;

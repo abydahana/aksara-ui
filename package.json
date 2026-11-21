@@ -1,12 +1,12 @@
 {
   "name": "@abydahana/aksara-ui",
-  "version": "1.2.9",
+  "version": "1.4.0",
   "publishConfig": {
     "access": "public"
   },
   "description": "Bootstrap readability with Tailwind flexibility: a static CSS and TypeScript frontend framework.",
   "type": "module",
-  "main": "dist/aksara.js",
+  "main": "dist/aksara.cjs",
   "module": "dist/aksara.esm.js",
   "types": "dist/aksara.d.ts",
   "style": "dist/aksara.css",
@@ -14,15 +14,16 @@
     ".": {
       "types": "./dist/aksara.d.ts",
       "import": "./dist/aksara.esm.js",
-      "require": "./dist/aksara.js",
+      "require": "./dist/aksara.cjs",
       "default": "./dist/aksara.esm.js"
     },
     "./css": "./dist/aksara.css",
     "./css/min": "./dist/aksara.min.css",
+    "./css/icons": "./dist/icons.css",
     "./js": {
       "types": "./dist/aksara.d.ts",
       "import": "./dist/aksara.esm.js",
-      "require": "./dist/aksara.js",
+      "require": "./dist/aksara.cjs",
       "default": "./dist/aksara.esm.js"
     },
     "./components": {
@@ -64,8 +65,7 @@
       "types": "./dist/components/*.d.ts",
       "import": "./dist/components/*.js",
       "default": "./dist/components/*.js"
-    },
-    "./dist/*": "./dist/*"
+    }
   },
   "files": [
     "dist",
@@ -85,7 +85,7 @@
     "setup:hooks": "git config core.hooksPath .githooks && chmod +x .githooks/pre-commit",
     "prepare": "npm run build",
     "all": "npm run check && npm run format && npm run lint && npm run test && npm run build",
-    "prepublishOnly": "npm run all"
+    "prepublishOnly": "npm run validate"
   },
   "keywords": [
     "css",
@@ -96,12 +96,11 @@
     "typescript"
   ],
   "license": "MIT",
-  "dependencies": {
-    "@mdi/font": "^7.4.47"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@mdi/font": "^7.4.47",
     "@types/node": "^22.13.14",
+    "esbuild": "^0.28.2",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-unicorn": "^65.0.1",
@@ -111,5 +110,18 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.68.0"
   },
-  "author": "Aby Dahana"
+  "peerDependencies": {
+    "@mdi/font": "^7.4.47"
+  },
+  "author": "Aby Dahana",
+  "sideEffects": [
+    "*.css",
+    "./dist/aksara.js",
+    "./dist/aksara.min.js",
+    "./dist/aksara.esm.js",
+    "./dist/aksara.cjs"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
 }

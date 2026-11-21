@@ -8,7 +8,7 @@ Use `.visually-hidden` to keep content available to assistive technology while h
     Save
     <span class="visually-hidden">changes to your profile</span>
   </button>
-  <div class="clearfix p-5 bg-subtle rounded-12">
+  <div class="clearfix p-5 bg-subtle rounded-[12px]">
     Clearfix uses `display: flow-root`.
   </div>
 </div>

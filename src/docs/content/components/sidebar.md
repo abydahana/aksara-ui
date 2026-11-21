@@ -50,51 +50,51 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
     <div class="sidebar-content p-5 overflow-y-auto">
 
       <div id="sbPanelPrivacy" class="tab-panel" role="tabpanel" aria-labelledby="sbTabPrivacy">
-        <h2 class="text-24 font-800 mt-0 mb-2">Privacy</h2>
+        <h2 class="text-2xl font-extrabold mt-0 mb-2">Privacy</h2>
         <p class="text-subtle text-sm mt-0 mb-4">Manage your profile visibility, tag permissions, and interactions.</p>
         <div class="list-group">
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-lock-outline"></span></span>
-              <span class="flex-1 font-600">Private profile</span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-lock-outline"></span></span>
+              <span class="flex-1 fw-semibold">Private profile</span>
               <span class="text-subtle text-sm">Public</span>
-              <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+              <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#06b6d4;"><span class="mdi mdi-at"></span></span>
-              <span class="flex-1 font-600">Tags and mentions</span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#06b6d4;"><span class="mdi mdi-at"></span></span>
+              <span class="flex-1 fw-semibold">Tags and mentions</span>
               <span class="text-subtle text-sm">Everyone</span>
-              <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+              <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-account-clock-outline"></span></span>
-              <span class="flex-1 font-600">Online status</span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-account-clock-outline"></span></span>
+              <span class="flex-1 fw-semibold">Online status</span>
               <span class="text-subtle text-sm">Active</span>
-              <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+              <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-cancel"></span></span>
-              <span class="flex-1 font-600">Blocked profiles</span>
-              <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-cancel"></span></span>
+              <span class="flex-1 fw-semibold">Blocked profiles</span>
+              <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
           </a>
         </div>
       </div>
 
       <div id="sbPanelContent" class="tab-panel" role="tabpanel" aria-labelledby="sbTabContent" hidden>
-        <h2 class="text-24 font-800 mt-0 mb-2">Content preferences</h2>
+        <h2 class="text-2xl font-extrabold mt-0 mb-2">Content preferences</h2>
         <p class="text-subtle text-sm mt-0 mb-4">Control what types of content appear in your feed.</p>
         <div class="list-group">
           <div class="list-group-item">
             <div class="flex items-center gap-4">
               <div class="flex-1 min-w-0">
-                <span class="font-600 block">Default Proximity Alert Radius</span>
+                <span class="fw-semibold block">Default Proximity Alert Radius</span>
                 <span class="text-subtle text-sm block mt-1">Prioritize reports occurring within this distance from your current coordinates.</span>
               </div>
               <select class="form-select form-select-sm shrink-0" style="width:auto;min-width:140px;">
@@ -107,7 +107,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
           <div class="list-group-item">
             <div class="flex items-center gap-4">
               <div class="flex-1 min-w-0">
-                <span class="font-600 block">Verified reports only</span>
+                <span class="fw-semibold block">Verified reports only</span>
                 <span class="text-subtle text-sm block mt-1">Only display observations that have passed community or authority verification.</span>
               </div>
               <div class="form-switch shrink-0">
@@ -119,14 +119,14 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
       </div>
 
       <div id="sbPanelNotif" class="tab-panel" role="tabpanel" aria-labelledby="sbTabNotif" hidden>
-        <h2 class="text-24 font-800 mt-0 mb-2">Notifications</h2>
+        <h2 class="text-2xl font-extrabold mt-0 mb-2">Notifications</h2>
         <p class="text-subtle text-sm mt-0 mb-4">Choose what alerts and updates you receive.</p>
         <div class="list-group">
           <div class="list-group-item">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-alert-circle"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-alert-circle"></span></span>
               <div class="flex-1 min-w-0">
-                <span class="font-600 block">Disaster &amp; Critical Alerts</span>
+                <span class="fw-semibold block">Disaster &amp; Critical Alerts</span>
                 <span class="text-subtle text-sm block mt-1">Receive urgent notifications for high-severity hazards nearby</span>
               </div>
               <div class="form-switch shrink-0"><input type="checkbox" role="switch" class="form-check-input" checked /></div>
@@ -134,9 +134,9 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
           </div>
           <div class="list-group-item">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-check-decagram-outline"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-check-decagram-outline"></span></span>
               <div class="flex-1 min-w-0">
-                <span class="font-600 block">Verification Updates</span>
+                <span class="fw-semibold block">Verification Updates</span>
                 <span class="text-subtle text-sm block mt-1">Get notified when community verifies or updates your observation</span>
               </div>
               <div class="form-switch shrink-0"><input type="checkbox" role="switch" class="form-check-input" checked /></div>
@@ -146,9 +146,9 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
       </div>
 
       <div id="sbPanelAccount" class="tab-panel" role="tabpanel" aria-labelledby="sbTabAccount" hidden>
-        <h2 class="text-24 font-800 mt-0 mb-2">Account status</h2>
+        <h2 class="text-2xl font-extrabold mt-0 mb-2">Account status</h2>
         <p class="text-subtle text-sm mt-0 mb-4">Manage your account standing and verification level.</p>
-        <div class="p-4 rounded-12 bg-success/8 border border-success/24 hstack gap-3">
+        <div class="p-4 rounded-[12px] bg-success/8 border border-success/24 hstack gap-3">
           <span class="mdi mdi-check-circle text-success text-xl"></span>
           <div>
             <strong class="block">Account in good standing</strong>
@@ -158,21 +158,21 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
       </div>
 
       <div id="sbPanelHelp" class="tab-panel" role="tabpanel" aria-labelledby="sbTabHelp" hidden>
-        <h2 class="text-24 font-800 mt-0 mb-2">Help</h2>
+        <h2 class="text-2xl font-extrabold mt-0 mb-2">Help</h2>
         <p class="text-subtle text-sm mt-0 mb-4">Resources and support options.</p>
         <div class="list-group">
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-book-open-outline"></span></span>
-              <span class="flex-1 font-600">Documentation</span>
-              <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-book-open-outline"></span></span>
+              <span class="flex-1 fw-semibold">Documentation</span>
+              <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-7 h-7 shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-message-question-outline"></span></span>
-              <span class="flex-1 font-600">Contact Support</span>
-              <span class="text-subtle opacity-50 text-sm ms-1">&#8250;</span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-message-question-outline"></span></span>
+              <span class="flex-1 fw-semibold">Contact Support</span>
+              <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
           </a>
         </div>

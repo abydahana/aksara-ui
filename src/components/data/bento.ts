@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, pickTag, toAttributes } from "../utils";
 
 export interface BentoGridProps {
   children?: string;
@@ -61,7 +61,8 @@ export interface BentoTitleProps {
 }
 
 export function BentoTitle(props: BentoTitleProps): string {
-  const { title, subtitle, as = "h3", className = "" } = props;
+  const { title, subtitle, className = "" } = props;
+  const as = pickTag(props.as, ["h2", "h3", "h4", "h5"] as const, "h3");
   const safeTitle = escapeHtml(title);
   const titleHtml = `<${as} class="${classNames("bento-title", className)}">${safeTitle}</${as}>`;
   if (!subtitle) return titleHtml;

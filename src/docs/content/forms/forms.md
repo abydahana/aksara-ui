@@ -167,6 +167,10 @@ Aksara UI replaces legacy browser styling with beautifully curated checkbox togg
   <input type="checkbox" checked />
   <span>Enable email notifications</span>
 </label>
+
+<!-- Range slider and file picker -->
+<input class="form-range" type="range" />
+<input class="form-file" type="file" />
 ```
 
 ---
@@ -194,4 +198,42 @@ Alter the size scale and typographic weight of form inputs by matching sizes to 
 
 <!-- Large input for search screens or hero inputs -->
 <input type="text" class="form-control form-control-lg" placeholder="Large Input" />
+```
+
+---
+
+## Floating Labels
+
+Wrap a `.form-control` (or `.form-select`) and its `<label>` in `.form-floating`. The label sits inside the field and floats above the value on focus or once the field has content. The control must come **before** the label and needs a `placeholder` (a single space is enough): the float is driven by `:placeholder-shown`.
+
+::html
+<div class="docs-preview">
+  <div class="form-floating mb-3">
+    <input id="floatingEmail" type="email" class="form-control" placeholder=" " />
+    <label for="floatingEmail">Email address</label>
+  </div>
+  <div class="form-floating">
+    <textarea id="floatingNotes" class="form-control" placeholder=" "></textarea>
+    <label for="floatingNotes">Notes</label>
+  </div>
+</div>
+::end
+
+```html
+<div class="form-floating">
+  <input id="floatingEmail" type="email" class="form-control" placeholder=" " />
+  <label for="floatingEmail">Email address</label>
+</div>
+```
+
+The `FloatingLabel` string component renders the same wrapper:
+
+```ts
+import { FloatingLabel } from "@abydahana/aksara-ui/components";
+
+FloatingLabel({
+  htmlFor: "floatingEmail",
+  label: "Email address",
+  controlHtml: '<input id="floatingEmail" type="email" class="form-control" placeholder=" " />'
+});
 ```

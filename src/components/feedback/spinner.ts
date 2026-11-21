@@ -1,4 +1,4 @@
-import { classNames, toAttributes, type ComponentSize } from "../utils";
+import { classNames, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export interface SpinnerProps {
   size?: ComponentSize;
@@ -11,7 +11,7 @@ export interface SpinnerProps {
 export function Spinner(props: SpinnerProps = {}): string {
   const { size, variant, label = "Loading...", className = "", attributes } = props;
 
-  const sizeClass = size ? `spinner-${size}` : "";
+  const sizeClass = size ? `spinner-${normalizeSize(size)}` : "";
 
   const classes = classNames("spinner", sizeClass, variant && `text-${variant}`, className);
 

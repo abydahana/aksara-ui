@@ -1,6 +1,6 @@
 # States
 
-State variants let utilities react to interaction and structural states. They are generated as static CSS, so they work without runtime CSS generation.
+State variants let utilities react to interaction and structural states. `hover:`, `focus:` and `active:` for colors, `bg-body`, `bg-subtle`, `bg-transparent`, `text-body`, `border`, `border-subtle`, `underline` and `ring` are precompiled in the static stylesheet. Every other state variant (`disabled:opacity-[.5]`, `odd:bg-subtle`, `last:border-0`, `hover:bg-primary/80`) is generated on demand by `Aksara.init()` the first time the class appears in the DOM.
 
 ## Variant Order
 
@@ -16,7 +16,7 @@ Valid:
 hover:bg-primary/80
 focus:border-primary
 active:-mx-3
-disabled:opacity-50
+disabled:opacity-[.5]
 checked:bg-primary
 selected:border-primary
 dark:md:hover:border-primary
@@ -44,6 +44,9 @@ md:dark:hover:border
 - `last`
 - `odd`
 - `even`
+- `group-hover` (child of a `.group` element that is hovered)
+
+Unknown or misordered variants are ignored: no CSS rule is generated.
 
 ## Hover
 
@@ -52,7 +55,7 @@ Use `hover:` for pointer hover states.
 ::html
 <div class="docs-preview">
   <button class="btn btn-primary hover:bg-primary/80">Hover me</button>
-  <div class="p-5 rounded-12 border border-subtle hover:border-primary transition duration-200">
+  <div class="p-5 rounded-[12px] border border-subtle hover:border-primary transition duration-[200ms]">
     Card border changes on hover.
   </div>
 </div>
@@ -60,7 +63,7 @@ Use `hover:` for pointer hover states.
 
 ```html
 <button class="btn btn-primary hover:bg-primary/80">Hover me</button>
-<div class="border border-subtle hover:border-primary transition duration-200">...</div>
+<div class="border border-subtle hover:border-primary transition duration-[200ms]">...</div>
 ```
 
 ## Focus
@@ -99,12 +102,12 @@ Use `disabled:` with real disabled controls. For non-form elements, use the `.di
 
 ::html
 <div class="docs-preview">
-  <button class="btn btn-primary disabled:opacity-50" disabled>Disabled button</button>
+  <button class="btn btn-primary disabled:opacity-[.5]" disabled>Disabled button</button>
 </div>
 ::end
 
 ```html
-<button class="btn btn-primary disabled:opacity-50" disabled>Disabled button</button>
+<button class="btn btn-primary disabled:opacity-[.5]" disabled>Disabled button</button>
 ```
 
 ## Checked
@@ -158,9 +161,9 @@ Use structural states for repeated items.
 ::html
 <div class="docs-preview">
   <ul class="grid gap-2 p-0" style="list-style: none;">
-    <li class="p-3 rounded-12 border border-subtle first:border-primary odd:bg-primary/10 even:bg-success/10">First odd item</li>
-    <li class="p-3 rounded-12 border border-subtle first:border-primary odd:bg-primary/10 even:bg-success/10">Even item</li>
-    <li class="p-3 rounded-12 border border-subtle last:border-danger odd:bg-primary/10 even:bg-success/10">Last odd item</li>
+    <li class="p-3 rounded-[12px] border border-subtle first:border-primary odd:bg-primary/10 even:bg-success/10">First odd item</li>
+    <li class="p-3 rounded-[12px] border border-subtle first:border-primary odd:bg-primary/10 even:bg-success/10">Even item</li>
+    <li class="p-3 rounded-[12px] border border-subtle last:border-danger odd:bg-primary/10 even:bg-success/10">Last odd item</li>
   </ul>
 </div>
 ::end

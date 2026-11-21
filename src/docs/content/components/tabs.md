@@ -18,14 +18,14 @@ Aksara UI features highly accessible, fully keyboard-navigable tab menus nativel
   </div>
 
   <div id="panelPrimary" class="tab-panel" role="tabpanel" aria-labelledby="tabPrimary">
-    <h4 class="mt-0 mb-2 font-700">Soft UI Fills</h4>
+    <h4 class="mt-0 mb-2 fw-bold">Soft UI Fills</h4>
     <p class="m-0 text-subtle text-sm">
       Aksara UI uses subtle semantic alerts, badge pill labels, outline surfaces, and translucent alpha tints.
     </p>
   </div>
 
   <div id="panelSecondary" class="tab-panel" role="tabpanel" aria-labelledby="tabSecondary" hidden>
-    <h4 class="mt-0 mb-2 font-700">Logical Spacing</h4>
+    <h4 class="mt-0 mb-2 fw-bold">Logical Spacing</h4>
     <p class="m-0 text-subtle text-sm">
       Using start/end logical directions natively makes your website compatible with Arabic or Hebrew RTL readers out-of-the-box.
     </p>
@@ -71,18 +71,18 @@ Use `nav nav-pills` on the same `.tabs` container when you want pill-shaped tab 
     </button>
   </div>
 
-  <div id="pillPanelOverview" class="tab-panel p-4 bg-subtle rounded-12" role="tabpanel" aria-labelledby="pillTabOverview">
-    <h4 class="mt-0 mb-2 font-700">Overview</h4>
+  <div id="pillPanelOverview" class="tab-panel p-4 bg-subtle rounded-[12px]" role="tabpanel" aria-labelledby="pillTabOverview">
+    <h4 class="mt-0 mb-2 fw-bold">Overview</h4>
     <p class="m-0 text-subtle text-sm">Pill tabs are useful for compact dashboards and filter-like navigation.</p>
   </div>
 
-  <div id="pillPanelActivity" class="tab-panel p-4 bg-subtle rounded-12" role="tabpanel" aria-labelledby="pillTabActivity" hidden>
-    <h4 class="mt-0 mb-2 font-700">Activity</h4>
+  <div id="pillPanelActivity" class="tab-panel p-4 bg-subtle rounded-[12px]" role="tabpanel" aria-labelledby="pillTabActivity" hidden>
+    <h4 class="mt-0 mb-2 fw-bold">Activity</h4>
     <p class="m-0 text-subtle text-sm">The same data API handles clicks, keyboard arrows, and panel visibility.</p>
   </div>
 
-  <div id="pillPanelSettings" class="tab-panel p-4 bg-subtle rounded-12" role="tabpanel" aria-labelledby="pillTabSettings" hidden>
-    <h4 class="mt-0 mb-2 font-700">Settings</h4>
+  <div id="pillPanelSettings" class="tab-panel p-4 bg-subtle rounded-[12px]" role="tabpanel" aria-labelledby="pillTabSettings" hidden>
+    <h4 class="mt-0 mb-2 fw-bold">Settings</h4>
     <p class="m-0 text-subtle text-sm">Use regular utilities to tune spacing, backgrounds, and panel surfaces.</p>
   </div>
 </div>

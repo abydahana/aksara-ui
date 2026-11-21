@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, pickTag, toAttributes } from "../utils";
 
 export interface CardProps {
   children?: string;
@@ -58,7 +58,8 @@ export interface CardTitleProps {
 }
 
 export function CardTitle(props: CardTitleProps): string {
-  const { title, as: Tag = "h5", className = "" } = props;
+  const { title, as, className = "" } = props;
+  const Tag = pickTag(as, ["h1", "h2", "h3", "h4", "h5", "h6"] as const, "h5");
   return `<${Tag} class="${classNames("card-title", className)}">${escapeHtml(title)}</${Tag}>`.trim();
 }
 
@@ -71,8 +72,9 @@ export interface CardSubtitleProps {
 }
 
 export function CardSubtitle(props: CardSubtitleProps): string {
-  const { subtitle, as: Tag = "h6", className = "" } = props;
-  const classes = classNames("card-subtitle mb-2 text-muted", className);
+  const { subtitle, as, className = "" } = props;
+  const Tag = pickTag(as, ["h1", "h2", "h3", "h4", "h5", "h6", "p"] as const, "h6");
+  const classes = classNames("card-subtitle mb-2 text-subtle", className);
   return `<${Tag} class="${classes}">${escapeHtml(subtitle)}</${Tag}>`.trim();
 }
 

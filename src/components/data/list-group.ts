@@ -1,28 +1,41 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, toAttributes, normalizeSize } from "../utils";
 
 export interface ListGroupProps {
   children?: string;
   flush?: boolean;
   numbered?: boolean;
-  horizontal?: boolean | "sm" | "md" | "lg" | "xl" | "xxl";
+  horizontal?: boolean | "sm" | "md" | "lg" | "xl" | "2xl" | "xxl";
+  inset?: boolean;
+  dividerInset?: boolean;
   className?: string;
   attributes?: Record<string, unknown>;
 }
 
 export function ListGroup(props: ListGroupProps = {}): string {
-  const { children = "", flush = false, numbered = false, horizontal = false, className = "", attributes } = props;
+  const {
+    children = "",
+    flush = false,
+    numbered = false,
+    horizontal = false,
+    inset = false,
+    dividerInset = false,
+    className = "",
+    attributes
+  } = props;
 
   const horizontalClass =
     horizontal === true
       ? "list-group-horizontal"
       : typeof horizontal === "string"
-        ? `list-group-horizontal-${horizontal}`
+        ? `list-group-horizontal-${normalizeSize(horizontal)}`
         : null;
 
   const classes = classNames(
     "list-group",
     flush && "list-group-flush",
     numbered && "list-group-numbered",
+    inset && "list-group-inset",
+    dividerInset && "list-group-divider-inset",
     horizontalClass,
     className
   );

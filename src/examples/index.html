@@ -5,22 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Aksara UI Example</title>
     <link rel="stylesheet" href="../../dist/aksara.min.css" />
+    <!-- Material Design Icons: required peer dependency (@mdi/font) -->
+    <link rel="stylesheet" href="../../node_modules/@mdi/font/css/materialdesignicons.min.css" />
   </head>
   <body>
     <nav class="navbar">
       <a class="navbar-brand" href="#">Aksara UI</a>
       <ul class="navbar-nav">
         <li><a class="nav-link" aria-current="page" href="#components">Components</a></li>
-        <li><a class="nav-link" href="../docs/getting-started.md">Docs</a></li>
+        <li><a class="nav-link" href="../docs/#/">Docs</a></li>
       </ul>
       <button class="btn btn-soft-primary ms-auto" data-offcanvas="#sidebar">Menu</button>
     </nav>
 
-    <main id="components" class="container py-10">
-      <section class="mb-10">
+    <main id="components" class="container py-5">
+      <section class="mb-5">
         <div class="badge badge-soft-primary mb-3">Static CSS</div>
-        <h1 class="text-40 font-800 leading-48 mb-3">Flat, sleek, soft UI components.</h1>
-        <p class="text-subtle text-18 max-w-720">
+        <h1 class="text-[40px] font-extrabold leading-[48px] mb-3">Flat, sleek, soft UI components.</h1>
+        <p class="text-subtle text-lg max-w-[720px]">
           Aksara UI combines readable component names with utility flexibility and native logical properties.
         </p>
       </section>
@@ -136,7 +138,9 @@
                 <button class="tab" data-tabs="#tabOne" aria-selected="true">Utilities</button>
                 <button class="tab" data-tabs="#tabTwo" aria-selected="false">Components</button>
               </div>
-              <div id="tabOne" class="tab-panel">Prebuilt utilities support dynamic class names without JIT.</div>
+              <div id="tabOne" class="tab-panel">
+                Utilities resolve from the live DOM, so dynamic class names work without a build step.
+              </div>
               <div id="tabTwo" class="tab-panel" hidden>Components are plain CSS with optional JS behavior.</div>
             </div>
           </article>
@@ -180,12 +184,21 @@
         <section class="col-12">
           <div class="carousel card">
             <div class="carousel-item card-body" data-carousel-item>
-              <h2 class="text-24 mb-2">Slide one</h2>
+              <h2 class="text-2xl mb-2">Slide one</h2>
               <p class="text-subtle">Carousel uses plain data attributes.</p>
             </div>
             <div class="carousel-item card-body" data-carousel-item hidden>
-              <h2 class="text-24 mb-2">Slide two</h2>
-              <p class="text-subtle">No runtime CSS generation is needed.</p>
+              <h2 class="text-2xl mb-2">Slide two</h2>
+              <p class="text-subtle">Static classes need no build step; arbitrary values are generated on demand.</p>
+            </div>
+            <div class="carousel-indicators">
+              <button
+                type="button"
+                class="carousel-indicator active"
+                data-carousel-to="0"
+                aria-label="Slide 1"
+              ></button>
+              <button type="button" class="carousel-indicator" data-carousel-to="1" aria-label="Slide 2"></button>
             </div>
             <button class="carousel-control carousel-prev" data-carousel="prev" aria-label="Previous">‹</button>
             <button class="carousel-control carousel-next" data-carousel="next" aria-label="Next">›</button>
@@ -197,7 +210,7 @@
     <div id="demoModal" class="modal" aria-labelledby="demoTitle">
       <div class="modal-dialog">
         <div class="modal-header">
-          <h2 id="demoTitle" class="text-20 font-700 m-0">Modal</h2>
+          <h2 id="demoTitle" class="text-xl fw-bold m-0">Modal</h2>
           <button class="modal-close" data-modal-close aria-label="Close">x</button>
         </div>
         <div class="modal-body">
@@ -217,11 +230,11 @@
       </div>
       <div class="offcanvas-body">
         <a class="nav-link" href="#components">Components</a>
-        <a class="nav-link" href="../docs/components.md">Component docs</a>
+        <a class="nav-link" href="../docs/#/components/buttons">Component docs</a>
       </div>
     </aside>
 
-    <div id="savedToast" class="toast fixed bottom-20 end-20" data-toast-delay="3000">
+    <div id="savedToast" class="toast fixed bottom-4 end-4" data-toast-delay="3000">
       <div class="toast-header">Saved</div>
       <div class="toast-body">Your changes are synced.</div>
     </div>

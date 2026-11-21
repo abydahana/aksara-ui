@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes, type ComponentSize } from "../utils";
+import { classNames, escapeHtml, safeUrl, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 import type { ButtonVariant } from "./button";
 
 export interface ChipProps {
@@ -53,7 +53,7 @@ export function Chip(props: ChipProps = {}): string {
     variantClass = `chip-soft-${variant}`;
   }
 
-  const sizeClass = size ? `chip-${size}` : "chip-sm";
+  const sizeClass = size ? `chip-${normalizeSize(size)}` : "chip-sm";
 
   const classes = classNames("chip", variantClass, sizeClass, active && "active", disabled && "disabled", className);
 
@@ -70,14 +70,14 @@ export function Chip(props: ChipProps = {}): string {
   });
 
   const leadingContent = avatar
-    ? `<img src="${escapeHtml(avatar)}" alt="" class="chip-avatar rounded-circle shrink-0" />`
+    ? `<img src="${escapeHtml(safeUrl(avatar))}" alt="" class="chip-avatar rounded-circle shrink-0" />`
     : icon
-      ? `<i class="mdi ${escapeHtml(icon)} ${escapeHtml(iconClass)} chip-icon shrink-0"></i>`
+      ? `<i class="${classNames("mdi", icon, iconClass, "chip-icon shrink-0")}"></i>`
       : "";
 
   const textLabel =
     label !== undefined
-      ? `<span class="chip-label text-truncate">${escapeHtml(label)}</span>`
+      ? `<span class="chip-label truncate">${escapeHtml(label)}</span>`
       : children !== undefined
         ? children
         : "";
@@ -85,7 +85,7 @@ export function Chip(props: ChipProps = {}): string {
   const trailingContent = removable
     ? `<span class="chip-action chip-remove ms-1 shrink-0" data-chip-remove="" aria-label="Remove"><i class="mdi mdi-close text-xs"></i></span>`
     : trailingIcon
-      ? `<i class="mdi ${escapeHtml(trailingIcon)} chip-icon chip-trailing ms-1 shrink-0"></i>`
+      ? `<i class="${classNames("mdi", trailingIcon, "chip-icon chip-trailing ms-1 shrink-0")}"></i>`
       : "";
 
   return `<${Tag} class="${classes}"${baseAttrs}>${leadingContent}${textLabel}${trailingContent}</${Tag}>`;

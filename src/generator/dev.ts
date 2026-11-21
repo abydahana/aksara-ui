@@ -84,8 +84,13 @@ const server = http.createServer((req, res) => {
 
   let filePath = path.join(root, decodeURIComponent(reqUrl));
 
-  // Security check: stay within root
-  if (!filePath.startsWith(root)) {
+  // Security check: stay within root, and never serve dotfiles (.git, .env, ...)
+  const relative = path.relative(root, filePath);
+  if (
+    relative.startsWith("..") ||
+    path.isAbsolute(relative) ||
+    relative.split(path.sep).some((part) => part.startsWith("."))
+  ) {
     res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("403 Forbidden");
     return;
@@ -115,22 +120,23 @@ const server = http.createServer((req, res) => {
 });
 
 let port = Number(process.env.PORT) || 3000;
+// Local only by default; set HOST=0.0.0.0 to expose the docs on the network on purpose.
+const host = process.env.HOST || "127.0.0.1";
+
+server.on("error", (err: NodeJS.ErrnoException) => {
+  if (err.code === "EADDRINUSE") {
+    port += 1;
+    startServer();
+  } else {
+    console.error("Server error:", err);
+  }
+});
 
 function startServer(): void {
-  server.listen(port, () => {
+  server.listen(port, host, () => {
     console.log(`\n  🚀 Aksara UI Dev Server running at:`);
     console.log(`  ➜ Local:   http://localhost:${port}/`);
     console.log(`  ➜ Docs:    http://localhost:${port}/src/docs/\n`);
-  });
-
-  server.on("error", (err: NodeJS.ErrnoException) => {
-    if (err.code === "EADDRINUSE") {
-      port += 1;
-      server.close();
-      startServer();
-    } else {
-      console.error("Server error:", err);
-    }
   });
 }
 

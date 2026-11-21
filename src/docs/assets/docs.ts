@@ -232,8 +232,7 @@ function currentTheme(): "dark" | "light" {
 }
 
 function applyStoredTheme(): void {
-  const stored = (localStorage.getItem("aksara-theme") || localStorage.getItem("aksara-docs-theme")) as
-    "dark" | "light" | null;
+  const stored = localStorage.getItem("aksara-theme") as "dark" | "light" | null;
   const preferred = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   setTheme(stored || preferred);
 }
@@ -253,7 +252,7 @@ function setTheme(theme: "dark" | "light" | string): void {
     }
   }
   localStorage.setItem("aksara-theme", next);
-  localStorage.setItem("aksara-docs-theme", next);
+  localStorage.setItem("aksara-theme", next);
   if (themeButton) {
     const icon = themeButton.querySelector(".mdi");
     if (icon) {

@@ -6,11 +6,25 @@ export interface AuthPromptModalProps {
   id?: string;
   title?: string;
   description?: string;
+  /** Full login URL. Overrides `loginPath` + `redirect`. */
   loginUrl?: string;
+  /** Full register URL. Overrides `registerPath` + `redirect`. */
   registerUrl?: string;
+  /** Base login path used when `loginUrl` is not given. Default `/login`. */
+  loginPath?: string;
+  /** Base register path used when `registerUrl` is not given. Default `/register`. */
+  registerPath?: string;
+  /** Query parameter carrying the redirect target. Default `redirect`; pass `""` to omit it. */
+  redirectParam?: string;
   loginText?: string;
   registerText?: string;
+  /**
+   * Redirect target appended to the default URLs. When omitted, the current
+   * `window.location.pathname` is used in the browser (nothing during SSR).
+   */
   redirect?: string;
+  /** Extra attributes for both auth links (e.g. `{ "data-link": "" }` for a SPA router). */
+  linkAttributes?: Record<string, unknown>;
   logoHtml?: string;
   className?: string;
   closeLabel?: string;
@@ -28,6 +42,9 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
     description = "People on this platform are the first to know.",
     loginUrl,
     registerUrl,
+    loginPath = "/login",
+    registerPath = "/register",
+    redirectParam = "redirect",
     loginText = "Log in",
     registerText = "Sign up",
     redirect,
@@ -35,32 +52,40 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
     className = "",
     closeLabel = "Close",
     zIndex = 10010,
+    linkAttributes,
     attributes
   } = props;
 
-  const currentPath = redirect || (typeof window !== "undefined" ? window.location.pathname : "/");
-  const finalLoginUrl = loginUrl || `/login?redirect=${encodeURIComponent(currentPath)}`;
-  const finalRegisterUrl = registerUrl || `/register?redirect=${encodeURIComponent(currentPath)}`;
+  const currentPath =
+    redirect ?? (typeof window !== "undefined" && window.location ? window.location.pathname : undefined);
+  const withRedirect = (path: string): string => {
+    if (!redirectParam || !currentPath) return path;
+    const separator = path.includes("?") ? "&" : "?";
+    return `${path}${separator}${encodeURIComponent(redirectParam)}=${encodeURIComponent(currentPath)}`;
+  };
+  const finalLoginUrl = loginUrl || withRedirect(loginPath);
+  const finalRegisterUrl = registerUrl || withRedirect(registerPath);
+  const safeZIndex = Number.isFinite(Number(zIndex)) ? Math.trunc(Number(zIndex)) : 10010;
 
   const logoMarkup = logoHtml
-    ? `<div class="auth-prompt-logo mb-3 text-ink d-flex align-items-center justify-content-center w-13 h-13">${logoHtml}</div>`
-    : '<div class="auth-prompt-logo mb-3 text-primary d-flex align-items-center justify-content-center w-13 h-13 rounded-circle bg-primary-subtle"><i class="mdi mdi-account-circle-outline text-3xl"></i></div>';
+    ? `<div class="auth-modal-logo mb-3 text-body d-flex align-items-center justify-content-center w-[3.25rem] h-[3.25rem]">${logoHtml}</div>`
+    : '<div class="auth-modal-logo mb-3 text-primary d-flex align-items-center justify-content-center w-[3.25rem] h-[3.25rem] rounded-circle bg-primary/10"><i class="mdi mdi-account-circle-outline text-3xl"></i></div>';
 
   return Modal({
     id,
     size: "sm",
     centered: true,
     scrollable: false,
-    className: classNames("auth-prompt-modal-dialog", className),
+    className: classNames("auth-modal", className),
     attributes: {
       role: "dialog",
       "aria-modal": "true",
       "aria-labelledby": `${id}-title`,
-      style: `z-index: ${zIndex};`,
+      style: `z-index: ${safeZIndex};`,
       ...attributes
     },
     children: `
-      <div class="modal-body p-4 p-sm-5 position-relative d-flex flex-column align-items-center text-center">
+      <div class="modal-body p-4 sm:p-[3rem] position-relative d-flex flex-column align-items-center text-center">
         <div class="position-absolute top-0 end-0 p-3">
           ${Button({
             type: "button",
@@ -68,10 +93,10 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
             size: "sm",
             pill: true,
             className:
-              "d-inline-flex align-items-center justify-content-center p-0 border-0 text-muted hover:text-ink w-8 h-8",
+              "d-inline-flex align-items-center justify-content-center p-0 border-0 text-subtle hover:text-body w-[2rem] h-[2rem]",
             attributes: {
               "data-modal-close": "",
-              "aria-label": escapeHtml(closeLabel)
+              "aria-label": closeLabel
             },
             children: '<i class="mdi mdi-close text-lg"></i>'
           })}
@@ -79,11 +104,11 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
 
         ${logoMarkup}
 
-        <h3 id="${escapeHtml(id)}-title" class="font-bold text-xl leading-tight mb-2 text-ink">
+        <h3 id="${escapeHtml(id)}-title" class="fw-bold text-xl leading-tight mb-2 text-body">
           ${escapeHtml(title)}
         </h3>
 
-        <p class="text-muted text-sm mb-4 max-w-[300px]">
+        <p class="text-subtle text-sm mb-4 max-w-[300px]">
           ${escapeHtml(description)}
         </p>
 
@@ -92,9 +117,8 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
             href: finalLoginUrl,
             variant: "primary",
             pill: true,
-            className:
-              "w-100 py-2 font-bold shadow-sm text-decoration-none d-flex align-items-center justify-content-center",
-            attributes: { "data-link": "" },
+            className: "w-100 py-2 fw-bold shadow-sm no-underline d-flex align-items-center justify-content-center",
+            attributes: linkAttributes,
             children: escapeHtml(loginText)
           })}
 
@@ -103,8 +127,8 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
             variant: "secondary",
             outline: true,
             pill: true,
-            className: "w-100 py-2 font-bold text-decoration-none d-flex align-items-center justify-content-center",
-            attributes: { "data-link": "" },
+            className: "w-100 py-2 fw-bold no-underline d-flex align-items-center justify-content-center",
+            attributes: linkAttributes,
             children: escapeHtml(registerText)
           })}
         </div>

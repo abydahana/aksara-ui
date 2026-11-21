@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, safeCssLength, toAttributes } from "../utils";
 
 export interface ScrollspyTargetProps {
   id: string;
@@ -11,8 +11,9 @@ export interface ScrollspyTargetProps {
 export function ScrollspyTarget(props: ScrollspyTargetProps): string {
   const { id, children = "", height = 300, className = "", attributes } = props;
 
-  const styleAttr = height
-    ? ` style="height: ${typeof height === "number" ? `${height}px` : height}; position: relative; overflow-y: auto;"`
+  const safeHeight = height ? safeCssLength(height, "") : "";
+  const styleAttr = safeHeight
+    ? ` style="height: ${safeHeight}; position: relative; overflow-y: auto;"`
     : ' style="position: relative; overflow-y: auto;"';
   const baseAttrs = toAttributes({
     id,

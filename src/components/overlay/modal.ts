@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, toAttributes, normalizeSize } from "../utils";
 
 export interface ModalProps {
   id: string;
@@ -15,7 +15,10 @@ export interface ModalProps {
   centered?: boolean;
   scrollable?: boolean;
   staticBackdrop?: boolean;
+  /** Classes for the outer `.modal` element. */
   className?: string;
+  /** Classes for the `.modal-dialog` element (e.g. `max-w-[576px]`). */
+  dialogClassName?: string;
   attributes?: Record<string, unknown>;
 }
 
@@ -28,21 +31,24 @@ export function Modal(props: ModalProps): string {
     scrollable = false,
     staticBackdrop = false,
     className = "",
+    dialogClassName = "",
     attributes
   } = props;
 
   const dialogClasses = classNames(
     "modal-dialog",
-    size && (size === "fullscreen" ? "modal-fullscreen" : `modal-${size}`),
+    size && (size === "fullscreen" ? "modal-fullscreen" : `modal-${normalizeSize(size)}`),
     centered && "modal-dialog-centered",
-    scrollable && "modal-dialog-scrollable"
+    scrollable && "modal-dialog-scrollable",
+    dialogClassName
   );
 
   const baseAttrs = toAttributes({
     id,
     tabindex: "-1",
     "aria-hidden": "true",
-    "data-backdrop": staticBackdrop ? "static" : undefined,
+    // The Modal runtime reads options from `data-modal-*` attributes.
+    "data-modal-backdrop": staticBackdrop ? "static" : undefined,
     ...attributes
   });
 

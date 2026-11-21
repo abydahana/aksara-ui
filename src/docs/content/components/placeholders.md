@@ -6,24 +6,24 @@ Placeholders reserve space while content is loading. Use width, height, radius, 
 <div class="docs-preview">
   <div class="vstack gap-4">
     <div>
-      <h4 class="mt-0 mb-3 font-700 text-sm">Text Skeleton</h4>
+      <h4 class="mt-0 mb-3 fw-bold text-sm">Text Skeleton</h4>
       <div style="max-width:560px;">
-        <span class="placeholder placeholder-glow block w-1/3 rounded mb-3" style="height: 1.25rem;"></span>
+        <span class="placeholder placeholder-glow block w-[33.3333%] rounded mb-3" style="height: 1.25rem;"></span>
         <span class="placeholder block w-full rounded mb-2" style="height: 0.75rem;"></span>
-        <span class="placeholder block w-4/5 rounded mb-2" style="height: 0.75rem;"></span>
-        <span class="placeholder block w-2/3 rounded" style="height: 0.75rem;"></span>
+        <span class="placeholder block w-[80%] rounded mb-2" style="height: 0.75rem;"></span>
+        <span class="placeholder block w-[66.6667%] rounded" style="height: 0.75rem;"></span>
       </div>
     </div>
 
     <div>
-      <h4 class="mt-0 mb-3 font-700 text-sm">Cards And Media</h4>
+      <h4 class="mt-0 mb-3 fw-bold text-sm">Cards And Media</h4>
       <div class="docs-row items-start">
         <article class="card w-full" style="max-width:360px;">
           <div class="placeholder placeholder-wave block rounded-top" style="height: 10rem;"></div>
           <div class="card-body">
-            <span class="placeholder block w-4/5 rounded mb-3" style="height: 1rem;"></span>
+            <span class="placeholder block w-[80%] rounded mb-3" style="height: 1rem;"></span>
             <span class="placeholder block w-full rounded mb-2" style="height: 0.75rem;"></span>
-            <span class="placeholder block w-2/3 rounded" style="height: 0.75rem;"></span>
+            <span class="placeholder block w-[66.6667%] rounded" style="height: 0.75rem;"></span>
           </div>
         </article>
 
@@ -32,20 +32,20 @@ Placeholders reserve space while content is loading. Use width, height, radius, 
             <div class="hstack gap-3 mb-4">
               <span class="placeholder placeholder-wave block rounded-circle shrink-0" style="width:48px; height:48px;"></span>
               <div class="flex-1">
-                <span class="placeholder block w-3/5 rounded mb-2" style="height: 1rem;"></span>
-                <span class="placeholder block w-2/5 rounded" style="height: 0.75rem;"></span>
+                <span class="placeholder block w-[60%] rounded mb-2" style="height: 1rem;"></span>
+                <span class="placeholder block w-[40%] rounded" style="height: 0.75rem;"></span>
               </div>
             </div>
             <span class="placeholder block w-full rounded mb-2" style="height: 0.75rem;"></span>
-            <span class="placeholder block w-3/4 rounded mb-2" style="height: 0.75rem;"></span>
-            <span class="placeholder block w-3/5 rounded" style="height: 0.75rem;"></span>
+            <span class="placeholder block w-[75%] rounded mb-2" style="height: 0.75rem;"></span>
+            <span class="placeholder block w-[60%] rounded" style="height: 0.75rem;"></span>
           </div>
         </article>
       </div>
     </div>
 
     <div>
-      <h4 class="mt-0 mb-3 font-700 text-sm">Table Skeleton</h4>
+      <h4 class="mt-0 mb-3 fw-bold text-sm">Table Skeleton</h4>
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
@@ -58,14 +58,14 @@ Placeholders reserve space while content is loading. Use width, height, radius, 
           </thead>
           <tbody>
             <tr>
-              <td><span class="placeholder placeholder-glow block w-2/3 rounded" style="height: 0.875rem;"></span></td>
-              <td><span class="placeholder block w-1/2 rounded" style="height: 0.875rem;"></span></td>
+              <td><span class="placeholder placeholder-glow block w-[66.6667%] rounded" style="height: 0.875rem;"></span></td>
+              <td><span class="placeholder block w-[50%] rounded" style="height: 0.875rem;"></span></td>
               <td><span class="placeholder text-success block rounded-pill" style="width:80px; height: 1.25rem;"></span></td>
               <td class="text-end"><span class="placeholder inline-block rounded" style="width:92px; height: 1.75rem;"></span></td>
             </tr>
             <tr>
-              <td><span class="placeholder placeholder-glow block w-3/5 rounded" style="height: 0.875rem;"></span></td>
-              <td><span class="placeholder block w-2/5 rounded" style="height: 0.875rem;"></span></td>
+              <td><span class="placeholder placeholder-glow block w-[60%] rounded" style="height: 0.875rem;"></span></td>
+              <td><span class="placeholder block w-[40%] rounded" style="height: 0.875rem;"></span></td>
               <td><span class="placeholder text-warning block rounded-pill" style="width:90px; height: 1.25rem;"></span></td>
               <td class="text-end"><span class="placeholder inline-block rounded" style="width:92px; height: 1.75rem;"></span></td>
             </tr>
@@ -75,7 +75,7 @@ Placeholders reserve space while content is loading. Use width, height, radius, 
     </div>
 
     <div>
-      <h4 class="mt-0 mb-3 font-700 text-sm">Form Skeleton</h4>
+      <h4 class="mt-0 mb-3 fw-bold text-sm">Form Skeleton</h4>
       <div style="max-width:520px;">
         <span class="placeholder block rounded mb-2" style="width:120px; height: 0.875rem;"></span>
         <span class="placeholder placeholder-wave block w-full rounded mb-4" style="height: 2.5rem;"></span>
@@ -94,9 +94,9 @@ Placeholders reserve space while content is loading. Use width, height, radius, 
 
 ```html
 <!-- Text skeleton -->
-<span class="placeholder placeholder-glow block w-1/3 mb-3"></span>
+<span class="placeholder placeholder-glow block w-[33.3333%] mb-3"></span>
 <span class="placeholder block w-full mb-2"></span>
-<span class="placeholder block w-3/4"></span>
+<span class="placeholder block w-[75%]"></span>
 
 <!-- Sizing modifiers -->
 <span class="placeholder placeholder-xs col-12"></span>

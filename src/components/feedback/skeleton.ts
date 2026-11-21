@@ -1,4 +1,4 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, safeCssLength, toAttributes } from "../utils";
 
 export interface SkeletonProps {
   children?: string;
@@ -25,7 +25,7 @@ export interface SkeletonCircleProps {
 
 export function SkeletonCircle(props: SkeletonCircleProps = {}): string {
   const { size = "3rem", wave = false, className = "" } = props;
-  const sizeStyle = typeof size === "number" ? `${size}px` : size;
+  const sizeStyle = safeCssLength(size, "3rem");
   const classes = classNames("skeleton skeleton-circle", wave && "skeleton-wave", className);
   return `<div class="${classes}" style="width:${sizeStyle};height:${sizeStyle};"></div>`.trim();
 }

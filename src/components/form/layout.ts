@@ -33,10 +33,10 @@ export function FormCol(props: FormColProps = {}): string {
 
   const classes = classNames(
     size !== undefined ? (size === "auto" ? "col-auto" : `col-${size}`) : "col",
-    sm !== undefined && (sm === "auto" ? "col-sm-auto" : `col-sm-${sm}`),
-    md !== undefined && (md === "auto" ? "col-md-auto" : `col-md-${md}`),
-    lg !== undefined && (lg === "auto" ? "col-lg-auto" : `col-lg-${lg}`),
-    xl !== undefined && (xl === "auto" ? "col-xl-auto" : `col-xl-${xl}`),
+    sm !== undefined && (sm === "auto" ? "sm:col-auto" : `sm:col-${sm}`),
+    md !== undefined && (md === "auto" ? "md:col-auto" : `md:col-${md}`),
+    lg !== undefined && (lg === "auto" ? "lg:col-auto" : `lg:col-${lg}`),
+    xl !== undefined && (xl === "auto" ? "xl:col-auto" : `xl:col-${xl}`),
     className
   );
 

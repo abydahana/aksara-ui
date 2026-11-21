@@ -1,4 +1,4 @@
-import { classNames, toAttributes } from "../utils";
+import { classNames, pickTag, toAttributes } from "../utils";
 
 export interface CollapseProps {
   id: string;
@@ -34,7 +34,8 @@ export interface CollapseTriggerProps {
 }
 
 export function CollapseTrigger(props: CollapseTriggerProps): string {
-  const { targetId, children, as: Tag = "button", expanded = false, className = "", attributes } = props;
+  const { targetId, children, expanded = false, className = "", attributes } = props;
+  const Tag = pickTag(props.as, ["button", "a"] as const, "button");
 
   const targetSelector = targetId.startsWith("#") ? targetId : `#${targetId}`;
   const targetRawId = targetId.replace(/^#/, "");

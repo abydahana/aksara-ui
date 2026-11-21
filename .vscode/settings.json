@@ -1,0 +1,9 @@
+{
+  // Aksara UI ships its own utility grammar (arbitrary values such as flex-[1], z-[10], ...),
+  // so Tailwind CSS IntelliSense must not lint or complete classes in this project.
+  "files.associations": {
+    "*.css": "css"
+  },
+  "tailwindCSS.validate": false,
+  "tailwindCSS.files.exclude": ["**"]
+}

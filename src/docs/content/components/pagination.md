@@ -9,7 +9,7 @@ Aksara UI features a clean, bordered pagination pattern. Use active (`aria-curre
 ::html
 <div class="docs-preview py-4">
   <div class="mb-4">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Standard Pagination</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Standard Pagination</h4>
     <ul class="pagination">
       <li><a href="#" class="page-link">Previous</a></li>
       <li><a href="#" class="page-link">1</a></li>
@@ -20,7 +20,7 @@ Aksara UI features a clean, bordered pagination pattern. Use active (`aria-curre
   </div>
 
   <div>
-    <h4 class="mt-0 mb-3 font-700 text-sm">Premium Icon Navigation</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Premium Icon Navigation</h4>
     <ul class="pagination">
       <li><a href="#" class="page-link disabled" aria-disabled="true"><span class="mdi mdi-chevron-double-left"></span></a></li>
       <li><a href="#" class="page-link"><span class="mdi mdi-chevron-left"></span></a></li>
@@ -69,3 +69,16 @@ Aksara UI features a clean, bordered pagination pattern. Use active (`aria-curre
 - **`.pagination`**: Flexbox list wrapper that clears default list bullet decorators, aligns page links in a clean row, and manages item spacing.
 - **`.page-link`**: Styles individual page trigger blocks with standard border dimensions, smooth rounded corners (`--aksara-radius-md`), hover states, and transparent soft primary active states.
 - **`.disabled`**: Reduces opacity and disables click-through pointer gestures.
+- **`Pagination` string component**: each item's `label` is plain text and is escaped. Use `content` for raw HTML such as icons or `&laquo;` (it takes precedence over `label`):
+
+```ts
+import { Pagination } from "@abydahana/aksara-ui/components";
+
+Pagination({
+  items: [
+    { label: "Previous", content: '<span class="mdi mdi-chevron-left"></span>', href: "?page=1" },
+    { label: "1", href: "?page=1" },
+    { label: "2", href: "?page=2", active: true }
+  ]
+});
+```

@@ -21,7 +21,7 @@ Click the buttons below to trigger live modals of various sizes. Aksara UI handl
   <div id="standardModalDemo" class="modal" tabindex="-1" aria-labelledby="standardModalTitle">
     <div class="modal-dialog">
       <div class="modal-header">
-        <h4 id="standardModalTitle" class="m-0 font-800 text-lg">Standard Overlay Modal</h4>
+        <h4 id="standardModalTitle" class="m-0 font-extrabold text-lg">Standard Overlay Modal</h4>
         <button class="modal-close hstack justify-center items-center" data-modal-close aria-label="Close modal" style="border:0; background:transparent; padding:4px; cursor:pointer;"><span class="mdi mdi-close"></span></button>
       </div>
       <div class="modal-body">
@@ -44,7 +44,7 @@ Click the buttons below to trigger live modals of various sizes. Aksara UI handl
   <div id="smallModalDemo" class="modal" tabindex="-1" aria-labelledby="smallModalTitle">
     <div class="modal-dialog modal-sm">
       <div class="modal-header">
-        <h4 id="smallModalTitle" class="m-0 font-800 text-md">Delete Item</h4>
+        <h4 id="smallModalTitle" class="m-0 font-extrabold text-base">Delete Item</h4>
         <button class="modal-close hstack justify-center items-center" data-modal-close aria-label="Close modal" style="border:0; background:transparent; padding:4px; cursor:pointer;"><span class="mdi mdi-close"></span></button>
       </div>
       <div class="modal-body">
@@ -61,7 +61,7 @@ Click the buttons below to trigger live modals of various sizes. Aksara UI handl
   <div id="largeModalDemo" class="modal" tabindex="-1" aria-labelledby="largeModalTitle">
     <div class="modal-dialog modal-lg">
       <div class="modal-header">
-        <h4 id="largeModalTitle" class="m-0 font-800 text-xl">System Configurations</h4>
+        <h4 id="largeModalTitle" class="m-0 font-extrabold text-xl">System Configurations</h4>
         <button class="modal-close hstack justify-center items-center" data-modal-close aria-label="Close modal" style="border:0; background:transparent; padding:4px; cursor:pointer;"><span class="mdi mdi-close"></span></button>
       </div>
       <div class="modal-body">
@@ -102,7 +102,7 @@ To construct a standard modal overlay, structure your HTML containers as follows
   <div class="modal-dialog">
     <!-- Modal Panel content -->
     <div class="modal-header">
-      <h4 class="m-0 font-800 text-lg">Modal Title</h4>
+      <h4 class="m-0 font-extrabold text-lg">Modal Title</h4>
       <!-- Button to close the modal -->
       <button
         class="modal-close hstack justify-center items-center"
@@ -225,12 +225,16 @@ const myModal = Aksara.modal("#userModal", {
       </tr>
       <tr>
         <td><code>myModal.destroy()</code></td>
-        <td>Removes event listeners, tears down active keybind triggers, and deletes internal memory references.</td>
+        <td>Removes event listeners, tears down active keybind triggers, and deletes internal memory references. Called automatically when the modal element is removed from the DOM.</td>
       </tr>
     </tbody>
   </table>
 </div>
 ::end
+
+### Stacked Modals
+
+Modals and offcanvases can be opened on top of each other. They stack in opening order: Escape and focus trapping apply only to the topmost overlay, and page scrolling stays locked until the last one closes.
 
 ### Custom Events
 

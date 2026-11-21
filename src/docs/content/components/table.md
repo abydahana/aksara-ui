@@ -5,7 +5,7 @@ Tables include striped, hover, compact, bordered, and responsive wrappers.
 ::html
 <div class="docs-preview">
   <div class="mb-4">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Responsive Striped Table</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Responsive Striped Table</h4>
     <div class="table-responsive">
       <table class="table table-striped table-hover table-bordered">
         <thead><tr><th>Name</th><th>Status</th><th class="text-end">Rules</th></tr></thead>
@@ -18,7 +18,7 @@ Tables include striped, hover, compact, bordered, and responsive wrappers.
   </div>
 
   <div>
-    <h4 class="mt-0 mb-3 font-700 text-sm">Compact Status Table</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Compact Status Table</h4>
     <div class="table-responsive">
       <table class="table table-compact table-hover">
         <thead><tr><th>Module</th><th>Owner</th><th>Status</th></tr></thead>
@@ -228,3 +228,25 @@ Use a toolbar above the responsive table for primary actions, export controls, a
   <li><a href="#" class="page-link">Next</a></li>
 </ul>
 ```
+
+---
+
+## Modifiers
+
+| Class                                                        | Effect                                                              |
+| ------------------------------------------------------------ | ------------------------------------------------------------------- |
+| `table-striped`, `table-hover`, `table-bordered`             | Zebra rows, row hover, and cell borders                             |
+| `table-sm` (alias `table-compact`)                           | Tighter cell padding                                                |
+| `table-borderless`                                           | Removes all cell borders                                            |
+| `table-dark`                                                 | Dark surface with light text, independent of the page theme         |
+| `table-responsive`, `table-responsive-{sm,md,lg,xl,2xl,3xl}` | Wrapper that scrolls horizontally (always, or below the breakpoint) |
+
+```html
+<div class="table-responsive-md">
+  <table class="table table-sm table-borderless table-dark">
+    ...
+  </table>
+</div>
+```
+
+The `Table` string component maps `small`, `borderless`, `dark` and `responsive` props to these classes.

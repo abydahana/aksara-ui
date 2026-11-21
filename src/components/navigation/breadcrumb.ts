@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, safeUrl, toAttributes } from "../utils";
 
 export interface BreadcrumbItem {
   label: string;
@@ -35,7 +35,7 @@ export function Breadcrumb(props: BreadcrumbProps): string {
       }
 
       const href = item.href ?? "#";
-      return `<li class="breadcrumb-item"><a href="${escapeHtml(href)}">${escapeHtml(item.label)}</a></li>`;
+      return `<li class="breadcrumb-item"><a href="${escapeHtml(safeUrl(href))}">${escapeHtml(item.label)}</a></li>`;
     })
     .join("");
 

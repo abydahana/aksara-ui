@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, parseAttributeString, toAttributes } from "../utils";
 import { Avatar } from "./avatar";
 import { Badge, type BadgeVariant } from "../feedback/badge";
 import { Button } from "../buttons/button";
@@ -28,7 +28,15 @@ export interface QuoteCardProps {
   isPreview?: boolean;
   showRemoveBtn?: boolean;
   onRemoveTitle?: string;
+  /** Extra attributes for the card root, e.g. `{ "data-post-id": "42" }` (merged before `attributes`). */
+  interactiveAttributes?: Record<string, unknown>;
+  /**
+   * @deprecated Use `interactiveAttributes`. A raw attribute string; it is parsed and
+   * re-serialized (escaped, `on*` handlers dropped) instead of being injected verbatim.
+   */
   interactiveAttrs?: string;
+  /** Filters `media` URLs before rendering. Defaults to dropping empty / directory-like URLs. */
+  mediaFilter?: (url: string) => boolean;
   className?: string;
   attributes?: Record<string, unknown>;
   children?: string;
@@ -45,7 +53,9 @@ export function QuoteCard(props: QuoteCardProps): string {
     isPreview = false,
     showRemoveBtn = isPreview,
     onRemoveTitle = "Remove quote",
+    interactiveAttributes,
     interactiveAttrs = "",
+    mediaFilter = (url: string) => !url.endsWith("/"),
     className = "",
     attributes,
     children
@@ -55,21 +65,22 @@ export function QuoteCard(props: QuoteCardProps): string {
   const authorInitials = (author.initials || author.name || authorUsername || "U").slice(0, 1).toUpperCase();
 
   const baseClasses = classNames(
-    "feed-quote-card quote-card p-3 rounded-xl border border-subtle bg-panel mt-2 transition-colors d-flex flex-column gap-2",
-    isPreview ? "quote-preview" : "interactive cursor-pointer hover:bg-hover",
+    "quote-card p-3 rounded-xl border border-subtle bg-surface mt-2 transition d-flex flex-column gap-2",
+    isPreview ? "quote-preview" : "cursor-pointer hover:bg-[var(--aksara-bg-subtle)]",
     className
   );
 
-  const baseAttrs = toAttributes(attributes);
+  const baseAttrs = toAttributes({
+    ...parseAttributeString(interactiveAttrs),
+    ...interactiveAttributes,
+    ...attributes
+  });
 
-  const mediaList = media.filter(
-    (url): url is string =>
-      Boolean(url) && typeof url === "string" && !url.endsWith("/") && !url.includes("placeholder.png")
-  );
+  const mediaList = media.filter((url): url is string => Boolean(url) && typeof url === "string" && mediaFilter(url));
 
   const mediaHtml =
     mediaList.length > 0
-      ? `<div class="quote-media rounded-lg overflow-hidden border border-line">
+      ? `<div class="quote-media rounded-lg overflow-hidden border border-subtle">
         ${MediaGrid({
           items: mediaList.map((src) => ({ src }))
         })}
@@ -77,7 +88,7 @@ export function QuoteCard(props: QuoteCardProps): string {
       : "";
 
   return `
-    <div class="${baseClasses}" ${interactiveAttrs}${baseAttrs}>
+    <div class="${baseClasses}"${baseAttrs}>
       <!-- Header row: Author & Actions -->
       <div class="quote-header d-flex align-items-center gap-2">
         ${Avatar({
@@ -90,15 +101,15 @@ export function QuoteCard(props: QuoteCardProps): string {
         })}
         <div class="quote-author-info d-flex flex-column justify-content-center min-w-0 flex-1">
           <div class="d-inline-flex align-items-center gap-1 min-w-0">
-            <span class="font-bold text-sm text-body truncate whitespace-nowrap leading-tight">${escapeHtml(author.name)}</span>
+            <span class="fw-bold text-sm text-body truncate whitespace-nowrap leading-tight">${escapeHtml(author.name)}</span>
             ${author.verified ? `<i class="mdi mdi-check-decagram text-primary text-sm shrink-0" title="Verified"></i>` : ""}
           </div>
-          <div class="d-flex align-items-center gap-1 text-sm text-muted truncate whitespace-nowrap min-w-0 leading-tight mt-1">
+          <div class="d-flex align-items-center gap-1 text-sm text-subtle truncate whitespace-nowrap min-w-0 leading-tight mt-1">
             ${author.handle ? `<span class="truncate whitespace-nowrap">${escapeHtml(author.handle)}</span>` : ""}
-            ${author.handle && (timeAgo || timestamp) ? `<span class="text-muted shrink-0">&bull;</span>` : ""}
+            ${author.handle && (timeAgo || timestamp) ? `<span class="text-subtle shrink-0">&bull;</span>` : ""}
             ${
               timeAgo || timestamp
-                ? `<time class="text-muted shrink-0 whitespace-nowrap" ${timestamp ? `datetime="${escapeHtml(timestamp)}"` : ""}>${escapeHtml(timeAgo || "")}</time>`
+                ? `<time class="text-subtle shrink-0 whitespace-nowrap" ${timestamp ? `datetime="${escapeHtml(timestamp)}"` : ""}>${escapeHtml(timeAgo || "")}</time>`
                 : ""
             }
           </div>
@@ -122,9 +133,11 @@ export function QuoteCard(props: QuoteCardProps): string {
                   type: "button",
                   ghost: true,
                   size: "sm",
-                  className: "rounded-circle text-muted hover:text-danger p-1 composer-remove-quote",
+                  className: "quote-card-remove rounded-circle text-subtle hover:text-danger p-1",
                   attributes: {
-                    title: onRemoveTitle
+                    title: onRemoveTitle,
+                    "aria-label": onRemoveTitle,
+                    "data-quote-card-remove": ""
                   },
                   children: '<i class="mdi mdi-close"></i>'
                 })

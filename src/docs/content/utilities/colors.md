@@ -13,10 +13,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
   <div class="row gap-4">
     <!-- Primary -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-primary));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-primary));"></div>
         <div>
-          <span class="block font-800 text-sm">Primary</span>
+          <span class="block font-extrabold text-sm">Primary</span>
           <span class="text-subtle text-xs">15 23 42</span>
         </div>
       </div>
@@ -24,10 +24,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Secondary -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-secondary));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-secondary));"></div>
         <div>
-          <span class="block font-800 text-sm">Secondary</span>
+          <span class="block font-extrabold text-sm">Secondary</span>
           <span class="text-subtle text-xs">100 116 139</span>
         </div>
       </div>
@@ -35,10 +35,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Tertiary -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-tertiary));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-tertiary));"></div>
         <div>
-          <span class="block font-800 text-sm">Tertiary</span>
+          <span class="block font-extrabold text-sm">Tertiary</span>
           <span class="text-subtle text-xs">148 163 184</span>
         </div>
       </div>
@@ -46,10 +46,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Success -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-success));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-success));"></div>
         <div>
-          <span class="block font-800 text-sm">Success</span>
+          <span class="block font-extrabold text-sm">Success</span>
           <span class="text-subtle text-xs">34 197 94</span>
         </div>
       </div>
@@ -57,10 +57,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Danger -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-danger));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-danger));"></div>
         <div>
-          <span class="block font-800 text-sm">Danger</span>
+          <span class="block font-extrabold text-sm">Danger</span>
           <span class="text-subtle text-xs">244 63 94</span>
         </div>
       </div>
@@ -68,10 +68,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Warning -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-warning));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-warning));"></div>
         <div>
-          <span class="block font-800 text-sm">Warning</span>
+          <span class="block font-extrabold text-sm">Warning</span>
           <span class="text-subtle text-xs">245 158 11</span>
         </div>
       </div>
@@ -79,10 +79,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Info -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-info));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-info));"></div>
         <div>
-          <span class="block font-800 text-sm">Info</span>
+          <span class="block font-extrabold text-sm">Info</span>
           <span class="text-subtle text-xs">6 182 212</span>
         </div>
       </div>
@@ -90,10 +90,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Dark -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-dark));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm" style="width:36px;height:36px;background-color: rgb(var(--aksara-dark));"></div>
         <div>
-          <span class="block font-800 text-sm">Dark</span>
+          <span class="block font-extrabold text-sm">Dark</span>
           <span class="text-subtle text-xs">15 23 42</span>
         </div>
       </div>
@@ -101,10 +101,10 @@ Explore Aksara UI's default color catalog. Notice the sophisticated, soft shades
 
     <!-- Light -->
     <div class="col-12 sm:col-6 md:col-3">
-      <div class="p-4 rounded-12 border border-subtle bg-body hstack gap-3">
-        <div class="rounded-8 shadow-sm border border-subtle" style="width:36px;height:36px;background-color: rgb(var(--aksara-light));"></div>
+      <div class="p-4 rounded-[12px] border border-subtle bg-body hstack gap-3">
+        <div class="rounded-[8px] shadow-sm border border-subtle" style="width:36px;height:36px;background-color: rgb(var(--aksara-light));"></div>
         <div>
-          <span class="block font-800 text-sm">Light</span>
+          <span class="block font-extrabold text-sm">Light</span>
           <span class="text-subtle text-xs">248 250 252</span>
         </div>
       </div>
@@ -124,8 +124,9 @@ Aksara UI features a **translucency syntax modifier** to compose dynamic translu
 utility-color/alpha
 ```
 
-- Spawning values between `0` and `100` are fully precompiled!
+- Any integer level between `0` and `100` works, on every palette color (`primary`, `secondary`, `tertiary`, `success`, `danger`, `warning`, `info`, `dark`, `light`) and with variants (`hover:bg-primary/10`, `dark:md:border-danger/30`).
 - Examples: `bg-primary/10`, `text-primary/20`, `border-success/30`.
+- Levels are generated on demand by `Aksara.init()` (like arbitrary bracket classes) instead of being precompiled, which keeps the static stylesheet small. Pages that render without JavaScript should use a solid color or an arbitrary value such as `bg-[rgb(var(--aksara-primary)/.1)]`.
 
 ### Showcase: Subtle Background Accents
 
@@ -134,19 +135,19 @@ subtle tints are excellent for alerts, badges, hover effects, and premium highli
 ::html
 <div class="docs-preview">
   <div class="docs-row">
-    <div class="p-3 rounded-8 bg-primary/10 text-primary border border-primary/20 font-700 text-sm">bg-primary/10</div>
-    <div class="p-3 rounded-8 bg-success/12 text-success border border-success/20 font-700 text-sm">bg-success/12</div>
-    <div class="p-3 rounded-8 bg-danger/10 text-danger border border-danger/20 font-700 text-sm">bg-danger/10</div>
-    <div class="p-3 rounded-8 bg-warning/8 text-warning border border-warning/20 font-700 text-sm">bg-warning/8</div>
+    <div class="p-3 rounded-[8px] bg-primary/10 text-primary border border-primary/20 fw-bold text-sm">bg-primary/10</div>
+    <div class="p-3 rounded-[8px] bg-success/12 text-success border border-success/20 fw-bold text-sm">bg-success/12</div>
+    <div class="p-3 rounded-[8px] bg-danger/10 text-danger border border-danger/20 fw-bold text-sm">bg-danger/10</div>
+    <div class="p-3 rounded-[8px] bg-warning/8 text-warning border border-warning/20 fw-bold text-sm">bg-warning/8</div>
   </div>
 </div>
 ::end
 
 ```html
 <!-- Perfect light soft highlights -->
-<div class="bg-primary/10 text-primary border border-primary/20 rounded-8 p-3">...</div>
-<div class="bg-success/12 text-success border border-success/20 rounded-8 p-3">...</div>
-<div class="bg-danger/10 text-danger border border-danger/20 rounded-8 p-3">...</div>
+<div class="bg-primary/10 text-primary border border-primary/20 rounded-[8px] p-3">...</div>
+<div class="bg-success/12 text-success border border-success/20 rounded-[8px] p-3">...</div>
+<div class="bg-danger/10 text-danger border border-danger/20 rounded-[8px] p-3">...</div>
 ```
 
 ---
@@ -157,7 +158,7 @@ All colors are controlled using CSS variables declared under the `:root` scope. 
 
 ```css
 :root {
-  /* Hex value equivalents written as comma-separated RGB values */
+  /* Space-separated RGB channels (so opacity levels can use rgb(... / alpha)) */
   --aksara-primary: 15 23 42;
   --aksara-secondary: 100 116 139;
   --aksara-tertiary: 148 163 184;
@@ -174,7 +175,7 @@ All colors are controlled using CSS variables declared under the `:root` scope. 
 
 ## Color Utility Groups
 
-Aksara UI precompiles the following utility categories for every core UI color:
+Aksara UI precompiles the solid utilities below for every palette color. The `/level` opacity forms are generated on demand by `Aksara.init()`. There are no literal color names such as `text-white`, `bg-white` or `bg-black`: use `text-light`, `bg-light`, `bg-dark`, or an arbitrary value (`bg-[rgb(0_0_0/.6)]`).
 
 ::html
 <div class="table-responsive">

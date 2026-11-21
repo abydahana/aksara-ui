@@ -1,6 +1,6 @@
 # Customization
 
-Aksara UI is built from CSS variables and a static generator.
+Aksara UI is built from CSS variables, a static stylesheet generator, and a runtime engine for on-demand classes.
 
 ## Theme Variables
 
@@ -25,9 +25,11 @@ Use `data-theme="dark"` or `.dark`:
 </html>
 ```
 
+Palette colors are space-separated RGB channels, so the on-demand opacity classes (`bg-primary/10`) follow your overrides automatically.
+
 ## Generator Changes
 
-Framework authors can change token ranges in `src/generator/build.ts`, then rebuild:
+Framework authors can change the palette in `src/generator/palette.ts` and token ranges in `src/generator/build.ts`, then rebuild:
 
 ```bash
 npm run build

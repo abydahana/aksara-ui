@@ -1,6 +1,6 @@
 # Sizing
 
-Aksara UI provides clean, semantic sizing utilities combining Bootstrap's standard percentage widths with modern fraction and viewport helpers.
+Aksara UI keeps only full-size and keyword sizing static. Every other width or height is an arbitrary value, so a typo such as `w-30` never looks like a real utility.
 
 ---
 
@@ -9,63 +9,49 @@ Aksara UI provides clean, semantic sizing utilities combining Bootstrap's standa
 ::html
 <div class="docs-preview">
   <div class="vstack gap-3">
-    <div class="w-100 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-100 (100%)</div>
-    <div class="w-75 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-75 (75%)</div>
-    <div class="w-50 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-50 (50%)</div>
-    <div class="w-25 bg-primary/10 border border-primary/20 rounded p-2 text-xs font-semibold">w-25 (25%)</div>
+    <div class="w-100 bg-primary/10 border border-primary/20 rounded p-2 text-xs fw-semibold">w-100 (100%)</div>
+    <div class="w-[75%] bg-primary/10 border border-primary/20 rounded p-2 text-xs fw-semibold">w-[75%]</div>
+    <div class="w-[50%] bg-primary/10 border border-primary/20 rounded p-2 text-xs fw-semibold">w-[50%]</div>
+    <div class="w-[320px] bg-primary/10 border border-primary/20 rounded p-2 text-xs fw-semibold">w-[320px]</div>
   </div>
 </div>
 ::end
 
 ```html
 <div class="w-100">100% width</div>
-<div class="w-75">75% width</div>
-<div class="w-50">50% width</div>
-<div class="w-25">25% width</div>
+<div class="w-[75%]">75% width</div>
+<div class="w-[33.3333%]">One third</div>
+<div class="w-[320px] h-[180px]">Fixed size</div>
 ```
 
 ---
 
-## Percentage Sizing (Bootstrap Compatible)
+## Static Sizing Utilities
 
-Easily make an element as wide or tall as its parent container:
-
-| Width Utility | Height Utility | Computed Value |
-| ------------- | -------------- | -------------- |
-| `w-25`        | `h-25`         | `25%`          |
-| `w-50`        | `h-50`         | `50%`          |
-| `w-75`        | `h-75`         | `75%`          |
-| `w-100`       | `h-100`        | `100%`         |
-| `w-auto`      | `h-auto`       | `auto`         |
-| `w-full`      | `h-full`       | `100%`         |
-
-```html
-<div class="w-50 h-100">50% width, 100% height</div>
-<div class="w-full h-auto">Full container width</div>
-```
+| Width Utility | Height Utility | Computed Value    |
+| ------------- | -------------- | ----------------- |
+| `w-100`       | `h-100`        | `100%`            |
+| `w-full`      | `h-full`       | `100%`            |
+| `w-auto`      | `h-auto`       | `auto`            |
+| `w-screen`    | `h-screen`     | `100vw` / `100vh` |
 
 ---
 
-## Fraction Widths
+## Arbitrary Sizes
 
-For modular layouts, Aksara provides intuitive fraction widths:
+Percentages, fractions and fixed sizes use bracket values, generated on demand by `Aksara.init()`:
 
-| Class   | Percentage |
-| ------- | ---------- |
-| `w-1/2` | `50%`      |
-| `w-1/3` | `33.333%`  |
-| `w-2/3` | `66.667%`  |
-| `w-1/4` | `25%`      |
-| `w-3/4` | `75%`      |
-| `w-1/5` | `20%`      |
-| `w-2/5` | `40%`      |
-| `w-3/5` | `60%`      |
-| `w-4/5` | `80%`      |
+| Need                     | Class           |
+| ------------------------ | --------------- |
+| Half width               | `w-[50%]`       |
+| One third                | `w-[33.3333%]`  |
+| Fixed width              | `w-[320px]`     |
+| Viewport-relative height | `h-[60vh]`      |
+| Max width                | `max-w-[40rem]` |
 
 ```html
-<div class="w-1/3">One third (33.333%)</div>
-<div class="w-2/3">Two thirds (66.667%)</div>
-<div class="w-3/4">Three quarters (75%)</div>
+<div class="w-[50%] h-100">50% width, 100% height</div>
+<div class="max-w-[40rem] mx-auto">Readable column</div>
 ```
 
 ---

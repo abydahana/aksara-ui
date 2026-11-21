@@ -13,15 +13,15 @@ Click the prev/next arrow controls (`‹` and `›`) below to transition slides.
   <div id="demoCarousel" class="carousel card border border-subtle bg-body shadow-sm" style="position: relative; overflow: hidden; min-height: 200px;">
     <!-- Slide 1 -->
     <div class="carousel-item p-5 bg-primary/10 text-primary hstack justify-center flex-col text-center" data-carousel-item style="min-height: 200px;">
-      <h3 class="text-24 font-900 m-0 hstack gap-2 justify-center"><span class="mdi mdi-flash"></span> High-Performance Offline CSS</h3>
+      <h3 class="text-2xl font-black m-0 hstack gap-2 justify-center"><span class="mdi mdi-flash"></span> High-Performance Offline CSS</h3>
       <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
-        Aksara precompiles all spacing, sizing, colors, and layout combinations into static stylesheets, eliminating JIT lags entirely.
+        Aksara precompiles components and the spacing, color and layout scales into one static stylesheet; only arbitrary values are generated on demand.
       </p>
     </div>
 
     <!-- Slide 2 -->
     <div class="carousel-item p-5 bg-success/10 text-success hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
-      <h3 class="text-24 font-900 m-0 hstack gap-2 justify-center"><span class="mdi mdi-earth"></span> RTL-First Logical Architecture</h3>
+      <h3 class="text-2xl font-black m-0 hstack gap-2 justify-center"><span class="mdi mdi-earth"></span> RTL-First Logical Architecture</h3>
       <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
         Align pages with start/end properties natively. Your interfaces instantly mirror when switching HTML text directions.
       </p>
@@ -29,9 +29,9 @@ Click the prev/next arrow controls (`‹` and `›`) below to transition slides.
 
     <!-- Slide 3 -->
     <div class="carousel-item p-5 bg-danger/10 text-danger hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
-      <h3 class="text-24 font-900 m-0 hstack gap-2 justify-center"><span class="mdi mdi-cube-outline"></span> Pure Zero-Dependency JS</h3>
+      <h3 class="text-2xl font-black m-0 hstack gap-2 justify-center"><span class="mdi mdi-cube-outline"></span> Dependency-Free JS</h3>
       <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
-        Clean vanilla JavaScript plugins with zero runtime footprint, complete accessibility focus trapping, and ARIA triggers.
+        Dependency-free vanilla JavaScript plugins with accessibility focus trapping and ARIA triggers.
       </p>
     </div>
 
@@ -96,6 +96,16 @@ Assemble slide decks using these basic classes:
         <td>A single slide panel. Must declare <code>data-carousel-item</code>. Apply <code>hidden</code> to hide inactive slides.</td>
       </tr>
       <tr>
+        <td><code>carousel-indicators</code></td>
+        <td><code>&lt;div&gt;</code></td>
+        <td>Wrapper for the slide indicator dots, placed inside <code>.carousel</code>.</td>
+      </tr>
+      <tr>
+        <td><code>carousel-indicator</code></td>
+        <td><code>&lt;button&gt;</code></td>
+        <td>One dot per slide with <code>data-carousel-to="index"</code> (zero-based). Clicking jumps to that slide; the active dot gets <code>.active</code> and <code>aria-current="true"</code>.</td>
+      </tr>
+      <tr>
         <td><code>carousel-control</code></td>
         <td><code>&lt;button&gt;</code></td>
         <td>Interactive trigger button containing layout alignments. Apply <code>data-carousel="prev"</code> or <code>data-carousel="next"</code>.</td>
@@ -114,6 +124,14 @@ Compose and hook controls markup-only:
 - **`data-carousel-item`**: Place this attribute on all slide elements.
 - **`data-carousel="prev"`**: Place this attribute on the trigger button designed to slide backward.
 - **`data-carousel="next"`**: Place this attribute on the trigger button designed to slide forward.
+- **`data-carousel-to="index"`**: Place this attribute on indicator buttons (`.carousel-indicator`) to jump to a slide.
+
+```html
+<div class="carousel-indicators">
+  <button type="button" class="carousel-indicator active" data-carousel-to="0" aria-label="Slide 1"></button>
+  <button type="button" class="carousel-indicator" data-carousel-to="1" aria-label="Slide 2"></button>
+</div>
+```
 
 ---
 

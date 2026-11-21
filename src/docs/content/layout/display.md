@@ -6,8 +6,8 @@ Display utilities control layout behavior and visibility.
 
 ::html
 <div class="docs-preview">
-  <span class="block p-3 bg-primary/10 rounded-12">block</span>
-  <span class="inline-block p-3 bg-success/10 rounded-12">inline-block</span>
+  <span class="block p-3 bg-primary/10 rounded-[12px]">block</span>
+  <span class="inline-block p-3 bg-success/10 rounded-[12px]">inline-block</span>
 </div>
 ::end
 
@@ -20,13 +20,13 @@ Display utilities control layout behavior and visibility.
 ::html
 <div class="docs-preview">
   <div class="flex gap-3">
-    <div class="p-3 bg-primary/10 rounded-12">flex</div>
-    <div class="p-3 bg-primary/10 rounded-12">item</div>
+    <div class="p-3 bg-primary/10 rounded-[12px]">flex</div>
+    <div class="p-3 bg-primary/10 rounded-[12px]">item</div>
   </div>
   <div class="grid-3 gap-3">
-    <div class="p-3 bg-success/10 rounded-12">grid</div>
-    <div class="p-3 bg-success/10 rounded-12">item</div>
-    <div class="p-3 bg-success/10 rounded-12">item</div>
+    <div class="p-3 bg-success/10 rounded-[12px]">grid</div>
+    <div class="p-3 bg-success/10 rounded-[12px]">item</div>
+    <div class="p-3 bg-success/10 rounded-[12px]">item</div>
   </div>
 </div>
 ::end

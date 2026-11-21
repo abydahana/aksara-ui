@@ -9,7 +9,7 @@ Aksara UI features a lightweight, fully automated breadcrumb navigation pattern.
 ::html
 <div class="docs-preview py-4">
   <div class="mb-4">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Standard Trail</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Standard Trail</h4>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="#" class="hstack gap-2"><span class="mdi mdi-home-outline"></span> Home</a></li>
       <li class="breadcrumb-item"><a href="#">Components</a></li>
@@ -18,7 +18,7 @@ Aksara UI features a lightweight, fully automated breadcrumb navigation pattern.
   </div>
 
   <div>
-    <h4 class="mt-0 mb-3 font-700 text-sm">Nested App Path</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Nested App Path</h4>
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a href="#">Workspace</a></li>
       <li class="breadcrumb-item"><a href="#">Projects</a></li>
@@ -28,7 +28,7 @@ Aksara UI features a lightweight, fully automated breadcrumb navigation pattern.
   </div>
 
   <div class="mt-4">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Dot Separator</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Dot Separator</h4>
     <ol class="breadcrumb breadcrumb-dot">
       <li class="breadcrumb-item"><a href="#">Docs</a></li>
       <li class="breadcrumb-item"><a href="#">Components</a></li>
@@ -37,7 +37,7 @@ Aksara UI features a lightweight, fully automated breadcrumb navigation pattern.
   </div>
 
   <div class="mt-4">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Arrow Separator</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Arrow Separator</h4>
     <ol class="breadcrumb breadcrumb-arrow">
       <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
       <li class="breadcrumb-item"><a href="#">Settings</a></li>

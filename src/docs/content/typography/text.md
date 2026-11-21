@@ -14,7 +14,7 @@ Text utilities control alignment, transform, whitespace, decoration, and overflo
 
 ::html
 <div class="docs-preview">
-  <p class="uppercase font-700">Uppercase text</p>
+  <p class="uppercase fw-bold">Uppercase text</p>
   <p class="capitalize underline decoration-primary">decorated text</p>
   <p class="line-through text-subtle">Removed text</p>
 </div>

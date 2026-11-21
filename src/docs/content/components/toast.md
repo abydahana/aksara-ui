@@ -11,7 +11,7 @@ Explore Aksara UI's fully declarative toast triggers. Click any button below to 
 ::html
 <div class="docs-preview">
   <div class="mb-5">
-    <h4 class="mt-0 mb-3 font-700 text-sm">Semantic Colors (Stacked Top-End)</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Semantic Colors (Stacked Top-End)</h4>
     <div class="docs-row flex-wrap">
       <button class="btn btn-success hstack gap-2" data-toast="#toastSuccess">
         <span class="mdi mdi-check-circle-outline mdi-18px"></span> Success Toast
@@ -29,7 +29,7 @@ Explore Aksara UI's fully declarative toast triggers. Click any button below to 
   </div>
 
   <div>
-    <h4 class="mt-0 mb-3 font-700 text-sm">Viewport Placements</h4>
+    <h4 class="mt-0 mb-3 fw-bold text-sm">Viewport Placements</h4>
     <div class="docs-row flex-wrap">
       <button class="btn btn-outline-primary hstack gap-2" data-toast="#toastTopStart">
         <span class="mdi mdi-arrow-top-left mdi-18px"></span> Top Start

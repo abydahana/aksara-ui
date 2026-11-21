@@ -21,7 +21,7 @@ export function Alert(props: AlertProps): string {
   });
 
   const closeButton = dismissible
-    ? '<button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>'
+    ? '<button type="button" class="close" data-dismiss="" aria-label="Close"></button>'
     : "";
 
   return `

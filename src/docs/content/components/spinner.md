@@ -84,16 +84,16 @@ Spinners align with existing display and flex utilities. Keep the spinner itself
 
 ::html
 <div class="docs-preview vstack gap-4">
-  <div class="hstack gap-3 items-center justify-start p-3 bg-subtle rounded-12">
+  <div class="hstack gap-3 items-center justify-start p-3 bg-subtle rounded-[12px]">
     <span class="spinner spinner-sm" aria-hidden="true"></span>
-    <span class="text-sm font-700">Start aligned loading row</span>
+    <span class="text-sm fw-bold">Start aligned loading row</span>
   </div>
-  <div class="flex items-center justify-center gap-3 p-3 bg-subtle rounded-12">
+  <div class="flex items-center justify-center gap-3 p-3 bg-subtle rounded-[12px]">
     <span class="spinner spinner-sm" aria-hidden="true"></span>
-    <span class="text-sm font-700">Centered loading row</span>
+    <span class="text-sm fw-bold">Centered loading row</span>
   </div>
-  <div class="flex items-center justify-end gap-3 p-3 bg-subtle rounded-12">
-    <span class="text-sm font-700">End aligned loading row</span>
+  <div class="flex items-center justify-end gap-3 p-3 bg-subtle rounded-[12px]">
+    <span class="text-sm fw-bold">End aligned loading row</span>
     <span class="spinner spinner-sm" aria-hidden="true"></span>
   </div>
 </div>

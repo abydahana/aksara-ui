@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, safeUrl, toAttributes } from "../utils";
 
 export interface MediaPreviewModalProps {
   id?: string;
@@ -12,7 +12,7 @@ export interface MediaPreviewModalProps {
 
 export function MediaPreviewModal(props: MediaPreviewModalProps): string {
   const {
-    id = "media-preview-modal",
+    id = "media-modal",
     items = [],
     activeIndex = 0,
     sidebar,
@@ -37,7 +37,7 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
   const counterHtml =
     total > 1
       ? `
-        <div class="media-modal-counter position-absolute top-4 start-50% translate-x-[-50%] z-10 px-3 py-1 rounded-pill bg-black/60 text-white text-sm font-semibold pointer-events-none">
+        <div class="media-modal-counter position-absolute top-4 start-[50%] translate-x-[-50%] z-[10] px-3 py-1 rounded-pill bg-[rgb(0_0_0/.6)] text-light text-sm fw-semibold pointer-events-none">
           <span id="media-counter-text">${currentIdx + 1} / ${total}</span>
         </div>
       `.trim()
@@ -46,7 +46,7 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
   const prevBtnHtml =
     total > 1
       ? `
-        <button type="button" class="media-modal-btn media-modal-prev position-absolute start-4 top-50% translate-y-[-50%] z-10 w-12 h-12 rounded-full d-flex align-items-center justify-content-center border-0 bg-black/60 text-white text-xl cursor-pointer" data-media-prev aria-label="Previous media"${currentIdx === 0 ? " disabled" : ""}>
+        <button type="button" class="media-modal-btn media-modal-prev position-absolute start-4 top-[50%] translate-y-[-50%] z-[10] w-[3rem] h-[3rem] rounded-full d-flex align-items-center justify-content-center border-0 bg-[rgb(0_0_0/.6)] text-light text-xl cursor-pointer" data-media-prev aria-label="Previous media"${currentIdx === 0 ? " disabled" : ""}>
           <span class="mdi mdi-chevron-left mdi-24px"></span>
         </button>
       `.trim()
@@ -55,7 +55,7 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
   const nextBtnHtml =
     total > 1
       ? `
-        <button type="button" class="media-modal-btn media-modal-next position-absolute end-4 top-50% translate-y-[-50%] z-10 w-12 h-12 rounded-full d-flex align-items-center justify-content-center border-0 bg-black/60 text-white text-xl cursor-pointer" data-media-next aria-label="Next media"${currentIdx === total - 1 ? " disabled" : ""}>
+        <button type="button" class="media-modal-btn media-modal-next position-absolute end-4 top-[50%] translate-y-[-50%] z-[10] w-[3rem] h-[3rem] rounded-full d-flex align-items-center justify-content-center border-0 bg-[rgb(0_0_0/.6)] text-light text-xl cursor-pointer" data-media-next aria-label="Next media"${currentIdx === total - 1 ? " disabled" : ""}>
           <span class="mdi mdi-chevron-right mdi-24px"></span>
         </button>
       `.trim()
@@ -63,14 +63,14 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
 
   const zoomControlsHtml = showZoomControls
     ? `
-      <div class="media-modal-zoom-controls position-absolute bottom-6 start-50% translate-x-[-50%] z-10 d-flex align-items-center gap-2 p-1 rounded-pill bg-black/70" id="media-zoom-controls">
-        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-in aria-label="Zoom in" title="Zoom in">
+      <div class="media-modal-zoom-controls position-absolute bottom-4 start-[50%] translate-x-[-50%] z-[10] d-flex align-items-center gap-2 p-1 rounded-pill bg-[rgb(0_0_0/.7)]" id="media-zoom-controls">
+        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-light cursor-pointer" data-media-zoom-in aria-label="Zoom in" title="Zoom in">
           <span class="mdi mdi-magnify-plus-outline mdi-18px"></span>
         </button>
-        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-out aria-label="Zoom out" title="Zoom out">
+        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-light cursor-pointer" data-media-zoom-out aria-label="Zoom out" title="Zoom out">
           <span class="mdi mdi-magnify-minus-outline mdi-18px"></span>
         </button>
-        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-white cursor-pointer" data-media-zoom-reset aria-label="Fit to screen" title="Fit to screen">
+        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-light cursor-pointer" data-media-zoom-reset aria-label="Fit to screen" title="Fit to screen">
           <span class="mdi mdi-fit-to-screen-outline mdi-18px"></span>
         </button>
       </div>
@@ -86,11 +86,11 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
     : "";
 
   return `
-    <div class="${classNames("media-modal-backdrop position-fixed inset-0 z-[1050] d-flex bg-black/90", className)}"${baseAttrs}>
+    <div class="${classNames("media-modal-backdrop position-fixed inset-0 z-[1050] d-flex bg-[rgb(0_0_0/.9)]", className)}"${baseAttrs}>
       <div class="media-modal-container d-flex flex-col md:flex-row w-full h-full overflow-hidden">
         <!-- Stage -->
         <div class="media-modal-stage flex-1 position-relative d-flex align-items-center justify-content-center overflow-hidden">
-          <button type="button" class="media-modal-btn media-modal-close position-absolute top-4 start-4 z-10 w-10 h-10 rounded-full d-flex align-items-center justify-content-center border-0 bg-black/60 text-white cursor-pointer" data-close-media-modal aria-label="Close">
+          <button type="button" class="media-modal-btn media-modal-close position-absolute top-4 start-4 z-[10] w-[2.5rem] h-[2.5rem] rounded-full d-flex align-items-center justify-content-center border-0 bg-[rgb(0_0_0/.6)] text-light cursor-pointer" data-media-close data-close-media-modal aria-label="Close">
             <span class="mdi mdi-close mdi-18px"></span>
           </button>
 
@@ -99,7 +99,7 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
           ${nextBtnHtml}
 
           <div class="media-modal-image-wrap d-flex align-items-center justify-content-center w-full h-full p-4">
-            <img src="${escapeHtml(currentItem.src)}" id="media-modal-active-img" class="max-w-full max-h-full object-contain block transition" alt="${escapeHtml(currentItem.alt || "Preview")}" />
+            <img src="${escapeHtml(safeUrl(currentItem.src))}" id="media-modal-active-img" class="mw-100 mh-100 object-contain block transition" alt="${escapeHtml(currentItem.alt || "Preview")}" />
           </div>
 
           ${zoomControlsHtml}
@@ -112,3 +112,6 @@ export function MediaPreviewModal(props: MediaPreviewModalProps): string {
 }
 
 export const mediaPreviewModal = MediaPreviewModal;
+export const MediaModal = MediaPreviewModal;
+export const mediaModal = MediaPreviewModal;
+export type MediaModalProps = MediaPreviewModalProps;

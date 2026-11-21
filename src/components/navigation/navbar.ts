@@ -1,10 +1,10 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, safeUrl, toAttributes, normalizeSize } from "../utils";
 
 export interface NavbarProps {
   children?: string;
   brand?: string;
   brandHref?: string;
-  expand?: "sm" | "md" | "lg" | "xl" | "xxl";
+  expand?: "sm" | "md" | "lg" | "xl" | "2xl" | "xxl";
   dark?: boolean;
   className?: string;
   attributes?: Record<string, unknown>;
@@ -15,14 +15,16 @@ export function Navbar(props: NavbarProps = {}): string {
 
   const classes = classNames(
     "navbar",
-    expand ? `navbar-expand-${expand}` : "navbar-expand",
+    expand ? `navbar-expand-${normalizeSize(expand)}` : "navbar-expand",
     dark && "navbar-dark bg-dark",
     className
   );
 
   const baseAttrs = toAttributes(attributes);
 
-  const brandHtml = brand ? `<a class="navbar-brand" href="${escapeHtml(brandHref)}">${escapeHtml(brand)}</a>` : "";
+  const brandHtml = brand
+    ? `<a class="navbar-brand" href="${escapeHtml(safeUrl(brandHref))}">${escapeHtml(brand)}</a>`
+    : "";
 
   return `
     <nav class="${classes}"${baseAttrs}>
@@ -50,7 +52,7 @@ export function NavLink(props: NavLinkProps): string {
   const currentAttr = active ? ' aria-current="page"' : "";
   const disabledAttr = disabled ? ' tabindex="-1" aria-disabled="true"' : "";
 
-  return `<a class="${classes}" href="${escapeHtml(href)}"${currentAttr}${disabledAttr}>${escapeHtml(label)}</a>`.trim();
+  return `<a class="${classes}" href="${escapeHtml(safeUrl(href))}"${currentAttr}${disabledAttr}>${escapeHtml(label)}</a>`.trim();
 }
 
 export const navLink = NavLink;

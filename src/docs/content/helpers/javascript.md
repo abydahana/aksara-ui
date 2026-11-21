@@ -1,12 +1,12 @@
 # JavaScript API Reference
 
-Aksara UI features a modular, zero-dependency, ultra-lightweight TypeScript library. It provides high-performance accessibility handlers, keyboard triggers, focus traps, and interactive transitions for components.
+Aksara UI ships a modular, dependency-free TypeScript library. It provides accessibility handlers, keyboard triggers, focus traps, and interactive transitions for components, plus the runtime engine that generates on-demand utility classes.
 
 ---
 
 ## Live Programmatic API Playground
 
-Experience Aksara UI's zero-dependency programmatic API. Click any button below to trigger and control components directly using the global browser `Aksara` instance API:
+Try Aksara UI's programmatic API. Click any button below to trigger and control components directly using the global browser `Aksara` instance API:
 
 ::html
 <div class="docs-preview" style="overflow: visible !important;">
@@ -29,16 +29,16 @@ Experience Aksara UI's zero-dependency programmatic API. Click any button below 
       </button>
 
       <!-- Programmatic Target Dropdown Menu -->
-      <div class="dropdown-menu p-2 rounded-12 border border-subtle bg-body shadow-md mt-2" style="position: absolute; top: 100%; start: 0; z-index: 1050; min-width: 200px;">
-        <span class="text-xs text-subtle font-800 uppercase tracking-widest block p-2">Programmatic Menu</span>
-        <a href="#/helpers/javascript" class="dropdown-item rounded-8 p-2 hstack gap-2 text-sm">
+      <div class="dropdown-menu p-2 rounded-[12px] border border-subtle bg-body shadow-md mt-2" style="position: absolute; top: 100%; start: 0; z-index: 1050; min-width: 200px;">
+        <span class="text-xs text-subtle font-extrabold uppercase tracking-widest block p-2">Programmatic Menu</span>
+        <a href="#/helpers/javascript" class="dropdown-item rounded-[8px] p-2 hstack gap-2 text-sm">
           <span class="mdi mdi-book-open-outline"></span> Documentation
         </a>
-        <a href="#/" class="dropdown-item rounded-8 p-2 hstack gap-2 text-sm">
+        <a href="#/" class="dropdown-item rounded-[8px] p-2 hstack gap-2 text-sm">
           <span class="mdi mdi-home-outline"></span> Overview Home
         </a>
         <hr class="my-2" style="border:0; height:1px; background:var(--aksara-border-subtle)">
-        <button class="dropdown-item rounded-8 p-2 hstack gap-2 text-sm text-danger w-full text-start bg-transparent border-0 cursor-pointer" onclick="Aksara.dropdown('#jsDropdownDemo').hide()">
+        <button class="dropdown-item rounded-[8px] p-2 hstack gap-2 text-sm text-danger w-full text-start bg-transparent border-0 cursor-pointer" onclick="Aksara.dropdown('#jsDropdownDemo').hide()">
           <span class="mdi mdi-close-circle-outline"></span> Close Dropdown
         </button>
       </div>
@@ -54,7 +54,7 @@ Experience Aksara UI's zero-dependency programmatic API. Click any button below 
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title font-800 hstack gap-2">
+        <h3 class="modal-title font-extrabold hstack gap-2">
           <span class="mdi mdi-api text-primary"></span>
           Summoned programmatically!
         </h3>
@@ -112,7 +112,12 @@ The library is exposed through the global `Aksara` namespace.
 
 ### Automatic Initialization
 
-By default, Aksara UI bootstraps itself automatically when the browser dispatches `DOMContentLoaded`. It queries the DOM and creates instances for all relevant selectors.
+By default, Aksara UI bootstraps itself automatically when the browser dispatches `DOMContentLoaded`. `Aksara.init()`:
+
+- applies the stored theme (when called on the whole document);
+- creates instances for all data-API selectors (tooltips, popovers, carousels, ...);
+- generates CSS rules for the on-demand utility classes already in the DOM (arbitrary values such as `w-[320px]`, opacity levels such as `bg-primary/10`, and variants such as `last:border-0`) into a single `<style id="aksara-arbitrary-styles">` element;
+- starts one `MutationObserver` that generates rules for classes added later and destroys component instances whose element was removed from the document.
 
 If you are using dynamic single-page architectures (like Next.js, Turbo, HTMX, or custom Ajax loaders), manually trigger initialization inside your lifecycle hooks:
 
@@ -127,11 +132,31 @@ Aksara.init(myFragment);
 
 ### Manual De-registration & Cleanups
 
-Avoid memory leaks in heavy single-page apps. When tearing down views, invoke the destroy hook to unbind all DOM event listeners, disable active keybind triggers, and garbage-collect instances:
+Components auto-destroy when their element is removed from the DOM (checked after each mutation batch, so moved nodes survive). To tear everything down explicitly, invoke the destroy hook to unbind all DOM event listeners, disable active keybind triggers, and release instances:
 
 ```js
 // Unbinds everything and clears internal registry maps
 Aksara.destroy();
+```
+
+### Stacked Overlays
+
+Modals and offcanvases stack in opening order. Escape and focus trapping apply only to the topmost overlay, and the page scroll stays locked until the last one closes.
+
+### Node.js & Server Rendering
+
+The package works outside the browser too. Importing it in Node does not touch the DOM:
+
+```js
+// CommonJS
+const { Aksara } = require("@abydahana/aksara-ui"); // also available as .default
+
+// ESM
+import Aksara from "@abydahana/aksara-ui";
+
+// HTML string renderers for SSR (Button, Modal, ListGroup, ...)
+import { Button, Modal } from "@abydahana/aksara-ui/components";
+const html = Button({ label: "Save", variant: "primary" });
 ```
 
 ---
@@ -159,6 +184,49 @@ const tooltips = Aksara.tooltip("[data-tooltip-dynamic]", {
 ```
 
 If the selector matches a single item, Aksara returns **a single instance**. If it matches multiple nodes, Aksara returns **an array of instances**.
+
+### Options Pattern
+
+Every helper uses the same signature, `Aksara.component(target, options)`. `options` always overrides matching data attributes on the target element.
+
+| Helper               | Useful Options                                                                                     |
+| -------------------- | -------------------------------------------------------------------------------------------------- |
+| `Aksara.modal()`     | `backdrop`, `keyboard`, `focus`, `scrollLock`, `draggable`                                         |
+| `Aksara.offcanvas()` | `backdrop`, `keyboard`, `focus`, `scrollLock`                                                      |
+| `Aksara.dropdown()`  | `placement`, `container`, `menu`, `offset`, `keyboard`, `closeOnSelect`, `closeOnOutside`          |
+| `Aksara.tooltip()`   | `placement`, `container`, `text`, `content`, `html`, `trigger`, `showDelay`, `hideDelay`, `offset` |
+| `Aksara.popover()`   | `placement`, `container`, `text`, `content`, `html`, `trigger`, `showDelay`, `hideDelay`, `offset` |
+| `Aksara.accordion()` | `parent`, `collapsible`, `buttonSelector`                                                          |
+| `Aksara.toast()`     | `delay`, `autohide`                                                                                |
+| `Aksara.tabs()`      | `active`, `activeIndex`, `keyboard`, `loop`, `orientation`, `tabSelector`, `panelSelector`         |
+| `Aksara.carousel()`  | `activeIndex`, `autoplay`, `interval`, `pauseOnHover`, `keyboard`, `loop`                          |
+
+---
+
+## Data API Conventions
+
+Aksara UI does not use `data-toggle` or `data-bs-toggle`. Attributes follow `data-{component}` and `data-{component}-{option}`:
+
+```html
+<button data-modal="#demoModal">Open modal</button>
+<button data-modal-close>Close modal</button>
+<button data-tooltip="Edit user" data-tooltip-placement="top">Edit</button>
+<button data-popover="More detail" data-popover-placement="end">Info</button>
+<button data-dropdown="#menu">Menu</button>
+<button data-toast="#savedToast">Show toast</button>
+<button data-offcanvas="#sidebar">Open sidebar</button>
+<button data-collapse="#details">Toggle details</button>
+```
+
+### Universal Dismiss API
+
+`data-dismiss="#id"` removes plain elements and calls `hide()` on JavaScript components. An empty `data-dismiss` targets the closest alert, toast, modal, offcanvas, dropdown, popover or tooltip.
+
+```html
+<button class="close" type="button" data-dismiss="#plainAlert" aria-label="Close alert"></button>
+<button class="close" type="button" data-dismiss="#demoModal" aria-label="Close modal"></button>
+<button class="close close-sm" type="button" data-dismiss="" aria-label="Close toast"></button>
+```
 
 ---
 
@@ -273,6 +341,14 @@ The core engine dispatches general lifecycle events directly on the HTML root el
       <tr>
         <td><code>aksara:init</code></td>
         <td>Dispatched on <code>document.documentElement</code> after a full bootstrapping routine has completed. Access the root inside <code>event.detail.root</code>.</td>
+      </tr>
+      <tr>
+        <td><code>aksara:theme:change</code></td>
+        <td>Dispatched on <code>document.documentElement</code> when the theme changes. The new theme is in <code>event.detail.theme</code>.</td>
+      </tr>
+      <tr>
+        <td><code>aksara:chip:remove</code></td>
+        <td>Dispatched (bubbling, cancelable) on a <code>.chip</code> before its <code>[data-chip-remove]</code> button removes it. Call <code>event.preventDefault()</code> to keep the chip. The chip is in <code>event.detail.chip</code>.</td>
       </tr>
       <tr>
         <td><code>aksara:destroy</code></td>

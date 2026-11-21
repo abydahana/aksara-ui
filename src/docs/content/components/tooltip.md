@@ -66,6 +66,12 @@ Use `data-tooltip-placement` to control placement. Supported values are `top`, `
         <td><code>"body"</code></td>
         <td>CSS selector or element.</td>
       </tr>
+      <tr>
+        <td><code>html</code></td>
+        <td><code>data-tooltip-html</code></td>
+        <td><code>false</code></td>
+        <td><code>true</code> to render the text as HTML. By default it is inserted as plain text (escaped).</td>
+      </tr>
     </tbody>
   </table>
 </div>

@@ -27,7 +27,7 @@ Aksara UI features **Auto-Collapse Sibling Panels** natively. When a drawer pane
         <span class="accordion-icon mdi mdi-chevron-down text-sm"></span>
       </button>
       <div id="accPanelTwo" class="accordion-panel" hidden>
-        Absolutely not. Aksara UI compiles all variations (breakpoints, themes, interactive states, and negative offsets) ahead of time into a single static file.
+        No. Components, utility scales and the common variants ship in a single static file, and the bundled runtime generates arbitrary and opacity classes in the browser on demand.
       </div>
     </div>
 
@@ -65,7 +65,7 @@ Aksara UI features **Auto-Collapse Sibling Panels** natively. When a drawer pane
       <span>Does it require a build compiler?</span>
       <span class="accordion-icon mdi mdi-chevron-down"></span>
     </button>
-    <div id="accPanelTwo" class="accordion-panel" hidden>Absolutely not. Aksara UI...</div>
+    <div id="accPanelTwo" class="accordion-panel" hidden>No. Aksara UI...</div>
   </div>
 </div>
 ```
@@ -232,3 +232,15 @@ container.addEventListener("aksara:accordion:toggle", (event) => {
   console.log("Is now open:", event.detail.expanded);
 });
 ```
+
+---
+
+## Flush Accordion
+
+Add `accordion-flush` to remove the outer borders, rounded corners and background so the accordion sits edge-to-edge inside a parent card or list. Items that are not expanded render collapsed (`hidden` panel, `aria-expanded="false"`).
+
+```html
+<div class="accordion accordion-flush">...</div>
+```
+
+The `Accordion` string component exposes this as the `flush` prop.
