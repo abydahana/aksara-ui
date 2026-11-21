@@ -5,7 +5,7 @@ import { breakpoints, rules, add, addRaw, escapeClass, colorValue, readableText,
 export function addComponents(): void {
   add(
     "btn",
-    "display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.375rem;border:1px solid transparent;border-radius:var(--aksara-radius-sm);padding:.5rem .875rem;font:inherit;line-height:1.25;text-decoration:none;cursor:pointer;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,transform .15s ease-in-out"
+    "display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:1px solid transparent;border-radius:var(--aksara-radius-sm);padding:.5rem .875rem;font:inherit;line-height:1.25;text-decoration:none;cursor:pointer;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,transform .15s ease-in-out"
   );
   add("btn-xs", "min-height:1.5rem;padding:.125rem .375rem;font-size:.75rem");
   add("btn-sm", "min-height:1.75rem;padding:.25rem .5rem;font-size:.8125rem");
