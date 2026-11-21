@@ -5,6 +5,10 @@
     "access": "public"
   },
   "description": "Bootstrap readability with Tailwind flexibility: a static CSS and TypeScript frontend framework.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abydahana/aksara-ui.git"
+  },
   "type": "module",
   "main": "dist/aksara.cjs",
   "module": "dist/aksara.esm.js",
