@@ -1,9 +1,17 @@
 {
-  // Aksara UI ships its own utility grammar (arbitrary values such as flex-[1], z-[10], ...),
-  // so Tailwind CSS IntelliSense must not lint or complete classes in this project.
+  // Styled with Aksara UI, not Tailwind. Its utility grammar (arbitrary values such as
+  // flex-[1], z-[10], [margin-left:auto], ...) must not be linted or completed as Tailwind.
   "files.associations": {
     "*.css": "css"
   },
   "tailwindCSS.validate": false,
-  "tailwindCSS.files.exclude": ["**"]
+  "tailwindCSS.files.exclude": ["**"],
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
+  "tailwindCSS.lint.cssConflict": "ignore",
+  "tailwindCSS.lint.invalidApply": "ignore",
+  "tailwindCSS.lint.invalidScreen": "ignore",
+  "tailwindCSS.lint.invalidVariant": "ignore",
+  "tailwindCSS.lint.invalidConfigPath": "ignore",
+  "tailwindCSS.lint.invalidTailwindDirective": "ignore",
+  "tailwindCSS.lint.recommendedVariantOrder": "ignore"
 }
