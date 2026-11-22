@@ -10,7 +10,7 @@ import {
 } from "typescript";
 import { transformSync } from "esbuild";
 import { docsContentDir, docsContentOutput, docsJsOutput, docsTs, distDir, root, srcTs } from "./paths";
-import { conflictingDefinitions, rules, utilityMap } from "./css/core";
+import { conflictingDefinitions, orderDirectionalRules, rules, utilityMap } from "./css/core";
 import {
   addBorders,
   addColors,
@@ -57,6 +57,7 @@ function iconsCss(): string {
 function buildCss(): string {
   addComponents();
   addComponentVariants();
+  const utilitiesStart = rules.length;
   addSpacing();
   addSizing();
   // Borders before colors: `.border` uses the `border` shorthand (which resets the
@@ -68,6 +69,9 @@ function buildCss(): string {
   addTypography();
   addMotionEffectsLayout();
   addScrollbars();
+  // Directional utilities win over their shorthands (`p-2 pb-0`), independent of the
+  // order the families above are generated in
+  rules.splice(utilitiesStart, rules.length - utilitiesStart, ...orderDirectionalRules(rules.slice(utilitiesStart)));
   addVariants();
   scanComponentRuntimeClasses();
   return `${banner()}${preflight()}${mergeAdjacentRules(rules).join("")}`;

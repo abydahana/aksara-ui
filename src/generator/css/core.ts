@@ -3,6 +3,7 @@ import { colors } from "../palette";
 import {
   escapeArbitraryClass,
   runtimeBreakpoints,
+  ruleCascadeRank,
   runtimeStateSelectors,
   shouldUseImportant,
   withImportant
@@ -190,6 +191,31 @@ export function addWithAlias(name: string, alias: string, declarations: string):
   utilityMap.set(name, finalDeclarations);
   utilityMap.set(alias, finalDeclarations);
   rules.push(`.${escapeClass(name)},.${escapeClass(alias)}{${finalDeclarations}}`);
+}
+
+/**
+ * Reorders the directional rules of `list` by `cascadeRank` (stable), leaving every other
+ * rule at its position: only rules that set overlapping box properties change order, so
+ * `pb-0` ends up after `p-2`, `mt-0` after `m-3`, `rounded-top-0` after `rounded`, ...
+ * At-rules are left alone unless `includeAtRules` (a list of single-rule `@media` blocks of
+ * the same breakpoint, ranked by their inner rule).
+ */
+export function orderDirectionalRules(list: string[], includeAtRules = false): string[] {
+  const slots: number[] = [];
+  const ranked: Array<{ rule: string; rank: number; order: number }> = [];
+  list.forEach((entry, index) => {
+    if (entry.startsWith("@") && !includeAtRules) return;
+    const rank = ruleCascadeRank(entry);
+    if (rank < 0) return;
+    slots.push(index);
+    ranked.push({ rule: entry, rank, order: ranked.length });
+  });
+  ranked.sort((a, b) => a.rank - b.rank || a.order - b.order);
+  const output = [...list];
+  slots.forEach((slot, i) => {
+    output[slot] = ranked[i].rule;
+  });
+  return output;
 }
 
 export function addRaw(selector: string, declarations: string): void {

@@ -2380,6 +2380,100 @@ export function shouldUseImportant(utility: string): boolean {
   return /^-?m[tbeasxy]?-(auto|\d+|\[.+\])$/.test(utility) || /^p[tbeasxy]?-(auto|\d+|\[.+\])$/.test(utility);
 }
 
+// ── Directional cascade order ──
+// A utility that targets fewer sides must win over a broader one at equal specificity
+// (`p-2 pb-0`, `m-3 mt-0`, `border border-top`, `rounded rounded-top-0`, `gap-3 gap-x-1`,
+// `overflow-hidden overflow-x-auto`), whatever order the classes are written or generated in.
+// `cascadeRank` orders such rules: shorthands of a family first, then axis/two-side rules,
+// then single side/corner rules. Border width/style/color utilities form a later group than
+// the border shorthands (`border-top` sets a color, so `border-top border-primary` stays primary).
+
+const BOX_SIDES: Record<string, string> = {
+  "": "TBSE",
+  "-inline": "SE",
+  "-block": "TB",
+  "-inline-start": "S",
+  "-inline-end": "E",
+  "-block-start": "T",
+  "-block-end": "B",
+  "-top": "T",
+  "-bottom": "B",
+  "-left": "S",
+  "-right": "E"
+};
+const RADIUS_CORNERS: Record<string, string> = {
+  "": "abcd",
+  "-start-start": "a",
+  "-start-end": "b",
+  "-end-start": "c",
+  "-end-end": "d",
+  "-top-left": "a",
+  "-top-right": "b",
+  "-bottom-left": "c",
+  "-bottom-right": "d"
+};
+const SIDE_SUFFIX = "(|-inline|-block|-inline-start|-inline-end|-block-start|-block-end|-top|-bottom|-left|-right)";
+const BOX_PROPERTY = new RegExp(`^(margin|padding|scroll-margin|scroll-padding|inset)${SIDE_SUFFIX}$`);
+const BORDER_PROPERTY = new RegExp(`^border${SIDE_SUFFIX}(-width|-style|-color)?$`);
+const RADIUS_PROPERTY =
+  /^border(|-start-start|-start-end|-end-start|-end-end|-top-left|-top-right|-bottom-left|-bottom-right)-radius$/;
+const AXIS_PROPERTIES: Record<string, [string, string]> = {
+  overflow: ["overflow", "xy"],
+  "overflow-x": ["overflow", "x"],
+  "overflow-y": ["overflow", "y"],
+  gap: ["gap", "rc"],
+  "row-gap": ["gap", "r"],
+  "column-gap": ["gap", "c"],
+  "--aksara-gutter-x": ["gutter", "x"],
+  "--aksara-gutter-y": ["gutter", "y"],
+  top: ["inset", "T"],
+  bottom: ["inset", "B"],
+  left: ["inset", "S"],
+  right: ["inset", "E"]
+};
+
+/** Family (with group) and the sides/corners/axes a CSS property covers, or null */
+function directionalProperty(property: string): { key: string; group: number; units: string; total: number } | null {
+  const axis = AXIS_PROPERTIES[property];
+  if (axis) return { key: axis[0], group: 0, units: axis[1], total: axis[0] === "inset" ? 4 : 2 };
+  let match = property.match(BOX_PROPERTY);
+  if (match) return { key: match[1], group: 0, units: BOX_SIDES[match[2]], total: 4 };
+  match = property.match(RADIUS_PROPERTY);
+  if (match) return { key: "radius", group: 0, units: RADIUS_CORNERS[match[1]], total: 4 };
+  match = property.match(BORDER_PROPERTY);
+  if (match) return { key: "border", group: match[2] ? 1 : 0, units: BOX_SIDES[match[1]], total: 4 };
+  return null;
+}
+
+/**
+ * Cascade rank of a utility's declarations: higher ranks must come later. Rules that set
+ * no directional property return -1 (their order relative to directional rules is irrelevant).
+ */
+export function cascadeRank(declarations: string): number {
+  const covered = new Map<string, { group: number; total: number; units: Set<string> }>();
+  for (const part of declarations.split(";")) {
+    const property = part.split(":")[0]?.trim().toLowerCase();
+    if (!property) continue;
+    const info = directionalProperty(property);
+    if (!info) continue;
+    const id = `${info.key}:${info.group}`;
+    const entry = covered.get(id) ?? { group: info.group, total: info.total, units: new Set<string>() };
+    for (const unit of info.units) entry.units.add(unit);
+    covered.set(id, entry);
+  }
+  let rank = -1;
+  for (const entry of covered.values()) {
+    rank = Math.max(rank, entry.group * 10 + (entry.total - entry.units.size));
+  }
+  return rank;
+}
+
+/** Rank of a complete rule (`.a{...}`, `@media (...){.a{...}}`) from its innermost block */
+export function ruleCascadeRank(rule: string): number {
+  const declarations = rule.match(/\{([^{}]*)\}\}*\s*$/)?.[1];
+  return declarations === undefined ? -1 : cascadeRank(declarations);
+}
+
 export function withImportant(declarations: string): string {
   return declarations
     .split(";")
@@ -2555,23 +2649,49 @@ export function resolveRuntimeRule(
 }
 
 // Base rules are kept before media rules, and media rules in breakpoint order, so a
-// runtime `md:w-[50%]` still wins over `w-[100%]` regardless of discovery order.
-let runtimeBaseRuleCount = 0;
-const runtimeMediaRuleCounts: Record<string, number> = {};
+// runtime `md:w-[50%]` still wins over `w-[100%]` regardless of discovery order. Inside
+// each segment rules are kept in `cascadeRank` order, so `p-[1rem] pb-[2px]` (and
+// `pb-[2px] p-[1rem]`) both end with the bottom padding at 2px.
+const runtimeSegmentRanks: Record<string, number[]> = { base: [] };
 
 function insertRuntimeRule(sheet: CSSStyleSheet, rule: string, breakpoint: string | null): void {
-  let index = runtimeBaseRuleCount;
-  if (breakpoint) {
-    const order = breakpointOrder.indexOf(breakpoint);
-    for (const bp of breakpointOrder.slice(0, order + 1)) index += runtimeMediaRuleCounts[bp] ?? 0;
+  const segments = ["base", ...breakpointOrder];
+  const segment = breakpoint ?? "base";
+  const ranks = (runtimeSegmentRanks[segment] ??= []);
+  const rank = ruleCascadeRank(rule);
+
+  let index = 0;
+  for (const name of segments) {
+    if (name === segment) break;
+    index += runtimeSegmentRanks[name]?.length ?? 0;
   }
+  // After every rule of the segment with the same or a lower rank
+  let offset = 0;
+  while (offset < ranks.length && ranks[offset] <= rank) offset += 1;
+
   try {
-    sheet.insertRule(rule, Math.min(index, sheet.cssRules.length));
-    if (breakpoint) runtimeMediaRuleCounts[breakpoint] = (runtimeMediaRuleCounts[breakpoint] ?? 0) + 1;
-    else runtimeBaseRuleCount += 1;
+    sheet.insertRule(rule, Math.min(index + offset, sheet.cssRules.length));
+    ranks.splice(offset, 0, rank);
   } catch {
     // Ignore if the browser rejects the rule syntax
   }
+}
+
+/**
+ * The runtime sheet comes after the static stylesheet, so a runtime shorthand
+ * (`p-[10px]`) would beat a static directional class on the same element (`pb-0`). For
+ * `!important` utilities (spacing, radius) the static class is copied into the runtime
+ * sheet at its rank; being `!important` already, the copy changes nothing else.
+ */
+function injectStaticDirectionalCopy(token: string): void {
+  const key = `static-copy:${token}`;
+  if (injectedArbitraryRules.has(key)) return;
+  if (token.includes(":") || token.includes("[") || !shouldUseImportant(token)) return;
+  const declarations = lookupStaticUtility(token);
+  if (!declarations || cascadeRank(declarations) < 0) return;
+  injectedArbitraryRules.add(key);
+  const sheet = getArbitrarySheet();
+  if (sheet) insertRuntimeRule(sheet, `.${escapeArbitraryClass(token)}{${declarations}}`, null);
 }
 
 function injectArbitraryClass(className: string): void {
@@ -2591,9 +2711,16 @@ function processElementClasses(el: Element): void {
   const classAttr = el.getAttribute("class");
   if (!classAttr || (!classAttr.includes("[") && !classAttr.includes("/") && !classAttr.includes(":"))) return;
   const tokens = classAttr.split(/\s+/);
+  let hasRuntimeToken = false;
   for (const token of tokens) {
     if (isRuntimeClassToken(token)) {
+      hasRuntimeToken = true;
       injectArbitraryClass(token);
+    }
+  }
+  if (hasRuntimeToken) {
+    for (const token of tokens) {
+      if (token && !isRuntimeClassToken(token)) injectStaticDirectionalCopy(token);
     }
   }
 }

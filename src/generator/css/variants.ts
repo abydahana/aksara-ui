@@ -13,7 +13,8 @@ import {
   rules,
   utilityMap,
   escapeClass,
-  bootstrapSpacers
+  bootstrapSpacers,
+  orderDirectionalRules
 } from "./core";
 
 export interface ParsedClass {
@@ -114,7 +115,11 @@ export function scanComponentRuntimeClasses(): void {
     }
   }
   // Base rules first, then media rules in breakpoint order (mobile-first cascade).
-  rules.push(...baseRules, ...mediaRules.flat());
+  rules.push(
+    ...orderDirectionalRules(baseRules),
+    // Same rank order inside each breakpoint (single-rule @media blocks, ranked by their inner rule)
+    ...mediaRules.flatMap((group) => orderDirectionalRules(group, true))
+  );
 }
 
 export function addVariants(): void {

@@ -78,7 +78,7 @@ import {
   timeline,
   Timeline
 } from "../components/index";
-import { resolveRuntimeRule } from "../generator/aksara";
+import { cascadeRank, resolveRuntimeRule } from "../generator/aksara";
 import { colors as buildColors } from "../generator/palette";
 import { runComponentChecks } from "./components";
 import { runDocsChecks } from "./docs";
@@ -138,7 +138,9 @@ function hasClass(name: string): boolean {
 }
 
 function hasExactClassRule(name: string): boolean {
-  return css.includes(`.${escapeClass(name)} {`) || css.includes(`.${escapeClass(name)}{`);
+  const selector = `.${escapeClass(name)}`;
+  // Also as the first entry of a merged selector list (`.inset-y-3,.inset-block-3 {`)
+  return css.includes(`${selector} {`) || css.includes(`${selector}{`) || css.includes(`${selector},`);
 }
 
 [
@@ -628,6 +630,52 @@ assert(hasClass("md:g-3"), "md:g-3 responsive gutter utility must exist");
 for (const infix of ["col-md-6", "col-md-auto", "col-lg", "g-md-3", "gx-lg-2", "sticky-lg-top", "sticky-top-md"]) {
   assert(!hasClass(infix), `${infix}: breakpoints are prefix-only (md:..), Bootstrap infix names must not exist`);
 }
+// Directional utilities win over their shorthands, whatever the generation order:
+// `p-2 pb-0` has no bottom padding, `m-3 mt-0` no top margin, `rounded rounded-top-0` square top...
+{
+  const ruleAt = (name: string): number => {
+    const selector = `.${name}`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const match = new RegExp(`(?:^|\\n|,)${selector}(?:,|\\s*\\{)`).exec(css);
+    assert(match, `Missing rule for .${name}`);
+    return match.index;
+  };
+  for (const [broad, narrow] of [
+    ["p-2", "pb-0"],
+    ["p-5", "pt-0"],
+    ["p-0", "px-3"],
+    ["px-3", "ps-0"],
+    ["py-4", "pb-1"],
+    ["m-3", "mt-0"],
+    ["m-auto", "mb-0"],
+    ["mx-auto", "ms-0"],
+    ["-m-2", "-mt-1"],
+    ["gap-3", "gap-x-1"],
+    ["gap-5", "row-gap-0"],
+    ["g-3", "gx-1"],
+    ["rounded", "rounded-top-0"],
+    ["rounded-top", "rounded-top-start-0"],
+    ["inset-0", "top-2"],
+    ["overflow-hidden", "overflow-x-auto"],
+    ["border", "border-top"],
+    // Border shorthands (which set a color) stay before width/color utilities
+    ["border-top", "border-0"],
+    ["border-top", "border-primary"]
+  ] as const) {
+    assert(ruleAt(broad) < ruleAt(narrow), `.${narrow} must come after .${broad} so it wins`);
+  }
+  assert(cascadeRank("padding:1rem") < cascadeRank("padding-inline:1rem"), "axis padding outranks padding");
+  assert(cascadeRank("padding-inline:1rem") < cascadeRank("padding-block-end:0"), "side padding outranks axis");
+  assert(
+    cascadeRank("margin:0 !important") < cascadeRank("margin-block-start:auto !important"),
+    "!important is ignored"
+  );
+  assert(
+    cascadeRank("border-start-start-radius:0;border-start-end-radius:0") < cascadeRank("border-start-start-radius:0"),
+    "one corner outranks two"
+  );
+  assert(cascadeRank("display:flex") === -1, "non-directional rules are unranked");
+}
+
 assert(css.split("\n").length > 1000, "dist/aksara.css should be readable, not one-line minified output");
 assert(minCss.split("\n").length <= 2, "dist/aksara.min.css should be true minified one-line output");
 assert(minCss.length < css.length, "dist/aksara.min.css should be smaller than readable CSS");
