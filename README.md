@@ -1,178 +1,167 @@
 # Aksara UI
 
-Bootstrap readability with Tailwind flexibility: a static CSS and TypeScript frontend framework.
+A CSS and TypeScript UI framework that runs from static files. You get Bootstrap-style component classes and Tailwind-style utilities, with no build step required in production.
 
-Aksara UI is built around one promise: users can ship a modern interface with static files only. No Node.js, bundler, compiler, or framework adapter is required in production. Components and predictable utility scales are precompiled; a small runtime engine in `Aksara.init()` generates arbitrary, opacity and extra variant classes in the browser when they appear in the DOM.
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@abydahana/aksara-ui@1.5.0/dist/aksara.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/@abydahana/aksara-ui@1.5.0/dist/aksara.min.js"></script>
+```
 
----
+That's the whole setup. `aksara.min.css` is about 40 KB gzipped and `aksara.min.js` about 31 KB gzipped.
 
-## Features
+## How it works
 
-- **Static CSS Ahead-of-Time**: Component classes and small, predictable utility scales (`0..5` for spacing, radius, border width, z-index and opacity; semantic names for typography) precompiled into plain CSS, plus responsive layout variants and `hover:`/`focus:`/`active:` color states.
-- **On-Demand Runtime Utilities**: Arbitrary bracket classes (`w-[320px]`, `md:p-[2rem]`, `[position:sticky]`), color opacity classes (`bg-primary/10`, any level `0`–`100`) and variants that are not precompiled (`last:border-0`, `md:text-center`, `disabled:opacity-[.5]`) are generated in the browser by `Aksara.init()`, so the static stylesheet stays small.
-- **Strict Variant Ordering**: Clean, enforceable modifier hierarchy (`theme -> breakpoint -> state -> utility`, e.g. `dark:md:hover:border-primary`). Unknown or misordered variants generate nothing.
-- **RTL-First Architecture**: Built on CSS logical properties (`ms`, `me`, `ps`, `pe`, `text-start`, `text-end`) ensuring seamless bidirectional layout support.
-- **Dependency-Free TypeScript**: Modular, lightweight interactive components written in pure TypeScript with first-class type declarations, accessible globally via `Aksara`, as ESM/CommonJS imports, or as server-renderable HTML string components.
-- **Icon Integration**: Material Design Icons (`@mdi/font`) is a **required peer dependency**, shipped as a separate stylesheet entry.
+Most of the CSS ships precompiled: components, the common utility scales and responsive layout variants. Anything outside those scales is generated in the browser the first time it appears in the DOM:
 
----
+```html
+<div class="w-[320px] md:p-[2rem] bg-primary/10 last:border-0">...</div>
+```
 
-## Installation
+`Aksara.init()` runs on `DOMContentLoaded`. It writes rules for these classes into a single `<style>` tag and watches for markup added later, so the static stylesheet stays small and you don't need a class scanner.
 
-Aksara UI components render Material Design Icons, so `@mdi/font` must be installed alongside it (npm 7+ installs required peer dependencies automatically):
+Variants have a fixed order: `theme → breakpoint → state → utility`, for example `dark:md:hover:border-primary`. A variant that is misordered or unknown generates nothing, so typos fail visibly instead of half working.
+
+Layout uses logical properties (`ms-*`, `pe-*`, `text-start`), so RTL works by setting `dir="rtl"`.
+
+## Install
 
 ```bash
 npm install @abydahana/aksara-ui @mdi/font
 ```
 
-```bash
-yarn add @abydahana/aksara-ui @mdi/font
-```
+`@mdi/font` (Material Design Icons) is a required peer dependency. Components render its icons. yarn and pnpm work the same way.
 
-```bash
-pnpm add @abydahana/aksara-ui @mdi/font
-```
-
----
-
-## Quick Start
-
-### 1. In a Modern Bundler (Vite, Next.js, Webpack)
+With a bundler:
 
 ```ts
 import "@abydahana/aksara-ui/css";
-import "@abydahana/aksara-ui/css/icons"; // Material Design Icons (required)
+import "@abydahana/aksara-ui/css/icons";
 import Aksara from "@abydahana/aksara-ui";
 
-// Initialize data-API attributes and runtime utilities across the document
 Aksara.init();
 ```
 
-`@abydahana/aksara-ui/css/icons` imports `@mdi/font`, so a missing peer dependency fails your build instead of silently rendering blank icons.
+`css/icons` imports `@mdi/font` directly, so a missing peer dependency breaks the build instead of rendering blank icons.
 
-### 2. In Plain HTML (via CDN)
+## Example
+
+A modal, opened and closed through data attributes:
 
 ```html
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aksara UI Demo</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@abydahana/aksara-ui@1.4.0/dist/aksara.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" />
-  </head>
-  <body>
-    <div class="container py-5">
-      <button class="btn btn-primary" data-modal="#demoModal">Open Modal</button>
+<button class="btn btn-primary" type="button" data-modal="#invite">Invite</button>
 
-      <div class="modal" id="demoModal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Hello Aksara</h5>
-              <button type="button" class="btn-close" data-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-              <p>Modern frontend framework with dependency-free JavaScript.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
+<div class="modal" id="invite" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Invite a teammate</h5>
+        <button class="modal-close" type="button" data-modal-close aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input class="form-control" type="email" placeholder="name@example.com" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" type="button" data-modal-close>Cancel</button>
+        <button class="btn btn-primary" type="button">Send</button>
       </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@abydahana/aksara-ui@1.4.0/dist/aksara.min.js"></script>
-    <!-- Aksara.init() runs automatically on DOMContentLoaded -->
-  </body>
-</html>
+  </div>
+</div>
 ```
 
----
-
-## Package Subpath Exports
-
-| Import Path                         | Output                              |
-| ----------------------------------- | ----------------------------------- |
-| `@abydahana/aksara-ui`              | JavaScript entry point (ESM / CJS)  |
-| `@abydahana/aksara-ui/css`          | Standard compiled CSS bundle        |
-| `@abydahana/aksara-ui/css/min`      | Minified production CSS bundle      |
-| `@abydahana/aksara-ui/css/icons`    | Material Design Icons (`@mdi/font`) |
-| `@abydahana/aksara-ui/components`   | HTML string components (SSR-safe)   |
-| `@abydahana/aksara-ui/components/*` | Specific component groups & types   |
-
-```js
-// CommonJS
-const { Aksara } = require("@abydahana/aksara-ui");
-
-// HTML string components work in Node (server-side rendering) and the browser
-import { Button } from "@abydahana/aksara-ui/components";
-Button({ label: "Save", variant: "primary" }); // <button class="btn btn-primary" type="button">Save</button>
-```
-
----
+Modals trap focus, close on Escape or a backdrop click, lock page scroll, and stack in the order you open them.
 
 ## JavaScript API
 
+The same components can be controlled from code:
+
 ```ts
-import Aksara from "@abydahana/aksara-ui";
-
-// Modal
-const modal = Aksara.modal("#myModal", {
-  backdrop: true,
-  keyboard: true
-});
-modal.show();
-modal.hide();
-
-// Tooltip
-Aksara.tooltip("[data-tooltip]", {
-  placement: "top",
-  container: "body"
-});
-
-// Toast
-Aksara.toast("#notification", {
-  delay: 5000
-}).show();
-
-// Dropdown
+Aksara.modal("#invite", { backdrop: true, keyboard: true }).show();
+Aksara.toast("#saved", { delay: 5000 }).show();
 Aksara.dropdown("#profileMenu").toggle();
+Aksara.tooltip("[data-tooltip]", { placement: "top" });
 ```
 
----
+If your app swaps markup in without a page load (HTMX, Turbo, a SPA router), call `Aksara.init(element)` on the new fragment. Instances are cleaned up automatically when their element leaves the DOM. `Aksara.destroy()` tears everything down.
+
+## Dark mode
+
+Light and dark themes are built in. Set the theme with an attribute or from JavaScript:
+
+```html
+<html data-theme="dark"></html>
+```
+
+```ts
+Aksara.setTheme("system"); // "light" | "dark" | "system"
+```
+
+Component colors come from CSS variables, so they follow the theme without `dark:` classes.
+
+## Select
+
+When [Tom Select](https://tom-select.js.org) is on the page, every `select.form-select` gets filtering, multi-select chips and tagging. The styling ships in `aksara.css`, so you don't need Tom Select's stylesheet. Without Tom Select you get a styled native select from the same markup.
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.7.0/dist/js/tom-select.complete.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@abydahana/aksara-ui@1.5.0/dist/aksara.min.js"></script>
+```
+
+With a bundler, register it once:
+
+```ts
+import TomSelect from "tom-select";
+
+Aksara.useTomSelect(TomSelect).init();
+```
+
+## HTML string components
+
+Each component also has a function that returns an HTML string. They don't touch the DOM, so they work in Node for server rendering:
+
+```ts
+import { Button } from "@abydahana/aksara-ui/components";
+
+Button({ label: "Save", variant: "primary" });
+// <button class="btn btn-primary" type="button">Save</button>
+```
+
+## Exports
+
+| Import path                         | Contents                                                                            |
+| ----------------------------------- | ----------------------------------------------------------------------------------- |
+| `@abydahana/aksara-ui`              | JavaScript API (ESM and CommonJS)                                                   |
+| `@abydahana/aksara-ui/css`          | Compiled CSS                                                                        |
+| `@abydahana/aksara-ui/css/min`      | Minified CSS                                                                        |
+| `@abydahana/aksara-ui/css/icons`    | Material Design Icons stylesheet                                                    |
+| `@abydahana/aksara-ui/components`   | All HTML string components                                                          |
+| `@abydahana/aksara-ui/components/*` | One group: `buttons`, `data`, `feedback`, `form`, `layout`, `navigation`, `overlay` |
+
+The `dist/` folder also has `aksara.js` and `aksara.min.js` (IIFE builds that expose a global `Aksara`) for use with a `<script>` tag.
+
+## Upgrading from 1.3 or earlier
+
+Version 1.4 changed the utility grammar: numeric scales stop at 5, typography uses semantic names, and percentage sizing moved to arbitrary values. This repo includes a codemod for old class names:
+
+```bash
+node scripts/migrate-to-1.4.mjs src/**/*.html          # dry run, prints the changes
+node scripts/migrate-to-1.4.mjs --write src/**/*.html  # apply them
+```
+
+Run the full migration only once per codebase, because it is not idempotent for some scales.
 
 ## Development
 
 ```bash
-# Format, lint, and build all at once
-npm run all
-
-# Build CSS, JS bundles, and documentation assets
-npm run build
-
-# Run unit tests
+npm install
+npm run dev      # docs site with live rebuild at http://localhost:3000
 npm run test
-
-# Type check
-npm run check
-
-# Lint source files
-npm run lint
-
-# Automatically fix linting issues
-npm run lint:fix
-
-# Format source files with Prettier
-npm run format
-
-# Verify formatting and linting
-npm run format:check
+npm run build    # CSS, JS bundles, type declarations and docs assets
+npm run all      # type check, format, lint, test and build
 ```
 
----
+The documentation lives in `src/docs/content/` as Markdown. Every component page has live examples, so `npm run dev` is the fastest way to browse what's available.
 
 ## License
 
