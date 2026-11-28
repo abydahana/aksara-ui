@@ -9,7 +9,7 @@ Dropdowns are contextual overlays that display interactive list links or buttons
 Click the button below to toggle the menu panel. The vanilla engine handles positioning, keyboard closing (Escape key), and closing automatically when clicking outside.
 
 ::html
-<div class="docs-preview" style="overflow: visible !important;">
+<div class="docs-preview [overflow:visible_!important]">
   <div class="dropdown">
     <!-- Trigger targets #demoDropdownMenu -->
     <button class="btn btn-soft-primary hstack gap-2" data-dropdown="#demoDropdownMenu">
@@ -49,6 +49,32 @@ Click the button below to toggle the menu panel. The vanilla engine handles posi
 </div>
 ```
 
+```js components
+import {
+  Button,
+  Dropdown,
+  DropdownDivider,
+  DropdownHeader,
+  DropdownItem,
+  DropdownMenu
+} from "@abydahana/aksara-ui/components";
+
+Dropdown({
+  children:
+    Button({ label: "Open Account Settings", soft: true, attributes: { "data-dropdown": "#myDropdownMenu" } }) +
+    DropdownMenu({
+      id: "myDropdownMenu",
+      children: [
+        DropdownHeader("Account"),
+        DropdownItem({ content: "Profile" }),
+        DropdownItem({ content: "Settings", active: true }),
+        DropdownDivider(),
+        DropdownItem({ content: "Disabled Action", disabled: true })
+      ].join("")
+    })
+});
+```
+
 ---
 
 ## Placement Options (Top, Bottom, Start, End, Auto)
@@ -56,7 +82,7 @@ Click the button below to toggle the menu panel. The vanilla engine handles posi
 Aksara UI supports flexible placement configurations via the handler trigger using the `data-dropdown-placement` attribute. You can specify `"top"`, `"bottom"`, `"start"`, `"end"`, or `"auto"` (which dynamically switches based on available viewport space):
 
 ::html
-<div class="docs-preview" style="overflow: visible !important;">
+<div class="docs-preview [overflow:visible_!important]">
   <div class="docs-row flex-wrap gap-4">
 
     <!-- 1. Dropdown Top (Opens above trigger) -->
@@ -76,7 +102,7 @@ Aksara UI supports flexible placement configurations via the handler trigger usi
       <button class="btn btn-soft-info hstack gap-2" data-dropdown="#demoDropstartMenu" data-dropdown-placement="start">
         <span class="mdi mdi-chevron-left"></span> Dropdown Start
       </button>
-      <div id="demoDropstartMenu" class="dropdown-menu" style="min-width: 160px;">
+      <div id="demoDropstartMenu" class="dropdown-menu min-w-[160px]">
         <span class="dropdown-header">Filter Config</span>
         <button class="dropdown-item hstack gap-2"><span class="mdi mdi-chart-box-outline"></span> Report Logs</button>
         <button class="dropdown-item hstack gap-2"><span class="mdi mdi-magnify"></span> Audit Trail</button>
@@ -88,7 +114,7 @@ Aksara UI supports flexible placement configurations via the handler trigger usi
       <button class="btn btn-soft-warning hstack gap-2" data-dropdown="#demoDropendMenu" data-dropdown-placement="end">
         Dropdown End <span class="mdi mdi-chevron-right"></span>
       </button>
-      <div id="demoDropendMenu" class="dropdown-menu" style="min-width: 160px;">
+      <div id="demoDropendMenu" class="dropdown-menu min-w-[160px]">
         <span class="dropdown-header">System Tools</span>
         <button class="dropdown-item hstack gap-2"><span class="mdi mdi-cog-outline"></span> Diagnostics</button>
         <button class="dropdown-item hstack gap-2"><span class="mdi mdi-connection"></span> Integrations</button>
@@ -137,6 +163,26 @@ Aksara UI supports flexible placement configurations via the handler trigger usi
 </div>
 ```
 
+```js components
+import { Button, Dropdown, DropdownMenu } from "@abydahana/aksara-ui/components";
+
+const placed = (label, variant, id, placement) =>
+  Dropdown({
+    children:
+      Button({
+        label,
+        variant,
+        soft: true,
+        attributes: { "data-dropdown": `#${id}`, "data-dropdown-placement": placement }
+      }) + DropdownMenu({ id, children: "..." })
+  });
+
+placed("Dropdown Top", "success", "myDropup", "top");
+placed("Dropdown Start", "info", "myDropstart", "start");
+placed("Dropdown End", "warning", "myDropend", "end");
+placed("Dropdown Auto", "primary", "myDropauto", "auto");
+```
+
 ---
 
 ## Menu Layout Elements
@@ -148,9 +194,9 @@ Aksara's dropdown list structure relies on semantic item states:
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">Class Name</th>
-        <th style="width: 25%;">HTML Element Tag</th>
-        <th style="width: 50%;">Usage & Description</th>
+        <th class="w-[25%]">Class Name</th>
+        <th class="w-[25%]">HTML Element Tag</th>
+        <th class="w-[50%]">Usage & Description</th>
       </tr>
     </thead>
     <tbody>
@@ -181,8 +227,55 @@ Aksara's dropdown list structure relies on semantic item states:
 
 ### Modifying Item States
 
-- **Active State (`.active`)**: Highlights the item (e.g. `bg-primary text-light`).
+- **Active State (`.active`)**: Highlights the item with a soft primary tint.
 - **Disabled State (`.disabled` or `disabled`)**: Grays out the item, blocks pointer clicks, and stops keyboard hover states.
+
+---
+
+## Icons And Destructive Items
+
+Icons placed directly inside a `.dropdown-item` are muted automatically so the label leads. Mark destructive actions with `dropdown-item-danger` (or `text-danger`): the text turns red and the hover tint follows. Menus open with a short fade-and-rise; the motion is disabled when the user prefers reduced motion.
+
+::html
+<div class="docs-preview [overflow:visible_!important] min-h-[260px]">
+  <div class="dropdown">
+    <button class="btn btn-plain hstack gap-2" data-dropdown="#demoDropdownIcons">
+      <span class="mdi mdi-file-document-outline"></span> Document <span class="mdi mdi-chevron-down"></span>
+    </button>
+    <div id="demoDropdownIcons" class="dropdown-menu">
+      <button class="dropdown-item"><span class="mdi mdi-pencil-outline"></span> Rename</button>
+      <button class="dropdown-item"><span class="mdi mdi-content-copy"></span> Duplicate</button>
+      <button class="dropdown-item"><span class="mdi mdi-share-variant-outline"></span> Share</button>
+      <div class="dropdown-divider"></div>
+      <button class="dropdown-item dropdown-item-danger"><span class="mdi mdi-trash-can-outline"></span> Delete</button>
+    </div>
+  </div>
+</div>
+::end
+
+```html
+<div id="docMenu" class="dropdown-menu">
+  <button class="dropdown-item"><span class="mdi mdi-pencil-outline"></span> Rename</button>
+  <div class="dropdown-divider"></div>
+  <button class="dropdown-item dropdown-item-danger"><span class="mdi mdi-trash-can-outline"></span> Delete</button>
+</div>
+```
+
+```js components
+import { DropdownDivider, DropdownItem, DropdownMenu } from "@abydahana/aksara-ui/components";
+
+DropdownMenu({
+  id: "docMenu",
+  children: [
+    DropdownItem({ content: '<span class="mdi mdi-pencil-outline"></span> Rename' }),
+    DropdownDivider(),
+    DropdownItem({
+      content: '<span class="mdi mdi-trash-can-outline"></span> Delete',
+      danger: true
+    })
+  ].join("")
+});
+```
 
 ---
 
@@ -218,8 +311,8 @@ Bind listeners to trace dropdown interactions:
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 35%;">Custom Event String</th>
-        <th style="width: 65%;">Trigger Condition</th>
+        <th class="w-[35%]">Custom Event String</th>
+        <th class="w-[65%]">Trigger Condition</th>
       </tr>
     </thead>
     <tbody>
@@ -261,6 +354,21 @@ menu.addEventListener("aksara:dropdown:show", (event) => {
     <a class="dropdown-item" href="#">Sign out</a>
   </div>
 </div>
+```
+
+```js components
+import { Button, Dropdown, DropdownItem, DropdownMenu } from "@abydahana/aksara-ui/components";
+
+Dropdown({
+  children:
+    Button({ label: "Account", variant: "secondary", soft: true, attributes: { "data-dropdown": "#accountMenu" } }) +
+    DropdownMenu({
+      id: "accountMenu",
+      end: true,
+      dark: true,
+      children: DropdownItem({ content: "Profile", href: "#" }) + DropdownItem({ content: "Sign out", href: "#" })
+    })
+});
 ```
 
 The `DropdownMenu` string component maps its `end` and `dark` props to these classes.

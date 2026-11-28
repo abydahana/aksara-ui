@@ -2,6 +2,8 @@
 
 A vertical navigation component that supports two modes: **tab mode** — switch content panels on the same page using the Aksara tab API — and **link mode** — standard navigation links. Combine it with `sidebar-layout` for the classic two-column macOS-style layout.
 
+The `SidebarNav`, `SidebarNavHeader` and `SidebarLayout` string components from `@abydahana/aksara-ui/components` render this markup on the server; see the **Components** tab under each sample.
+
 ---
 
 ## Tab Mode
@@ -10,7 +12,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
 
 ::html
 <div class="docs-preview p-0">
-  <div class="sidebar-layout" style="height:480px; border: 1px solid var(--aksara-border-subtle); border-radius: var(--aksara-radius); overflow:hidden;">
+  <div class="sidebar-layout h-[480px] rounded-[var(--aksara-radius)] [overflow:hidden] [border:1px_solid_var(--aksara-border-subtle)]">
     <!-- Sidebar Pane -->
     <div class="sidebar-pane">
       <nav class="sidebar-nav" role="tablist" aria-label="Settings Navigation">
@@ -55,7 +57,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
         <div class="list-group">
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-lock-outline"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#6366f1]"><span class="mdi mdi-lock-outline"></span></span>
               <span class="flex-1 fw-semibold">Private profile</span>
               <span class="text-subtle text-sm">Public</span>
               <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
@@ -63,7 +65,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#06b6d4;"><span class="mdi mdi-at"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#06b6d4]"><span class="mdi mdi-at"></span></span>
               <span class="flex-1 fw-semibold">Tags and mentions</span>
               <span class="text-subtle text-sm">Everyone</span>
               <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
@@ -71,7 +73,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-account-clock-outline"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#22c55e]"><span class="mdi mdi-account-clock-outline"></span></span>
               <span class="flex-1 fw-semibold">Online status</span>
               <span class="text-subtle text-sm">Active</span>
               <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
@@ -79,7 +81,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-cancel"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#f43f5e]"><span class="mdi mdi-cancel"></span></span>
               <span class="flex-1 fw-semibold">Blocked profiles</span>
               <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
@@ -97,7 +99,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
                 <span class="fw-semibold block">Default Proximity Alert Radius</span>
                 <span class="text-subtle text-sm block mt-1">Prioritize reports occurring within this distance from your current coordinates.</span>
               </div>
-              <select class="form-select form-select-sm shrink-0" style="width:auto;min-width:140px;">
+              <select class="form-select form-select-sm shrink-0 w-[auto] min-w-[140px]">
                 <option selected>25 km (City)</option>
                 <option>10 km (Local)</option>
                 <option>50 km (Region)</option>
@@ -124,7 +126,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
         <div class="list-group">
           <div class="list-group-item">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#f43f5e;"><span class="mdi mdi-alert-circle"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#f43f5e]"><span class="mdi mdi-alert-circle"></span></span>
               <div class="flex-1 min-w-0">
                 <span class="fw-semibold block">Disaster &amp; Critical Alerts</span>
                 <span class="text-subtle text-sm block mt-1">Receive urgent notifications for high-severity hazards nearby</span>
@@ -134,7 +136,7 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
           </div>
           <div class="list-group-item">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-check-decagram-outline"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#22c55e]"><span class="mdi mdi-check-decagram-outline"></span></span>
               <div class="flex-1 min-w-0">
                 <span class="fw-semibold block">Verification Updates</span>
                 <span class="text-subtle text-sm block mt-1">Get notified when community verifies or updates your observation</span>
@@ -163,14 +165,14 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
         <div class="list-group">
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#6366f1;"><span class="mdi mdi-book-open-outline"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#6366f1]"><span class="mdi mdi-book-open-outline"></span></span>
               <span class="flex-1 fw-semibold">Documentation</span>
               <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
           </a>
           <a class="list-group-item list-group-item-action" href="#">
             <div class="flex items-center gap-3">
-              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg" style="color:#22c55e;"><span class="mdi mdi-message-question-outline"></span></span>
+              <span class="flex items-center justify-center w-[1.75rem] h-[1.75rem] shrink-0 text-lg text-[#22c55e]"><span class="mdi mdi-message-question-outline"></span></span>
               <span class="flex-1 fw-semibold">Contact Support</span>
               <span class="text-subtle opacity-[.5] text-sm ms-1">&#8250;</span>
             </div>
@@ -238,6 +240,32 @@ Use `data-tabs` on sidebar items to control content panels on the right. The Aks
 </div>
 ```
 
+```js components
+import { SidebarLayout, SidebarNav } from "@abydahana/aksara-ui/components";
+
+SidebarLayout({
+  sidebar: SidebarNav({
+    ariaLabel: "Settings Navigation",
+    title: "Accounts Center",
+    subtitle: "Password, security, personal details",
+    brandIcon: '<span class="mdi mdi-account-circle-outline"></span>',
+    items: [
+      {
+        label: "Privacy",
+        icon: '<span class="mdi mdi-lock-outline"></span>',
+        panelTarget: "#panelPrivacy",
+        active: true
+      },
+      { label: "Notifications", icon: '<span class="mdi mdi-bell-outline"></span>', panelTarget: "#panelNotif" }
+    ]
+  }),
+  content: `<div class="p-5">
+    <div id="panelPrivacy" class="tab-panel" role="tabpanel"><!-- Privacy content --></div>
+    <div id="panelNotif" class="tab-panel" role="tabpanel" hidden><!-- Notifications content --></div>
+  </div>`
+});
+```
+
 ---
 
 ## Link Mode
@@ -246,7 +274,7 @@ Use `<a href>` for standard navigation without panel switching.
 
 ::html
 <div class="docs-preview">
-  <div style="width:220px;">
+  <div class="w-[220px]">
     <nav class="sidebar-nav">
       <span class="sidebar-nav-header">Main Menu</span>
       <a class="sidebar-nav-item active" href="#" aria-current="page">
@@ -297,6 +325,19 @@ Use `<a href>` for standard navigation without panel switching.
     <span class="sidebar-nav-badge">12</span>
   </a>
 </nav>
+```
+
+```js components
+import { SidebarNav } from "@abydahana/aksara-ui/components";
+
+SidebarNav({
+  items: [
+    { header: "Main Menu" },
+    { label: "Dashboard", icon: '<span class="mdi mdi-home-outline"></span>', href: "/dashboard", active: true },
+    // Link with badge
+    { label: "Alerts", icon: '<span class="mdi mdi-bell-outline"></span>', href: "/alerts", badge: "12" }
+  ]
+});
 ```
 
 ---

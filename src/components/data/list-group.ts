@@ -1,7 +1,14 @@
-import { classNames, toAttributes, normalizeSize } from "../utils";
+import { classNames, pickTag, toAttributes, normalizeSize } from "../utils";
 
 export interface ListGroupProps {
   children?: string;
+  /**
+   * Items to render with {@link ListGroupItem}. In a `ul`/`ol` list (`as` or `numbered`), plain
+   * items render as `<li>`, so the markup stays valid.
+   */
+  items?: ListGroupItemProps[];
+  /** Wrapper element. Defaults to `ol` when `numbered`, otherwise `div`. */
+  as?: "div" | "ul" | "ol";
   flush?: boolean;
   numbered?: boolean;
   horizontal?: boolean | "sm" | "md" | "lg" | "xl" | "2xl" | "xxl";
@@ -13,7 +20,8 @@ export interface ListGroupProps {
 
 export function ListGroup(props: ListGroupProps = {}): string {
   const {
-    children = "",
+    children,
+    items,
     flush = false,
     numbered = false,
     horizontal = false,
@@ -40,16 +48,29 @@ export function ListGroup(props: ListGroupProps = {}): string {
     className
   );
 
-  const Tag = numbered ? "ol" : "div";
+  const Tag = pickTag(props.as, ["div", "ul", "ol"] as const, numbered ? "ol" : "div");
   const baseAttrs = toAttributes(attributes);
+  const isList = Tag !== "div";
+  const content =
+    children ??
+    (items ?? [])
+      .map((item) =>
+        ListGroupItem({ ...item, as: item.as ?? (isList && !item.href && !item.action ? "li" : undefined) })
+      )
+      .join("");
 
-  return `<${Tag} class="${classes}"${baseAttrs}>${children}</${Tag}>`.trim();
+  return `<${Tag} class="${classes}"${baseAttrs}>${content}</${Tag}>`.trim();
 }
 
 export const listGroup = ListGroup;
 
 export interface ListGroupItemProps {
   content?: string;
+  /**
+   * Element for a plain item: `div` (default) or `li` for a `ul`/`ol` list. Items with `href`
+   * render as `<a>` and `action` items as `<button>` regardless.
+   */
+  as?: "div" | "li";
   active?: boolean;
   disabled?: boolean;
   action?: boolean;
@@ -72,7 +93,7 @@ export function ListGroupItem(props: ListGroupItemProps = {}): string {
   } = props;
 
   const isLink = Boolean(href);
-  const Tag = isLink ? "a" : action ? "button" : "div";
+  const Tag = isLink ? "a" : action ? "button" : pickTag(props.as, ["div", "li"] as const, "div");
 
   const classes = classNames(
     "list-group-item",

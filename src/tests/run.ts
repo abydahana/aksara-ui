@@ -5,6 +5,8 @@ import { createRequire } from "node:module";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import {
+  CheckCard,
+  Dropzone,
   input,
   Input,
   textarea,
@@ -78,6 +80,7 @@ import {
   timeline,
   Timeline
 } from "../components/index";
+import * as UI from "../components/index";
 import { cascadeRank, resolveRuntimeRule } from "../generator/aksara";
 import { colors as buildColors } from "../generator/palette";
 import { runComponentChecks } from "./components";
@@ -157,7 +160,6 @@ function hasExactClassRule(name: string): boolean {
   "border-subtle",
   "m-3",
   "mx-2",
-  "-mx-2",
   "ps-4",
   "pe-4",
   "lg:sticky-top",
@@ -355,7 +357,7 @@ function hasExactClassRule(name: string): boolean {
       ["first:border-primary", ":first-child{"],
       ["last:border-danger", ":last-child{"],
       ["dark:md:hover:border", '@media (min-width:48rem){[data-theme="dark"] .dark\\:md\\:hover\\:border:hover'],
-      ["dark:sm:active:-mx-3", "!important"]
+      ["dark:sm:active:mx-3", "!important"]
     ] as const
   ).forEach(([name, fragment]) => {
     const generated = resolveRuntimeRule(name, staticLookup);
@@ -490,18 +492,40 @@ assert(js.includes("Material Design Icons are not loaded"), "Runtime must report
 
 assert(!css.includes("data-bs-toggle"), "Forbidden data-bs-toggle token generated");
 assert(!css.includes("--aksara-primary:13 110 253"), "Bootstrap-like primary token should not be used");
-assert(css.includes("--aksara-primary:15 23 42"), "Slate Aksara primary token missing");
+assert(css.includes("--aksara-primary:34 32 29"), "Aksara near-black primary token missing");
+assert(!css.includes("--aksara-primary:84 96 214"), "Primary must not be purple");
+assert(!css.includes("--aksara-primary:15 23 42"), "Old slate primary is invisible on dark surfaces");
+assert(css.includes("--aksara-primary:236 233 228"), "Dark theme must turn the primary off-white");
+assert(
+  css.includes("--aksara-warning-foreground:rgb(28 26 24)"),
+  "Warning fills must use ink text (white on amber fails contrast)"
+);
+assert(ruleHas(".btn:focus-visible", "box-shadow:var(--aksara-ring)"), "Buttons need a visible focus ring");
+for (const selector of [
+  ".ts-control",
+  ".ts-dropdown",
+  ".ts-hidden-accessible",
+  ".carousel-track",
+  ".form-icon",
+  ".form-dropzone",
+  ".form-check-card",
+  ".btn-check"
+]) {
+  assert(css.includes(`${selector} {`) || css.includes(`${selector}{`), `${selector} styles missing`);
+}
+assert(css.includes("@keyframes aksara-carousel-progress"), "Carousel progress keyframes missing");
+assert(css.includes("--aksara-control-radius:.625rem"), "Control radius token missing");
 assert(css.includes(':root,[data-theme="light"],.light'), "Light theme selector should be explicit");
 assert(css.includes('[data-theme="dark"],.dark'), "Dark theme selector should be explicit");
 assert(
-  css.includes("--aksara-text-base:#0f172a"),
+  css.includes("--aksara-text-base:#1c1a18"),
   "Light theme and base root must define dark text for --aksara-text-base"
 );
-assert(css.includes("--aksara-text-base:#f8fafc"), "Dark theme must define light text for --aksara-text-base");
+assert(css.includes("--aksara-text-base:#edebe8"), "Dark theme must define light text for --aksara-text-base");
 assert(hasExactClassRule("bg-base"), "Missing bg-base utility class");
 assert(hasExactClassRule("border-base"), "Missing border-base utility class");
-assert(css.includes("--aksara-overlay-bg:rgb(15 23 42/.46)"), "Light overlay token missing");
-assert(css.includes("--aksara-overlay-bg:rgb(0 0 0/.62)"), "Dark overlay token missing");
+assert(css.includes("--aksara-overlay-bg:rgb(28 26 24/.36)"), "Light overlay token missing");
+assert(css.includes("--aksara-overlay-bg:rgb(6 5 4/.66)"), "Dark overlay token missing");
 assert(css.includes("--aksara-radius:1rem"), "Base rounded theme radius token missing");
 {
   // Radius tokens grow strictly: 2xs < xs < sm < md < lg < xl < 2xl < 3xl.
@@ -536,6 +560,10 @@ assert(css.includes("--aksara-radius:1rem"), "Base rounded theme radius token mi
   assert(!hasExactClassRule("font-bold"), "font-bold was removed in favour of fw-bold");
   assert(!hasExactClassRule("font-semibold"), "font-semibold was removed in favour of fw-semibold");
   assert(resolveRuntimeRule("z-[1050]") === ".z-\\[1050\\]{z-index:1050}", "z-index must use arbitrary values");
+  assert(
+    resolveRuntimeRule("[border:1px_solid_red]") === ".\\[border\\:1px_solid_red\\]{border:1px solid red}",
+    "[property:value] must emit the raw property"
+  );
   (
     [
       ["duration-[200ms]", ".duration-\\[200ms\\]{transition-duration:200ms}"],
@@ -544,8 +572,8 @@ assert(css.includes("--aksara-radius:1rem"), "Base rounded theme radius token mi
     ] as const
   ).forEach(([name, expected]) => assert(resolveRuntimeRule(name) === expected, `Runtime rule mismatch for ${name}`));
 }
-assert(css.includes("--aksara-scrollbar-thumb:rgb(100 116 139/.32)"), "Light scrollbar token missing");
-assert(css.includes("--aksara-scrollbar-thumb:rgb(174 186 204/.28)"), "Dark scrollbar token missing");
+assert(css.includes("--aksara-scrollbar-thumb:rgb(108 104 98/.28)"), "Light scrollbar token missing");
+assert(css.includes("--aksara-scrollbar-thumb:rgb(163 159 152/.24)"), "Dark scrollbar token missing");
 assert(
   css.includes("*::-webkit-scrollbar-thumb") && css.includes("background:var(--aksara-scrollbar-thumb)"),
   "Custom scrollbar thumb styling missing"
@@ -648,7 +676,6 @@ for (const infix of ["col-md-6", "col-md-auto", "col-lg", "g-md-3", "gx-lg-2", "
     ["m-3", "mt-0"],
     ["m-auto", "mb-0"],
     ["mx-auto", "ms-0"],
-    ["-m-2", "-mt-1"],
     ["gap-3", "gap-x-1"],
     ["gap-5", "row-gap-0"],
     ["g-3", "gx-1"],
@@ -686,13 +713,16 @@ assert(ruleHas(".p-3", "padding:1rem"), "p-3 should generate one-rem padding");
 assert(ruleHas(".p-4", "padding:1.5rem"), "p-4 should generate 1.5-rem padding");
 assert(ruleHas(".p-5", "padding:3rem"), "p-5 should generate 3-rem padding");
 assert(hasClass("lg:sticky-top"), "lg:sticky-top must be generated");
-assert(css.includes("margin-inline:-1rem"), "mx-[-1rem] must use margin-inline:-1rem");
+assert(
+  (resolveRuntimeRule("mx-[-1rem]", () => null) ?? "").includes("margin-inline:-1rem"),
+  "mx-[-1rem] must use margin-inline:-1rem"
+);
 assert(ruleHas(".gap-2", "gap:.5rem"), "gap-2 should generate half-rem gap");
 assert(
   css.includes("padding-inline:var(--aksara-container-padding,1rem)"),
   "Container should default to one-rem horizontal padding"
 );
-assert(ruleHas(".card-body", "padding:1rem"), "Card body should default to one-rem padding");
+assert(ruleHas(".card-body", "padding:1.25rem"), "Card body should default to 1.25rem padding");
 assert(
   ruleHas(".modal-body", "min-height:0") && css.includes("padding:1rem"),
   "Modal body should default to one-rem padding"
@@ -712,11 +742,11 @@ assert(
   "Badge dot should support semantic text color utilities"
 );
 assert(
-  ruleHas(".btn-warning", "color:var(--aksara-warning-foreground,rgb(var(--aksara-light)))"),
-  "Warning button foreground should stay light"
+  ruleHas(".btn-warning", "color:var(--aksara-warning-foreground,rgb(28 26 24))"),
+  "Warning button foreground should be ink (white on amber fails contrast)"
 );
 assert(
-  ruleHas(".btn-info", "color:var(--aksara-info-foreground,rgb(var(--aksara-light)))"),
+  ruleHas(".btn-info", "color:var(--aksara-info-foreground,rgb(255 255 255))"),
   "Info button foreground should stay light"
 );
 assert(ruleHas(".btn-sm", "min-height:1.75rem"), "Small buttons should be compact enough for dense tables");
@@ -726,11 +756,11 @@ assert(
 );
 assert(ruleHas("form", "margin:0"), "Forms should not add default block margin");
 assert(
-  ruleHas(".badge-warning", "color:var(--aksara-warning-foreground,rgb(var(--aksara-light)))"),
-  "Warning badge foreground should stay light"
+  ruleHas(".badge-warning", "color:var(--aksara-warning-foreground,rgb(28 26 24))"),
+  "Warning badge foreground should be ink (white on amber fails contrast)"
 );
 assert(
-  ruleHas(".badge-info", "color:var(--aksara-info-foreground,rgb(var(--aksara-light)))"),
+  ruleHas(".badge-info", "color:var(--aksara-info-foreground,rgb(255 255 255))"),
   "Info badge foreground should stay light"
 );
 assert(css.includes(".progress-bar.bg-success"), "Progress bars should support semantic background utilities");
@@ -766,11 +796,12 @@ assert(
   "Button group large modifier should make child buttons large"
 );
 assert(
-  css.includes(".input-group>.btn") &&
-    css.includes(".input-group>:not(:first-child)") &&
-    css.includes("margin-inline-start:-1px") &&
+  ruleHas(".input-group", "border:1px solid var(--aksara-border)") &&
+    css.includes(".input-group:focus-within") &&
+    css.includes(".input-group>.btn") &&
+    ruleHas(".input-group-text", "border:0") &&
     css.includes(".input-group-sm"),
-  "Input group should support buttons and addons with border-radius stripping and size matching"
+  "Input group should be one field: the group draws the border and ring, members are borderless, buttons inset"
 );
 assert(!ruleHas(".btn:hover", "transform:translateY(-1px)"), "Buttons should not lift on hover by default");
 assert(
@@ -823,6 +854,12 @@ assert(js.includes("resolveDismissTargets"), "Universal dismiss selector resolve
 assert(js.includes("data-tooltip"), "Tooltip data API missing");
 assert(js.includes("class Modal"), "Modal class missing");
 assert(js.includes("class Tooltip"), "Tooltip class missing");
+assert(js.includes("useTomSelect") && js.includes("tomselected"), "Tom Select integration missing");
+assert(
+  js.includes("data-password-toggle") && js.includes("data-counter") && js.includes("data-range-output"),
+  "Form helpers missing"
+);
+assert(js.includes("carousel-track") && js.includes("setPointerCapture"), "Carousel swipe track missing");
 [
   "updateOptions(options = {})",
   "readTriggerOptions",
@@ -877,7 +914,7 @@ assert(
   "Docs content manifest must load before docs.js"
 );
 assert(docsLoader.includes("renderMarkdown"), "Docs markdown loader missing");
-assert(docsLoader.includes("bindDocsScrollspy"), "Docs scrollspy binding missing");
+assert(!docsLoader.includes("bindDocsScrollspy"), "Docs must demo the runtime scrollspy, not a docs-only copy");
 assert(docsLoader.includes("toggleMenu"), "Docs mobile menu toggle missing");
 assert(docsLoader.includes("toggleTheme"), "Docs theme toggle behavior missing");
 assert(docsLoader.includes("toggleGroup"), "Docs group collapse behavior missing");
@@ -887,7 +924,234 @@ assert(
 );
 assert(docsLoader.includes("docs-menu-open"), "Docs mobile menu state missing");
 assert(docsCss.includes("position: fixed"), "Docs mobile topbar/sheet fixed positioning missing");
-assert(docsCss.includes("translateY(100%)"), "Docs mobile menu should be a bottom sheet");
+assert(
+  docsLoader.includes("Aksara?.sheet") && docsLoader.includes("data-sheet-push"),
+  "Docs mobile menu should be the runtime BottomSheet with group sub-sheets"
+);
+assert(js.includes("class BottomSheet") && js.includes("sheet:push"), "BottomSheet runtime missing");
+assert(css.includes(".sheet-panel") && css.includes("--aksara-sheet-depth"), "Bottom sheet styles missing");
+assert(
+  js.includes("data-table-select-all") && js.includes("table:select") && js.includes("tableSelection"),
+  "Table row selection runtime (select all, event, API) missing"
+);
+assert(css.includes(".table-check") && css.includes("table[data-table-select]"), "Table selection styles missing");
+// New components from recurring docs patterns.
+for (const selector of [
+  ".divider-vertical",
+  ".kbd-group",
+  ".stat-delta-up",
+  ".stat-group",
+  ".desc-list-horizontal",
+  ".icon-tile-success",
+  ".check-list-plain",
+  ".steps-vertical",
+  ".step.is-complete",
+  ".indicator-item",
+  ".segmented>input:checked+label",
+  ".copy-btn.is-copied",
+  ".input-stepper",
+  ".rating>label:has(~input:checked)",
+  ".otp>input"
+]) {
+  assert(css.includes(selector), `Missing ${selector} styles`);
+}
+// Textareas autogrow by default (opt out with data-autogrow="false") and never shrink below one row.
+assert(js.includes('textarea.form-control:not([data-autogrow="false"])'), "Textareas must autogrow by default");
+assert(
+  /textarea\.form-control \{[^}]*min-height:max\(42px/.test(css),
+  "Textarea must keep at least one row (input height)"
+);
+for (const [size, height] of [
+  ["xs", 26],
+  ["sm", 31],
+  ["lg", 48],
+  ["xl", 56],
+  ["2xl", 64]
+] as const) {
+  assert(
+    new RegExp(`textarea\\.form-control\\.form-control-${size} \\{[^}]*min-height:${height}px`).test(css),
+    `textarea.form-control-${size} must keep the ${height}px input height as its minimum`
+  );
+}
+assert(!UI.Textarea({ rows: 2 }).includes("data-autogrow"), "Textarea autogrows without extra attributes");
+assert(UI.Textarea({ autoGrow: false }).includes('data-autogrow="false"'), "Textarea autoGrow:false opts out");
+// Textareas resize vertically only (preflight + the form control), never horizontally.
+assert(
+  css.includes("textarea{resize:vertical}") || /textarea \{\s*resize:vertical/.test(css),
+  "Bare textareas must resize vertically only"
+);
+assert(/textarea\.form-control \{[^}]*resize:vertical/.test(css), "textarea.form-control must resize vertically only");
+for (const rule of ["items-baseline", "self-center", "align-self-end", "order-last"]) {
+  assert(hasExactClassRule(rule), `Missing ${rule} utility`);
+}
+assert(css.includes("--aksara-indicator-offset:14.6%"), "Indicator must hug round targets");
+assert(css.includes(".dropdown-menu.position-static"), "Static menus must not stack over the page");
+{
+  const stack = UI.Stack({
+    horizontalFrom: "md",
+    gap: 2,
+    align: "center",
+    justify: "between",
+    wrap: true,
+    children: "x"
+  });
+  assert(stack.includes('class="vstack md:hstack gap-2 items-center justify-between flex-wrap"'), stack);
+  assert(UI.HStack({ gap: 0 }).includes('class="hstack gap-0"'), "HStack gap");
+  assert(UI.Vr().includes('class="vr"') && UI.Vr().includes('aria-orientation="vertical"'), "Vr");
+  const ro = UI.Rating({ name: "r", value: 3, readonly: true });
+  assert(ro.includes('type="hidden" name="r" value="3"') && ro.includes('name="r-display"'), "Rating readonly submits");
+}
+assert(
+  js.includes("data-stepper-up") && js.includes("otp:complete") && js.includes("segmented:change"),
+  "Stepper / OTP / segmented runtime missing"
+);
+assert(
+  js.includes("execCommand") && js.includes("steps:change") && js.includes('data-toggle="button"'),
+  "Clipboard fallback / steps / toggle runtime missing"
+);
+{
+  assert(UI.Divider({ label: "or" }).includes('class="divider" role="separator" aria-label="or">or<'), "Divider label");
+  assert(UI.Kbd({ keys: ["Ctrl", "K"] }).includes("<kbd>Ctrl</kbd><kbd>K</kbd>"), "Kbd combo");
+  const kpi = UI.Stat({ label: "Churn", value: "2.1%", delta: "+0.4%", invertTrend: true });
+  assert(kpi.includes("stat-delta stat-delta-down") && kpi.includes("mdi-arrow-up"), "Stat inverted trend");
+  assert(
+    UI.DescriptionList({ items: [{ term: "A", detail: "<b>" }] }).includes("<dd>&lt;b&gt;</dd>"),
+    "DescriptionList escapes"
+  );
+  assert(
+    UI.IconTile({ icon: "mdi-star", variant: "info", shape: "circle" }).includes(
+      "icon-tile icon-tile-info icon-tile-circle"
+    ),
+    "IconTile classes"
+  );
+  assert(
+    UI.CheckList({ items: ["a", { text: "b", off: true }] }).includes('<li class="is-off">'),
+    "CheckList off item"
+  );
+  const flow = UI.Steps({
+    current: 1,
+    items: [{ title: "A" }, { title: "B" }, { title: "C" }],
+    panels: ".pane",
+    id: "w"
+  });
+  assert(
+    flow.includes("step is-complete") &&
+      flow.includes('step is-active" aria-current="step"') &&
+      flow.includes('data-steps-panels=".pane"'),
+    "Steps state"
+  );
+  assert(UI.Indicator({ content: 250, children: "x" }).includes(">99+<"), "Indicator max");
+  assert(
+    UI.Segmented({ name: "v", options: [{ value: "a", label: "A" }] }).includes('type="radio"'),
+    "Segmented radio mode"
+  );
+  assert(UI.Segmented({ options: [{ value: "a", label: "A" }] }).includes("data-segmented"), "Segmented button mode");
+  assert(UI.ToggleButton({ children: "B", pressed: true }).includes('aria-pressed="true"'), "ToggleButton pressed");
+  assert(UI.CopyButton({ text: "x" }).includes('data-clipboard-text="x"'), "CopyButton text");
+  const qty = UI.NumberInput({ value: 1, min: 1, max: 3 });
+  assert(qty.includes("data-stepper") && /data-stepper-down[^>]*disabled/.test(qty), "NumberInput disables − at min");
+  const stars = UI.Rating({ name: "r", value: 4 });
+  assert(
+    stars.indexOf('value="1"') < stars.indexOf('value="5"') && stars.includes('value="4" checked'),
+    "Rating order / value"
+  );
+  assert(UI.Rating({ value: 3.5 }).includes("rating-star is-half"), "Rating half star");
+  const otp = UI.OtpInput({ length: 4, name: "code" });
+  assert(
+    (otp.match(/<input/g) ?? []).length === 5 && otp.includes('autocomplete="one-time-code"'),
+    "OtpInput boxes + hidden field"
+  );
+}
+// Runtime gaps closed: collapse animation/API, offcanvas backdrop, popover dismissal,
+// disabled tabs, per-opening trigger options, media viewer and option picker.
+assert(
+  js.includes("collapse:shown") && js.includes("data-collapse-parent"),
+  "Collapse animation/group runtime missing"
+);
+assert(js.includes("offcanvas-backdrop"), "Offcanvas backdrop runtime missing");
+assert(
+  js.includes("data-popover-close") && js.includes("triggerCleanups"),
+  "Popover dismissal / trigger rebinding missing"
+);
+assert(js.includes("aria-disabled") && js.includes("Home"), "Tabs should skip disabled tabs and support Home/End");
+assert(js.includes("triggerOptionValues"), "Data-API trigger options must apply per opening");
+assert(js.includes("media:change") && js.includes("data-media-gallery"), "Media viewer runtime missing");
+assert(js.includes("picker:select") && js.includes("aksara-pick-title"), "Option picker runtime / Aksara.pick missing");
+for (const selector of [
+  ".collapsing",
+  ".offcanvas-backdrop",
+  ".radio-group-inline",
+  ".media-modal-open",
+  ".picker-option",
+  ".guest-gate-card",
+  ".auth-modal-body",
+  ".quote-header"
+]) {
+  assert(css.includes(selector), `Missing ${selector} styles`);
+}
+{
+  const viewer = UI.MediaPreviewModal({ id: "v", items: [{ src: "a.jpg", caption: "A" }, { src: "b.jpg" }] });
+  assert(
+    viewer.includes("data-media-items=") && !viewer.includes("media-modal-open"),
+    "MediaModal must start closed with its items"
+  );
+  assert(
+    UI.MediaPreviewModal({ items: [{ src: "a.jpg" }], open: true }).includes("media-modal-open"),
+    "MediaModal open prop"
+  );
+  const grid = UI.MediaGrid({ items: [{ src: "a.jpg" }, { src: "b.jpg" }], viewer: "#v" });
+  assert(grid.includes('data-media-open="#v"') && grid.includes("data-media-items="), "MediaGrid viewer prop");
+  const picker = UI.OptionPickerModal({
+    title: "P",
+    selectedValue: "a",
+    options: [{ value: "a", label: "A", badge: "x" }]
+  });
+  assert(
+    picker.includes("picker-option is-selected") && picker.includes("badge-soft-secondary"),
+    "Picker option markup"
+  );
+  assert(
+    !picker.includes("badge-subtle") && !picker.includes("text-light"),
+    "Picker must not use undefined/low-contrast classes"
+  );
+  assert(
+    UI.DropdownDivider({ className: "my-1" }).includes('class="dropdown-divider my-1"'),
+    "DropdownDivider object prop"
+  );
+  assert(UI.DropdownDivider("my-1").includes('class="dropdown-divider my-1"'), "DropdownDivider string prop");
+  assert(
+    UI.RadioGroup({ name: "r", inline: true, options: [] }).includes("radio-group radio-group-inline"),
+    "RadioGroup inline"
+  );
+  assert(UI.Collapse({ id: "c", parent: "#g" }).includes('data-collapse-parent="#g"'), "Collapse parent prop");
+  const noShadow = [
+    UI.GuestGate(),
+    UI.GuestGate({ variant: "slide" }),
+    UI.AuthModal(),
+    UI.QuoteCard({ author: { name: "A" } })
+  ].join("");
+  assert(!/shadow-/.test(noShadow), "App components must be flat (no shadow utilities)");
+}
+{
+  const selectable = UI.Table({
+    selectable: true,
+    children:
+      UI.TableHead({ children: UI.TableRow({ children: UI.TableCheckAll() }) }) +
+      UI.TableBody({
+        children: UI.TableRow({ selected: true, children: UI.TableCheck({ label: "Select A", checked: true }) })
+      })
+  });
+  assert(selectable.includes('data-table-select=""'), "Table selectable prop must emit data-table-select");
+  assert(
+    selectable.includes("data-table-select-all") && selectable.includes("data-table-select-row"),
+    "Table check cells missing data API"
+  );
+  assert(
+    selectable.includes('class="table-active" aria-selected="true"'),
+    "TableRow selected must be active + aria-selected"
+  );
+  assert(UI.Table({ selectable: "row" }).includes('data-table-select="row"'), "Table selectable row mode missing");
+}
 assert(docsCss.includes("data-collapsed"), "Docs collapsed sidebar group styling missing");
 assert(
   docsCss.includes("body") && docsCss.includes("overflow-x: hidden"),
@@ -1082,7 +1346,11 @@ assert(
 );
 assert(docsContent.includes("Navbar Scrollspy"), "Docs content manifest missing navbar scrollspy sample");
 assert(docsContent.includes("Nav Pills Scrollspy"), "Docs content manifest missing nav pills scrollspy sample");
-assert(docsContent.includes("data-docs-scrollspy-link"), "Docs content manifest missing scrollspy link bindings");
+assert(
+  docsContent.includes("data-scrollspy-link") && !docsContent.includes("data-docs-scrollspy"),
+  "Docs scrollspy samples must use the runtime data-scrollspy-* API"
+);
+assert(js.includes("scrollspy:change") && js.includes("getBoundingClientRect"), "Scrollspy runtime missing");
 assert(docsContent.includes("Nav Pills Tabs"), "Docs content manifest missing nav pills tabs sample");
 assert(docsContent.includes("accordion-icon"), "Docs content manifest missing animated accordion icon sample");
 assert(docsContent.includes('"/helpers/ratio"'), "Docs content manifest missing ratio route");
@@ -1184,7 +1452,7 @@ assert(
   "collapseTrigger failed"
 );
 assert(
-  carousel({ slides: [{ content: "Slide 1" }, { content: "Slide 2" }] }).includes("carousel-inner"),
+  carousel({ slides: [{ content: "Slide 1" }, { content: "Slide 2" }] }).includes("carousel-track"),
   "carousel failed"
 );
 assert(scrollspyTarget({ id: "spTarget", children: "Content" }).includes('id="spTarget"'), "scrollspyTarget failed");
@@ -1200,13 +1468,13 @@ assert(
   }).includes("form-floating"),
   "floatingLabel failed"
 );
-assert(formRow({ children: formCol({ children: "Col" }) }).includes("row g-3"), "formRow failed");
+assert(formRow({ children: formCol({ children: "Col" }) }).includes("row gap-3"), "formRow must use gap-* spacing");
 
 assert(
   mediaGrid({ items: [{ src: "1.jpg" }, { src: "2.jpg" }] }).includes("media-grid media-grid-2"),
   "mediaGrid failed"
 );
-assert(mediaPreviewModal({ items: [{ src: "1.jpg" }] }).includes("media-modal-backdrop"), "mediaPreviewModal failed");
+assert(mediaPreviewModal({ items: [{ src: "1.jpg" }] }).includes("media-modal"), "mediaPreviewModal failed");
 
 // PascalCase assertions
 assert(Input({ name: "email", type: "email" }).includes('type="email"'), "Input failed");
@@ -1216,6 +1484,35 @@ assert(Checkbox({ label: "Check" }).includes('type="checkbox"'), "Checkbox faile
 assert(Radio({ name: "r", value: "1", label: "Rad" }).includes('type="radio"'), "Radio failed");
 assert(Switch({ label: "Sw" }).includes('role="switch"'), "Switch failed");
 assert(Range({ name: "rng" }).includes('type="range"'), "Range failed");
+{
+  const multi = Select({
+    name: "tags",
+    multiple: true,
+    clearable: true,
+    value: ["a", "c"],
+    options: [
+      { label: "A", value: "a" },
+      { label: "B", value: "b" },
+      { label: "C", value: "c" }
+    ]
+  });
+  assert(
+    multi.includes(" multiple") && multi.includes('data-select-clearable="true"'),
+    "Select multiple/clearable props"
+  );
+  assert((multi.match(/ selected>/g) ?? []).length === 2, "Select multiple must preselect every value");
+  assert(Select({ native: true }).includes('data-select="native"'), "Select native opt-out");
+  assert(Select({ search: false }).includes('data-select-search="false"'), "Select search opt-out");
+  const pw = Input({ type: "password", iconStart: "lock-outline", passwordToggle: true });
+  assert(
+    pw.startsWith('<div class="form-icon">') && pw.includes("mdi-lock-outline") && pw.includes("data-password-toggle"),
+    "Input icons and password toggle"
+  );
+  assert(Input({ counter: "#c", maxLength: 80 }).includes('data-counter="#c"'), "Input counter");
+  assert(Range({ output: "#o", value: 25 }).includes("--aksara-range-progress:25%"), "Range progress");
+  assert(CheckCard({ title: "Pro", name: "plan", value: "pro" }).includes("form-check-card"), "CheckCard failed");
+  assert(Dropzone({ multiple: true }).includes("form-dropzone"), "Dropzone failed");
+}
 assert(Button({ label: "Save", variant: "primary" }).includes("btn btn-primary"), "Button failed");
 assert(Card({ children: CardBody({ children: "content" }) }).includes("card-body"), "Card failed");
 assert(Modal({ id: "myModal", children: "Modal content" }).includes('id="myModal"'), "Modal failed");
@@ -1229,6 +1526,141 @@ assert(
   "bentoCard failed"
 );
 assert(BentoGrid({ children: BentoCard({ children: "Card" }) }).includes("bento-card"), "Bento PascalCase failed");
+
+// Component props added for the docs "Components" tabs.
+{
+  const item = UI.AccordionItem({ id: "acc", title: "T", body: "B" });
+  assert(
+    item.includes('class="accordion-icon mdi mdi-chevron-down"'),
+    "AccordionItem should render a chevron by default"
+  );
+  assert(
+    UI.AccordionItem({ id: "acc", title: "T", body: "B", icon: "mdi-plus" }).includes("accordion-icon mdi mdi-plus"),
+    "AccordionItem icon prop"
+  );
+  assert(
+    !UI.AccordionItem({ id: "acc", title: "T", body: "B", icon: false }).includes("accordion-icon"),
+    "icon: false"
+  );
+
+  const iconAlert = UI.Alert({ icon: "mdi-check", title: "Paid", content: "Done", variant: "success" });
+  assert(
+    iconAlert.includes('<span class="alert-icon mdi mdi-check"') &&
+      iconAlert.includes('<div class="alert-content"><p class="alert-title">Paid</p>Done</div>'),
+    "Alert icon/title layout"
+  );
+  const closable = UI.Alert({
+    content: "x",
+    dismissible: true,
+    closeSize: "sm",
+    dismissTarget: "#a",
+    closeLabel: "Hide"
+  });
+  assert(
+    closable.includes('class="close close-sm"') &&
+      closable.includes('data-dismiss="#a"') &&
+      closable.includes('aria-label="Hide"'),
+    "Alert close options"
+  );
+
+  const header = UI.ModalHeader({ title: "T", titleId: "mt", level: "h4" });
+  assert(header.includes('<h4 id="mt" class="modal-title m-0">T</h4>'), "ModalHeader titleId/level");
+  assert(UI.ModalHeader({ title: "T" }).includes('<h5 class="modal-title m-0">'), "ModalHeader default h5");
+
+  const crumbs = UI.Breadcrumb({
+    items: [
+      { label: "Home", href: "/", icon: "mdi-home-outline" },
+      { label: "Home", href: "/", icon: "mdi-home-outline", iconOnly: true },
+      { label: "More", labelHtml: "<button>…</button>", className: "x-more" },
+      { label: "Long", href: "/l", linkClassName: "truncate", linkAttributes: { title: "Long" } },
+      { label: "Here" }
+    ]
+  });
+  assert(
+    crumbs.includes('<a href="/" class="hstack gap-1"><span class="mdi mdi-home-outline"></span> Home</a>'),
+    "Breadcrumb icon"
+  );
+  assert(
+    crumbs.includes('<a href="/" aria-label="Home"><span class="mdi mdi-home-outline"></span></a>'),
+    "Breadcrumb iconOnly"
+  );
+  assert(
+    crumbs.includes('<li class="breadcrumb-item x-more"><button>…</button></li>'),
+    "Breadcrumb labelHtml/className"
+  );
+  assert(crumbs.includes('<a href="/l" class="truncate" title="Long">'), "Breadcrumb linkClassName/linkAttributes");
+
+  const deck = UI.Carousel({
+    slides: [{ content: "a" }, { content: "b" }],
+    counter: true,
+    progress: true,
+    staticIndicators: true,
+    controlsHtml: '<button data-carousel="next">n</button>'
+  });
+  assert(deck.includes('<span class="carousel-counter"><span data-carousel-current></span>'), "Carousel counter");
+  assert(
+    deck.includes('<div class="carousel-progress"><div class="carousel-progress-bar"></div></div>'),
+    "Carousel progress"
+  );
+  assert(
+    deck.includes('<div class="carousel-indicators carousel-indicators-static"></div>'),
+    "Carousel static indicators"
+  );
+  assert(
+    !deck.includes("carousel-indicator ") && !deck.includes("carousel-prev"),
+    "Carousel custom controls replace defaults"
+  );
+
+  assert(
+    UI.EmptyStateIcon({ icon: "mdi-inbox", size: "sm", variant: "muted" }) ===
+      '<div class="empty-state-icon-wrap empty-state-icon-wrap-sm text-subtle"><span class="mdi mdi-inbox" aria-hidden="true"></span></div>',
+    "EmptyStateIcon markup"
+  );
+  const empty = UI.EmptyState({ icon: "mdi-inbox", iconSize: "lg", title: "Empty" });
+  assert(empty.includes("empty-state-icon-wrap-lg") && !empty.includes("style="), "EmptyState iconSize uses classes");
+  const bareEmpty = UI.EmptyState({ bare: true, title: "Empty", description: "D", media: "<i>m</i>" });
+  assert(
+    bareEmpty.startsWith('<div class="empty-state">') &&
+      bareEmpty.includes('<h3 class="empty-state-title">Empty</h3>') &&
+      bareEmpty.includes("<i>m</i>"),
+    "EmptyState bare/media"
+  );
+  assert(UI.EmptyState({ compact: true, title: "T" }).includes("empty-state py-4 px-3 my-0"), "EmptyState compact");
+
+  const grid = UI.MediaGrid({
+    items: [{ src: "a.jpg", className: "x-cell", overlayHtml: "<b>12 photos</b>" }, { src: "b.jpg" }],
+    itemClassName: "rounded-0"
+  });
+  assert(
+    grid.includes("rounded-0 x-cell") && grid.includes("<b>12 photos</b></div>"),
+    "MediaGrid item className/overlayHtml"
+  );
+
+  assert(
+    UI.ListGroup({ numbered: true, items: [{ content: "A" }] }) ===
+      '<ol class="list-group list-group-numbered"><li class="list-group-item">A</li></ol>',
+    "ListGroup numbered renders li items"
+  );
+  assert(UI.ListGroup({ as: "ul", items: [{ content: "A" }] }).startsWith("<ul"), "ListGroup as ul");
+
+  assert(
+    UI.DropdownItem({ content: "Delete", danger: true }).includes("dropdown-item dropdown-item-danger"),
+    "DropdownItem danger"
+  );
+  assert(
+    !UI.CollapseTrigger({ targetId: "c", children: "x", as: "a" }).includes('class=""'),
+    "CollapseTrigger empty class"
+  );
+
+  const user = UI.UserItem({ name: "Dewi", subtitle: "dewi@studio.id", action: "<span>Owner</span>" });
+  assert(
+    user.startsWith('<div class="user-item">') &&
+      user.includes('<div class="user-item-name">Dewi</div>') &&
+      user.includes('<div class="user-item-subtitle truncate">dewi@studio.id</div>'),
+    "UserItem matches the documented .user-item markup"
+  );
+  assert(UI.Avatar({ icon: "mdi-plus" }).includes("avatar-fallback mdi mdi-plus"), "Avatar fallback icon");
+}
 assert(skeleton({ variant: "text", wave: true }).includes("skeleton-text skeleton-wave"), "skeleton failed");
 assert(Skeleton({ variant: "circle" }).includes("skeleton-circle"), "Skeleton PascalCase failed");
 assert(timeline({ children: "<li>" }).includes("timeline"), "timeline failed");
@@ -1261,7 +1693,7 @@ assert(
 );
 assert(quoteCard({ author: { name: "A" } }).includes("quote-card"), "quoteCard failed");
 
-assert(GuestGate({ title: "Login to see" }).includes("guest-gate-wrapper"), "GuestGate failed");
+assert(GuestGate({ title: "Login to see" }).includes("guest-gate-card"), "GuestGate failed");
 assert(guestGate({ variant: "slide", title: "Slide Lock" }).includes("guest-gate-slide"), "guestGate slide failed");
 assert(AuthPromptModal({ title: "Sign in now" }).includes("authPromptModal"), "AuthPromptModal failed");
 assert(AuthModal({ title: "Sign in modal" }).includes("auth-modal"), "AuthModal failed");
@@ -1287,6 +1719,12 @@ assert(
 
 // Verify no external picsum.photos in docs
 assert(!docsContent.includes("picsum.photos"), "Docs content still contains external picsum.photos URLs");
+// Docs must render offline: no remote images (avatars use initials, photos use gradients).
+{
+  const remote = docsContent.match(/<img\b[^>]*?\s(?:src|srcset)=\\?["']https?:\/\/[^"'\\]+/g) ?? [];
+  assert(remote.length === 0, `Docs load remote images: ${remote.slice(0, 3).join(", ")}`);
+  assert(!/pravatar\.cc|unsplash\.com|randomuser\.me/.test(docsContent), "Docs reference a remote image service");
+}
 
 // Verify dist/components output files exist
 assert(fs.existsSync(path.join(root, "dist/components/index.js")), "Missing dist/components/index.js");
@@ -1308,8 +1746,19 @@ assert(hasExactClassRule("top-2"), "Missing top-2 in CSS");
 assert(hasExactClassRule("top-3"), "Missing top-3 in CSS");
 assert(hasExactClassRule("top-4"), "Missing top-4 in CSS");
 assert(hasExactClassRule("top-5"), "Missing top-5 in CSS");
-assert(hasExactClassRule("-top-1"), "Missing -top-1 in CSS");
-assert(hasExactClassRule("-top-3"), "Missing -top-3 in CSS");
+// No Tailwind-style negative prefixes: negatives are arbitrary values (`mt-[-1rem]`).
+for (const removed of ["-top-1", "-top-3", "-m-2", "-mt-4", "-mx-3", "-end-2", "-inset-1"]) {
+  assert(!hasExactClassRule(removed), `${removed} must not exist; use an arbitrary negative value`);
+}
+assert(resolveRuntimeRule("-mt-[4px]", () => null) === null, "Runtime must reject -prefixed negatives");
+assert(
+  /margin-block-start:-1\.5rem/.test(resolveRuntimeRule("mt-[-1.5rem]", () => null) ?? ""),
+  "mt-[-1.5rem] must resolve"
+);
+assert(
+  /inset-block-start:-\.5rem/.test(resolveRuntimeRule("top-[-.5rem]", () => null) ?? ""),
+  "top-[-.5rem] must resolve"
+);
 assert(hasExactClassRule("inset-0"), "Missing inset-0 in CSS");
 assert(hasExactClassRule("inset-3"), "Missing inset-3 in CSS");
 assert(hasExactClassRule("inset-x-2"), "Missing inset-x-2 in CSS");

@@ -1,198 +1,439 @@
-# Carousel Sliders
+# Carousel
 
-Carousels are interactive slideshows that cycle through multiple slides of contents (like images, hero text alerts, or reviews panels) inside a single container.
+A sliding carousel with touch swipe and mouse drag, cross-fade mode, several slides per view (responsive), autoplay that pauses on hover, focus, interaction and hidden tabs, keyboard control, auto-generated indicators, a counter, a progress bar and thumbnails. It works from markup alone: `Aksara.init()` picks up every `.carousel`.
 
 ---
 
-## Interactive Carousel Showcase
+## Basic Slider
 
-Click the prev/next arrow controls (`‹` and `›`) below to transition slides. Aksara UI handles cycling offsets, display hidden flags, and slide index transitions programmatically.
+Swipe or drag the slides, use the arrows, the dots, or ←/→ when the carousel has focus. Empty `.carousel-indicators` are filled with one dot per slide.
 
 ::html
 <div class="docs-preview">
-  <div id="demoCarousel" class="carousel card border border-subtle bg-body shadow-sm" style="position: relative; overflow: hidden; min-height: 200px;">
-    <!-- Slide 1 -->
-    <div class="carousel-item p-5 bg-primary/10 text-primary hstack justify-center flex-col text-center" data-carousel-item style="min-height: 200px;">
-      <h3 class="text-2xl font-black m-0 hstack gap-2 justify-center"><span class="mdi mdi-flash"></span> High-Performance Offline CSS</h3>
-      <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
-        Aksara precompiles components and the spacing, color and layout scales into one static stylesheet; only arbitrary values are generated on demand.
-      </p>
+  <div class="carousel rounded-[16px]">
+    <div class="carousel-item" data-carousel-item>
+      <div class="carousel-img aspect-[2/1] [background:linear-gradient(160deg,#c9d6df_0%,#6f8fa6_45%,#2f4858_100%)]" role="img" aria-label="Mountain lake"></div>
+      <div class="carousel-caption"><strong>Quiet mornings</strong><div class="text-sm">Swipe, drag or use the arrows.</div></div>
     </div>
-
-    <!-- Slide 2 -->
-    <div class="carousel-item p-5 bg-success/10 text-success hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
-      <h3 class="text-2xl font-black m-0 hstack gap-2 justify-center"><span class="mdi mdi-earth"></span> RTL-First Logical Architecture</h3>
-      <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
-        Align pages with start/end properties natively. Your interfaces instantly mirror when switching HTML text directions.
-      </p>
+    <div class="carousel-item" data-carousel-item>
+      <div class="carousel-img aspect-[2/1] [background:linear-gradient(160deg,#d8cfb8_0%,#7c8a5c_50%,#33402a_100%)]" role="img" aria-label="Forest road"></div>
+      <div class="carousel-caption"><strong>Long roads</strong><div class="text-sm">Slides move on a track with easing.</div></div>
     </div>
-
-    <!-- Slide 3 -->
-    <div class="carousel-item p-5 bg-danger/10 text-danger hstack justify-center flex-col text-center" data-carousel-item hidden style="min-height: 200px;">
-      <h3 class="text-2xl font-black m-0 hstack gap-2 justify-center"><span class="mdi mdi-cube-outline"></span> Dependency-Free JS</h3>
-      <p class="text-subtle text-sm mt-2 mb-0" style="max-width:480px;">
-        Dependency-free vanilla JavaScript plugins with accessibility focus trapping and ARIA triggers.
-      </p>
+    <div class="carousel-item" data-carousel-item>
+      <div class="carousel-img aspect-[2/1] [background:linear-gradient(160deg,#cfe3ea_0%,#4f97b0_50%,#1d4e63_100%)]" role="img" aria-label="Coastline"></div>
+      <div class="carousel-caption"><strong>Open water</strong><div class="text-sm">Loops back to the first slide.</div></div>
     </div>
-
-    <!-- Prev / Next Controller Actions -->
-    <button class="carousel-control carousel-prev hstack justify-center" data-carousel="prev" aria-label="Previous slide" style="position: absolute; top: 50%; start: 16px; transform: translateY(-50%); border: 0; background: rgba(var(--aksara-dark)/.16); color: var(--aksara-text-body); width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">
-      <span class="mdi mdi-chevron-left mdi-24px" style="line-height: 1;"></span>
-    </button>
-
-    <button class="carousel-control carousel-next hstack justify-center" data-carousel="next" aria-label="Next slide" style="position: absolute; top: 50%; end: 16px; transform: translateY(-50%); border: 0; background: rgba(var(--aksara-dark)/.16); color: var(--aksara-text-body); width: 36px; height: 36px; border-radius: 50%; cursor: pointer;">
-      <span class="mdi mdi-chevron-right mdi-24px" style="line-height: 1;"></span>
-    </button>
-
+    <button class="carousel-control carousel-prev" data-carousel="prev" aria-label="Previous slide"><span class="mdi mdi-chevron-left"></span></button>
+    <button class="carousel-control carousel-next" data-carousel="next" aria-label="Next slide"><span class="mdi mdi-chevron-right"></span></button>
+    <div class="carousel-indicators"></div>
   </div>
 </div>
 ::end
 
 ```html
-<div id="myCarousel" class="carousel card">
-  <!-- Slide Items: only the active item is visible (hidden attribute omitted) -->
+<div class="carousel">
   <div class="carousel-item" data-carousel-item>
-    <h3>Slide Title One</h3>
+    <img class="carousel-img" src="slide-1.jpg" alt="..." />
+    <div class="carousel-caption">...</div>
   </div>
-  <div class="carousel-item" data-carousel-item hidden>
-    <h3>Slide Title Two</h3>
-  </div>
+  <div class="carousel-item" data-carousel-item>...</div>
+  <div class="carousel-item" data-carousel-item>...</div>
 
-  <!-- Prev / Next Controller Triggers -->
-  <button class="carousel-control carousel-prev" data-carousel="prev">
+  <button class="carousel-control carousel-prev" data-carousel="prev" aria-label="Previous slide">
     <span class="mdi mdi-chevron-left"></span>
   </button>
-  <button class="carousel-control carousel-next" data-carousel="next">
+  <button class="carousel-control carousel-next" data-carousel="next" aria-label="Next slide">
     <span class="mdi mdi-chevron-right"></span>
   </button>
+  <div class="carousel-indicators"></div>
 </div>
 ```
 
+```js components
+import { Carousel } from "@abydahana/aksara-ui/components";
+
+// Renders the slides, prev/next controls and one indicator per slide.
+Carousel({
+  slides: [
+    { content: '<img class="carousel-img" src="slide-1.jpg" alt="..." /><div class="carousel-caption">...</div>' },
+    { content: "..." },
+    { content: "..." }
+  ]
+});
+```
+
+On init the items are moved into `.carousel-viewport > .carousel-track`; you can also write that structure yourself.
+
 ---
 
-## HTML Structural Classes
+## Autoplay With Progress
 
-Assemble slide decks using these basic classes:
+`data-carousel-autoplay="true"` advances every `data-carousel-interval` ms (5000 by default). Playback pauses while the pointer is over the carousel, while it has keyboard focus, during a drag and when the tab is hidden. `.carousel-progress` shows the time left; `.carousel-counter` with `data-carousel-current` / `data-carousel-total` shows the position.
 
 ::html
-<div class="table-responsive">
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th style="width: 25%;">Class Identifier</th>
-        <th style="width: 25%;">HTML Element Tag</th>
-        <th style="width: 50%;">Usage & Description</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><code>carousel</code></td>
-        <td><code>&lt;div&gt;</code></td>
-        <td>The main slider container layout. Place coordinate anchors or relative borders here.</td>
-      </tr>
-      <tr>
-        <td><code>carousel-item</code></td>
-        <td><code>&lt;div&gt;</code></td>
-        <td>A single slide panel. Must declare <code>data-carousel-item</code>. Apply <code>hidden</code> to hide inactive slides.</td>
-      </tr>
-      <tr>
-        <td><code>carousel-indicators</code></td>
-        <td><code>&lt;div&gt;</code></td>
-        <td>Wrapper for the slide indicator dots, placed inside <code>.carousel</code>.</td>
-      </tr>
-      <tr>
-        <td><code>carousel-indicator</code></td>
-        <td><code>&lt;button&gt;</code></td>
-        <td>One dot per slide with <code>data-carousel-to="index"</code> (zero-based). Clicking jumps to that slide; the active dot gets <code>.active</code> and <code>aria-current="true"</code>.</td>
-      </tr>
-      <tr>
-        <td><code>carousel-control</code></td>
-        <td><code>&lt;button&gt;</code></td>
-        <td>Interactive trigger button containing layout alignments. Apply <code>data-carousel="prev"</code> or <code>data-carousel="next"</code>.</td>
-      </tr>
-    </tbody>
-  </table>
+<div class="docs-preview">
+  <div class="carousel rounded-[16px]" data-carousel-autoplay="true" data-carousel-interval="4000">
+    <div class="carousel-item" data-carousel-item>
+      <div class="vstack gap-2 justify-center p-5 min-h-[240px] [background:linear-gradient(135deg,#1c1a18,#3d3a37)] text-[#f7f6f4]">
+        <span class="badge badge-soft-light [align-self:flex-start]">New</span>
+        <h3 class="m-0">Aksara 1.5 is here</h3>
+        <p class="m-0 opacity-[.75]">A calmer palette, Tom Select forms and a swipeable carousel.</p>
+      </div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="vstack gap-2 justify-center p-5 min-h-[240px] [background:linear-gradient(135deg,#14532d,#1b8056)] text-[#f7f6f4]">
+        <span class="badge badge-soft-light [align-self:flex-start]">Forms</span>
+        <h3 class="m-0">Validation without code</h3>
+        <p class="m-0 opacity-[.75]">Add data-validate to a form and you are done.</p>
+      </div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="vstack gap-2 justify-center p-5 min-h-[240px] [background:linear-gradient(135deg,#1f3a5f,#1f71aa)] text-[#f7f6f4]">
+        <span class="badge badge-soft-light [align-self:flex-start]">Docs</span>
+        <h3 class="m-0">Every component, every state</h3>
+        <p class="m-0 opacity-[.75]">Copy-ready samples for light and dark.</p>
+      </div>
+    </div>
+    <span class="carousel-counter"><span data-carousel-current></span> / <span data-carousel-total></span></span>
+    <button class="carousel-control carousel-prev" data-carousel="prev" aria-label="Previous slide"><span class="mdi mdi-chevron-left"></span></button>
+    <button class="carousel-control carousel-next" data-carousel="next" aria-label="Next slide"><span class="mdi mdi-chevron-right"></span></button>
+    <div class="carousel-progress"><div class="carousel-progress-bar"></div></div>
+  </div>
 </div>
 ::end
-
----
-
-## Declarative HTML Data API
-
-Compose and hook controls markup-only:
-
-- **`data-carousel-item`**: Place this attribute on all slide elements.
-- **`data-carousel="prev"`**: Place this attribute on the trigger button designed to slide backward.
-- **`data-carousel="next"`**: Place this attribute on the trigger button designed to slide forward.
-- **`data-carousel-to="index"`**: Place this attribute on indicator buttons (`.carousel-indicator`) to jump to a slide.
 
 ```html
-<div class="carousel-indicators">
-  <button type="button" class="carousel-indicator active" data-carousel-to="0" aria-label="Slide 1"></button>
-  <button type="button" class="carousel-indicator" data-carousel-to="1" aria-label="Slide 2"></button>
+<div class="carousel" data-carousel-autoplay="true" data-carousel-interval="4000">
+  ...slides...
+  <span class="carousel-counter"><span data-carousel-current></span> / <span data-carousel-total></span></span>
+  <div class="carousel-progress"><div class="carousel-progress-bar"></div></div>
 </div>
 ```
 
----
+```js components
+import { Carousel } from "@abydahana/aksara-ui/components";
 
-## Programmatic JavaScript API
+const slides = [{ content: "..." }, { content: "..." }, { content: "..." }];
 
-Control slideshows programmatically inside your scripts.
-
-### Creating an Instance
-
-```js
-// Initialize programmatic sliders
-const slider = Aksara.carousel("#myCarousel", {
-  activeIndex: 0,
-  autoplay: false,
-  interval: 5000,
-  pauseOnHover: true,
-  keyboard: true,
-  loop: true
+Carousel({
+  slides,
+  counter: true,
+  progress: true,
+  attributes: { "data-carousel-autoplay": "true", "data-carousel-interval": "4000" }
 });
 ```
 
-### Methods
+---
 
-- **`slider.show(index)`**: Displays the slide matching that index. Safely wraps index values out-of-bounds (e.g. going beyond the maximum item length resets to `0`). Returns instance.
-- **`slider.next()`**: Shifts forward to the next slide. Returns instance.
-- **`slider.prev()`**: Shifts backward to the previous slide. Returns instance.
-- **`slider.play()`**: Starts automatic cycling when `autoplay` is enabled. Returns instance.
-- **`slider.pause()`**: Stops automatic cycling. Returns instance.
-- **`slider.destroy()`**: Unbinds target click navigation events and deletes memory references.
+## Fade
+
+`.carousel-fade` (or `data-carousel-effect="fade"`) cross-fades instead of sliding. Swipe still works.
+
+::html
+<div class="docs-preview">
+  <div class="carousel carousel-fade rounded-[16px]" data-carousel-autoplay="true">
+    <div class="carousel-item" data-carousel-item><div class="carousel-img aspect-[12/5] [background:linear-gradient(170deg,#f3d9b1_0%,#d79a5b_55%,#7a4a2a_100%)]" role="img" aria-label="Desert dunes"></div></div>
+    <div class="carousel-item" data-carousel-item><div class="carousel-img aspect-[12/5] [background:linear-gradient(170deg,#3b3f58_0%,#1f2235_60%,#0f1020_100%)]" role="img" aria-label="City at night"></div></div>
+    <div class="carousel-item" data-carousel-item><div class="carousel-img aspect-[12/5] [background:linear-gradient(170deg,#f2f4f7_0%,#b9c4d0_55%,#5c6b7a_100%)]" role="img" aria-label="Snowy peaks"></div></div>
+    <div class="carousel-indicators"></div>
+  </div>
+</div>
+::end
+
+```html
+<div class="carousel carousel-fade" data-carousel-autoplay="true">...</div>
+```
+
+```js components
+import { Carousel } from "@abydahana/aksara-ui/components";
+
+const slides = [{ content: "..." }, { content: "..." }, { content: "..." }];
+
+Carousel({ slides, fade: true, attributes: { "data-carousel-autoplay": "true" } });
+```
 
 ---
 
-## Custom Lifecycle Events
+## Multiple Slides Per View
 
-Carousels emit custom events when slides shift:
+`data-carousel-per-view` shows several slides at once, `data-carousel-gap` spaces them, and breakpoint variants (`data-carousel-per-view-md`, `-lg`, ...) make it responsive. `data-carousel-step` moves more than one slide per click. Indicators below the slides use `carousel-indicators-static`.
+
+::html
+<div class="docs-preview">
+  <div class="carousel" data-carousel-per-view="1" data-carousel-per-view-sm="2" data-carousel-per-view-lg="3" data-carousel-gap="16" data-carousel-loop="false">
+    <div class="carousel-item" data-carousel-item>
+      <div class="card h-100"><div class="carousel-img aspect-[3/2] [background:linear-gradient(135deg,#ece6dc,#cbbfae)]" role="img" aria-label=""></div><div class="card-body"><h5 class="card-title">Linen shirt</h5><p class="card-text">$28.90</p></div></div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="card h-100"><div class="carousel-img aspect-[3/2] [background:linear-gradient(135deg,#e2e6da,#a9b39a)]" role="img" aria-label=""></div><div class="card-body"><h5 class="card-title">Canvas tote</h5><p class="card-text">$14.90</p></div></div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="card h-100"><div class="carousel-img aspect-[3/2] [background:linear-gradient(135deg,#e6d9cf,#9c7a63)]" role="img" aria-label=""></div><div class="card-body"><h5 class="card-title">Leather wallet</h5><p class="card-text">$34.90</p></div></div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="card h-100"><div class="carousel-img aspect-[3/2] [background:linear-gradient(135deg,#dfe3ea,#8d97a8)]" role="img" aria-label=""></div><div class="card-body"><h5 class="card-title">Wool beanie</h5><p class="card-text">$11.90</p></div></div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="card h-100"><div class="carousel-img aspect-[3/2] [background:linear-gradient(135deg,#efe9e1,#c2b5a3)]" role="img" aria-label=""></div><div class="card-body"><h5 class="card-title">Ceramic mug</h5><p class="card-text">$8.90</p></div></div>
+    </div>
+    <button class="carousel-control carousel-prev" data-carousel="prev" aria-label="Previous"><span class="mdi mdi-chevron-left"></span></button>
+    <button class="carousel-control carousel-next" data-carousel="next" aria-label="Next"><span class="mdi mdi-chevron-right"></span></button>
+    <div class="carousel-indicators carousel-indicators-static"></div>
+  </div>
+</div>
+::end
+
+```html
+<div
+  class="carousel"
+  data-carousel-per-view="1"
+  data-carousel-per-view-sm="2"
+  data-carousel-per-view-lg="3"
+  data-carousel-gap="16"
+  data-carousel-loop="false"
+>
+  <div class="carousel-item" data-carousel-item><div class="card">...</div></div>
+  ...
+  <div class="carousel-indicators carousel-indicators-static"></div>
+</div>
+```
+
+```js components
+import { Card, Carousel } from "@abydahana/aksara-ui/components";
+
+Carousel({
+  slides: [{ content: Card({ children: "..." }) }, { content: "..." }],
+  controls: false,
+  staticIndicators: true, // empty row; the runtime adds one dot per page
+  attributes: {
+    "data-carousel-per-view": "1",
+    "data-carousel-per-view-sm": "2",
+    "data-carousel-per-view-lg": "3",
+    "data-carousel-gap": "16",
+    "data-carousel-loop": "false"
+  }
+});
+```
+
+With `data-carousel-loop="false"` the arrows hide at the ends and dragging past the edge rubber-bands.
+
+---
+
+## Thumbnails
+
+Any `[data-carousel-to]` element jumps to a slide. Thumbnails outside the carousel go in a container with `data-carousel-for="#id"`: clicks reach the right carousel and the active thumbnail stays highlighted and scrolled into view.
+
+::html
+<div class="docs-preview">
+  <div id="thumbCarousel" class="carousel rounded-[14px]">
+    <div class="carousel-item" data-carousel-item><div class="carousel-img aspect-[12/7] [background:linear-gradient(150deg,#d6e2e9,#5d7f95)]" role="img" aria-label="Photo 1"></div></div>
+    <div class="carousel-item" data-carousel-item><div class="carousel-img aspect-[12/7] [background:linear-gradient(150deg,#e9dfcf,#a8835c)]" role="img" aria-label="Photo 2"></div></div>
+    <div class="carousel-item" data-carousel-item><div class="carousel-img aspect-[12/7] [background:linear-gradient(150deg,#dde7d8,#6d8a5e)]" role="img" aria-label="Photo 3"></div></div>
+    <div class="carousel-item" data-carousel-item><div class="carousel-img aspect-[12/7] [background:linear-gradient(150deg,#e4dbe6,#8a6f93)]" role="img" aria-label="Photo 4"></div></div>
+    <span class="carousel-counter"><span data-carousel-current></span> / <span data-carousel-total></span></span>
+  </div>
+  <div class="carousel-thumbs" data-carousel-for="#thumbCarousel">
+    <button class="carousel-thumb" data-carousel-to="0" aria-label="Photo 1"><span class="[display:block] w-[100%] h-[100%] [background:linear-gradient(150deg,#d6e2e9,#5d7f95)]"></span></button>
+    <button class="carousel-thumb" data-carousel-to="1" aria-label="Photo 2"><span class="[display:block] w-[100%] h-[100%] [background:linear-gradient(150deg,#e9dfcf,#a8835c)]"></span></button>
+    <button class="carousel-thumb" data-carousel-to="2" aria-label="Photo 3"><span class="[display:block] w-[100%] h-[100%] [background:linear-gradient(150deg,#dde7d8,#6d8a5e)]"></span></button>
+    <button class="carousel-thumb" data-carousel-to="3" aria-label="Photo 4"><span class="[display:block] w-[100%] h-[100%] [background:linear-gradient(150deg,#e4dbe6,#8a6f93)]"></span></button>
+  </div>
+</div>
+::end
+
+```html
+<div id="gallery" class="carousel">...slides...</div>
+
+<div class="carousel-thumbs" data-carousel-for="#gallery">
+  <button class="carousel-thumb" data-carousel-to="0">
+    <img src="thumb-1.jpg" alt="" />
+  </button>
+  ...
+</div>
+```
+
+```js components
+import { Carousel } from "@abydahana/aksara-ui/components";
+
+const slides = [{ content: "..." }, { content: "..." }, { content: "..." }];
+
+Carousel({ id: "gallery", slides, controls: false, indicators: false }) +
+  `<div class="carousel-thumbs" data-carousel-for="#gallery">
+    <button class="carousel-thumb" data-carousel-to="0">
+      <img src="thumb-1.jpg" alt="" />
+    </button>
+    ...
+  </div>`;
+```
+
+---
+
+## Auto Height
+
+`.carousel-auto-height` (or `data-carousel-auto-height="true"`) animates the viewport to the height of the active slide, for testimonials or text of different lengths.
+
+::html
+<div class="docs-preview">
+  <div class="carousel carousel-auto-height card">
+    <div class="carousel-item" data-carousel-item>
+      <div class="card-body">
+        <p class="m-0 text-[1.125rem]">“Aksara let us ship a consistent admin UI with no build step.”</p>
+        <p class="text-subtle text-sm mb-0 mt-3">— Maya Chen, CTO</p>
+      </div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="card-body">
+        <p class="m-0 text-[1.125rem]">“The forms are the best part: Tom Select styled out of the box, validation by attribute, and dark mode that actually looks good. We deleted a few thousand lines of custom CSS after the switch.”</p>
+        <p class="text-subtle text-sm mb-0 mt-3">— Alex Morgan, Frontend lead</p>
+      </div>
+    </div>
+    <div class="carousel-item" data-carousel-item>
+      <div class="card-body">
+        <p class="m-0 text-[1.125rem]">“Simple.”</p>
+        <p class="text-subtle text-sm mb-0 mt-3">— Sofia Patel</p>
+      </div>
+    </div>
+    <div class="hstack justify-between p-[0_1.25rem_1.25rem]">
+      <div class="carousel-indicators carousel-indicators-static m-[0!important]"></div>
+      <div class="hstack gap-2">
+        <button class="btn btn-plain btn-sm btn-icon" data-carousel="prev" aria-label="Previous"><span class="mdi mdi-chevron-left"></span></button>
+        <button class="btn btn-plain btn-sm btn-icon" data-carousel="next" aria-label="Next"><span class="mdi mdi-chevron-right"></span></button>
+      </div>
+    </div>
+  </div>
+</div>
+::end
+
+```html
+<div class="carousel carousel-auto-height card">
+  <div class="carousel-item" data-carousel-item>...</div>
+  ...
+  <button class="btn btn-plain btn-sm btn-icon" data-carousel="prev">...</button>
+  <button class="btn btn-plain btn-sm btn-icon" data-carousel="next">...</button>
+</div>
+```
+
+```js components
+import { Button, Carousel } from "@abydahana/aksara-ui/components";
+
+const control = (direction, icon) =>
+  Button({
+    plain: true,
+    size: "sm",
+    className: "btn-icon",
+    attributes: { "data-carousel": direction },
+    children: `<span class="mdi ${icon}"></span>`
+  });
+
+Carousel({
+  className: "carousel-auto-height card",
+  slides: [{ content: "..." }, { content: "..." }],
+  indicators: false,
+  controlsHtml: control("prev", "mdi-chevron-left") + control("next", "mdi-chevron-right")
+});
+```
+
+Any element with `data-carousel="prev|next|play|pause|toggle"` or `data-carousel="2"` controls the carousel it sits in.
+
+---
+
+## Options
+
+Set options with `data-carousel-*` attributes or pass them to `Aksara.carousel()`.
 
 ::html
 <div class="table-responsive">
-  <table class="table table-bordered table-striped">
-    <thead>
-      <tr>
-        <th style="width: 35%;">Custom Event String</th>
-        <th style="width: 65%;">Trigger Condition</th>
-      </tr>
-    </thead>
+  <table class="table">
+    <thead><tr><th>Option</th><th>Attribute</th><th>Default</th><th>Description</th></tr></thead>
     <tbody>
-      <tr>
-        <td><code>aksara:carousel:show</code></td>
-        <td>Dispatched when a new slide is shown. Detail contains: <code>{ index, instance }</code>.</td>
-      </tr>
+      <tr><td><code>autoplay</code></td><td><code>data-carousel-autoplay</code></td><td><code>false</code></td><td>Advance automatically.</td></tr>
+      <tr><td><code>interval</code></td><td><code>data-carousel-interval</code></td><td><code>5000</code></td><td>Milliseconds per slide.</td></tr>
+      <tr><td><code>pauseOnHover</code></td><td><code>data-carousel-pause-on-hover</code></td><td><code>true</code></td><td>Pause while hovered.</td></tr>
+      <tr><td><code>loop</code></td><td><code>data-carousel-loop</code></td><td><code>true</code></td><td>Wrap around at the ends.</td></tr>
+      <tr><td><code>swipe</code></td><td><code>data-carousel-swipe</code></td><td><code>true</code></td><td>Touch and pen swipe.</td></tr>
+      <tr><td><code>drag</code></td><td><code>data-carousel-drag</code></td><td><code>true</code></td><td>Mouse drag (needs <code>swipe</code>).</td></tr>
+      <tr><td><code>keyboard</code></td><td><code>data-carousel-keyboard</code></td><td><code>true</code></td><td>←/→, Home, End when focused (mirrored in RTL).</td></tr>
+      <tr><td><code>effect</code></td><td><code>data-carousel-effect</code></td><td><code>"slide"</code></td><td><code>"slide"</code> or <code>"fade"</code>.</td></tr>
+      <tr><td><code>perView</code></td><td><code>data-carousel-per-view(-bp)</code></td><td><code>1</code></td><td>Slides visible at once, per breakpoint.</td></tr>
+      <tr><td><code>gap</code></td><td><code>data-carousel-gap</code></td><td><code>0</code></td><td>Space between slides (number = px, or any CSS length).</td></tr>
+      <tr><td><code>step</code></td><td><code>data-carousel-step</code></td><td><code>1</code></td><td>Slides moved per next/prev.</td></tr>
+      <tr><td><code>speed</code></td><td><code>data-carousel-speed</code></td><td><code>500</code> / <code>600</code></td><td>Transition length in ms (slide / fade).</td></tr>
+      <tr><td><code>autoHeight</code></td><td><code>data-carousel-auto-height</code></td><td><code>false</code></td><td>Fit the viewport to the active slide.</td></tr>
+      <tr><td><code>activeIndex</code></td><td><code>data-carousel-active-index</code></td><td>first <code>.active</code> or 0</td><td>Starting slide.</td></tr>
     </tbody>
   </table>
 </div>
 ::end
 
-### Listening Example
+---
+
+## JavaScript API
 
 ```js
-const sliderEl = document.querySelector("#myCarousel");
+const carousel = Aksara.carousel("#hero", {
+  autoplay: false,
+  pauseOnHover: true,
+  activeIndex: 0,
+  interval: 6000,
+  perView: 2,
+  gap: "1rem"
+});
 
-sliderEl.addEventListener("aksara:carousel:show", (event) => {
-  console.log("Slide shifted!", event.detail.index);
+carousel.next();
+carousel.prev();
+carousel.show(2); // go to slide index 2
+carousel.play(); // start autoplay
+carousel.pause(); // stop autoplay
+carousel.update(); // re-read slides after adding or removing items
+carousel.destroy();
+
+document.querySelector("#hero").addEventListener("aksara:carousel:show", (event) => {
+  console.log(`Slide ${event.detail.from} → ${event.detail.index}`);
 });
 ```
+
+::html
+<div class="table-responsive">
+  <table class="table">
+    <thead><tr><th>Event</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td><code>aksara:carousel:show</code></td><td><code>{ index, from, instance }</code></td></tr>
+      <tr><td><code>aksara:carousel:play</code> / <code>aksara:carousel:pause</code></td><td><code>{ instance }</code></td></tr>
+      <tr><td><code>aksara:carousel:destroy</code></td><td><code>{ instance }</code></td></tr>
+    </tbody>
+  </table>
+</div>
+::end
+
+---
+
+## Accessibility
+
+- The carousel gets `role="region"` and `aria-roledescription="carousel"`; each slide is a `group` labelled "n / total" (override with your own `aria-label`).
+- Slides outside the view are `inert` and `aria-hidden`, so keyboard focus never lands on hidden content.
+- Autoplay stops while the carousel has focus, and motion is reduced when the user prefers reduced motion.
+- Give arrows and thumbnails an `aria-label`.
+
+---
+
+## Class Reference
+
+::html
+<div class="table-responsive">
+  <table class="table">
+    <thead><tr><th>Class</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>carousel</code>, <code>carousel-item</code></td><td>Root and slide.</td></tr>
+      <tr><td><code>carousel-viewport</code>, <code>carousel-track</code></td><td>Clipping area and moving strip (created automatically).</td></tr>
+      <tr><td><code>carousel-fade</code>, <code>carousel-auto-height</code></td><td>Cross-fade mode, height follows the slide.</td></tr>
+      <tr><td><code>carousel-img</code></td><td>Full-bleed cover image.</td></tr>
+      <tr><td><code>carousel-caption</code></td><td>Blurred caption over the image.</td></tr>
+      <tr><td><code>carousel-control</code>, <code>carousel-prev</code>, <code>carousel-next</code></td><td>Round arrow buttons.</td></tr>
+      <tr><td><code>carousel-indicators</code>, <code>carousel-indicator</code>, <code>carousel-indicators-static</code></td><td>Dots (overlay or below).</td></tr>
+      <tr><td><code>carousel-counter</code></td><td>"2 / 5" badge.</td></tr>
+      <tr><td><code>carousel-progress</code>, <code>carousel-progress-bar</code></td><td>Autoplay timer.</td></tr>
+      <tr><td><code>carousel-thumbs</code>, <code>carousel-thumb</code></td><td>Thumbnail strip.</td></tr>
+    </tbody>
+  </table>
+</div>
+::end

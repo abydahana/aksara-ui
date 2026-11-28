@@ -5,3 +5,4 @@ export * from "./tabs";
 export * from "./scrollspy";
 export * from "./sidebar";
 export * from "./user-pill";
+export * from "./steps";

@@ -3,25 +3,42 @@ import { classNames, escapeHtml, toAttributes } from "../utils";
 export interface FormLabelProps {
   label: string;
   htmlFor?: string;
+  /** Adds the `.required` class (red asterisk drawn by CSS). */
   required?: boolean;
+  /** Muted note after the label, e.g. "(optional)". */
+  hint?: string;
   className?: string;
   attributes?: Record<string, unknown>;
 }
 
 export function FormLabel(props: FormLabelProps): string {
-  const { label, htmlFor, required = false, className = "", attributes } = props;
+  const { label, htmlFor, required = false, hint, className = "", attributes } = props;
 
   const baseAttrs = toAttributes({
     for: htmlFor,
     ...attributes
   });
 
-  const reqIndicator = required ? '<span class="text-danger ms-1" aria-hidden="true">*</span>' : "";
+  const hintHtml = hint ? ` <span class="form-label-hint">${escapeHtml(hint)}</span>` : "";
 
-  return `<label class="${classNames("form-label", className)}"${baseAttrs}>${escapeHtml(label)}${reqIndicator}</label>`.trim();
+  return `<label class="${classNames("form-label", required && "required", className)}"${baseAttrs}>${escapeHtml(label)}${hintHtml}</label>`.trim();
 }
 
 export const formLabel = FormLabel;
+
+export interface FormErrorProps {
+  message: string;
+  id?: string;
+  className?: string;
+}
+
+/** Error message under a field (`.form-error`); link it with `aria-describedby`. */
+export function FormError(props: FormErrorProps): string {
+  const { message, id, className = "" } = props;
+  return `<span class="${classNames("form-error", className)}"${toAttributes({ id })}>${escapeHtml(message)}</span>`;
+}
+
+export const formError = FormError;
 
 export interface FormTextProps {
   text: string;

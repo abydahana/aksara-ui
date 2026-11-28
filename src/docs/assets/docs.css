@@ -56,9 +56,9 @@ body {
   justify-content: center;
   width: 30px;
   height: 30px;
-  border-radius: 8px;
-  background: var(--aksara-text-body, #0f172a);
-  color: var(--aksara-surface, #ffffff) !important;
+  border-radius: 9px;
+  background: rgb(var(--aksara-primary));
+  color: var(--aksara-primary-foreground, #ffffff) !important;
   font-size: 15px;
   font-weight: 800;
   line-height: 1;
@@ -95,8 +95,8 @@ body {
 
 .docs-search:focus-within {
   width: 380px;
-  border-color: var(--aksara-text-body, #0f172a);
-  box-shadow: 0 0 0 1px var(--aksara-text-body, #0f172a);
+  border-color: rgb(var(--aksara-primary) / 0.7);
+  box-shadow: var(--aksara-ring);
 }
 
 .docs-search-icon {
@@ -167,8 +167,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: var(--aksara-text-body, #0f172a);
-  color: var(--aksara-surface, #ffffff) !important;
+  background: rgb(var(--aksara-primary));
+  color: var(--aksara-primary-foreground, #ffffff) !important;
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -217,14 +217,14 @@ body {
   display: none;
   align-items: center;
   justify-content: center;
+  width: 36px;
   height: 36px;
   border: 1px solid var(--aksara-border, #e2e8f0);
   border-radius: 8px;
   background: var(--aksara-surface, #ffffff);
   color: var(--aksara-text-body, #0f172a);
-  padding: 0 12px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 0;
+  font-size: 20px;
   cursor: pointer;
 }
 
@@ -278,7 +278,8 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--aksara-text-body, #0f172a);
+  border-radius: 2px 2px 0 0;
+  background: rgb(var(--aksara-primary));
 }
 
 /* ==========================================================================
@@ -287,7 +288,7 @@ body {
 
 .docs-shell {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr) 230px;
+  grid-template-columns: 260px minmax(0, 1fr) 220px;
   min-height: 100vh;
   padding-block-start: 108px;
 }
@@ -302,7 +303,7 @@ body {
   overflow-y: auto;
   overscroll-behavior: contain;
   border-inline-end: 1px solid var(--aksara-border, #e2e8f0);
-  background: var(--aksara-surface, #ffffff);
+  background: var(--aksara-bg-body, #ffffff);
   padding: 20px 16px 40px;
   z-index: 80;
   box-sizing: border-box;
@@ -393,8 +394,8 @@ body {
 
 /* Active navigation pill */
 .docs-nav a[aria-current="page"] {
-  color: var(--aksara-text-body, #0f172a);
-  background: var(--aksara-bg-subtle, #f1f5f9);
+  color: color-mix(in srgb, rgb(var(--aksara-primary)) 78%, var(--aksara-text-body));
+  background: rgb(var(--aksara-primary) / 0.1);
   font-weight: 600;
 }
 
@@ -405,11 +406,14 @@ body {
 .docs-main {
   grid-column: 2;
   width: 100%;
-  max-width: 860px;
+  /* Fill the column next to the sidebar; cap only on very wide screens. */
+  max-width: 1120px;
   min-width: 0;
-  padding: 36px 48px 96px;
+  padding: 32px 32px 96px 40px;
   outline: 0;
-  margin-inline: auto;
+  /* Previews with overflow: visible (dropdown demos) must not widen the page on phones. */
+  overflow-x: clip;
+  margin-inline: 0;
   box-sizing: border-box;
 }
 
@@ -421,7 +425,7 @@ body {
   margin-block-end: 28px;
 }
 
-.docs-main h1 {
+.docs-main > h1 {
   font-family: var(--docs-font-display);
   font-size: 38px;
   font-weight: 850;
@@ -430,18 +434,18 @@ body {
   color: var(--aksara-text-body, #0f172a);
 }
 
-.docs-main h2 {
+.docs-main > h2 {
   font-family: var(--docs-font-display);
   font-size: 26px;
   font-weight: 800;
   line-height: 1.25;
   margin: 44px 0 16px;
   color: var(--aksara-text-body, #0f172a);
-  border-block-end: 1px solid var(--aksara-border, #e2e8f0);
+  border-block-end: 1px solid var(--aksara-border-subtle, #e2e8f0);
   padding-block-end: 10px;
 }
 
-.docs-main h3 {
+.docs-main > h3 {
   font-family: var(--docs-font-display);
   font-size: 19px;
   font-weight: 750;
@@ -450,14 +454,14 @@ body {
   color: var(--aksara-text-body, #0f172a);
 }
 
-.docs-main p {
+.docs-main > p {
   color: var(--aksara-text-subtle, #64748b);
   font-size: 15px;
   line-height: 1.65;
   max-width: 800px;
 }
 
-.docs-main hr {
+.docs-main > hr {
   border: 0;
   height: 1px;
   background: var(--aksara-border, #e2e8f0);
@@ -474,16 +478,42 @@ body {
   border: 1px solid var(--aksara-border, #e2e8f0);
 }
 
-.docs-main ul,
-.docs-main ol {
+.docs-main > ul,
+.docs-main > ol {
   color: var(--aksara-text-subtle, #64748b);
   font-size: 15px;
   line-height: 1.65;
   padding-inline-start: 24px;
 }
 
-.docs-main li {
+.docs-main > ul > li,
+.docs-main > ol > li {
   margin-block-end: 8px;
+}
+
+.docs-main > p > a:not([class]),
+.docs-main > ul > li > a:not([class]),
+.docs-main td > a:not([class]) {
+  color: var(--aksara-text-body);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: var(--aksara-border-strong);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.15s ease;
+}
+
+.docs-main > p > a:not([class]):hover,
+.docs-main > ul > li > a:not([class]):hover,
+.docs-main td > a:not([class]):hover {
+  text-decoration-color: currentColor;
+}
+
+.docs-main .list-unstyled {
+  padding-inline-start: 0;
+}
+
+.docs-main .list-unstyled li {
+  margin-block-end: 0;
 }
 
 .docs-main .list-group {
@@ -512,25 +542,24 @@ body {
 
 /* Interactive Showroom Cards */
 .docs-preview {
-  display: grid;
-  gap: 16px;
   min-width: 0;
   max-width: 100%;
   overflow-x: auto;
-  border: 1px solid var(--aksara-border, #e2e8f0);
-  border-radius: 12px;
+  border: 1px solid var(--aksara-border-subtle, #e2e8f0);
+  border-radius: 16px;
   background: var(--aksara-surface, #ffffff);
   padding: 24px;
   margin-block: 20px 24px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+/* Default layout at zero specificity, so flex / gap-* / grid utilities on a preview win. */
+:where(.docs-preview) {
+  display: grid;
+  gap: 16px;
 }
 
 .docs-preview > * {
   min-width: 0;
-}
-
-.docs-preview .row {
-  margin-inline: 0;
 }
 
 .docs-preview .row > * {
@@ -541,8 +570,12 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
   min-width: 0;
+}
+
+/* Default spacing at zero specificity, so gap-* utilities on a docs-row win. */
+:where(.docs-row) {
+  gap: 12px;
 }
 
 /* Code Panels */
@@ -551,13 +584,56 @@ body {
   width: 100%;
   max-width: 100%;
   overflow-x: auto;
-  border: 1px solid var(--aksara-border, #e2e8f0);
-  border-radius: 10px;
-  background: var(--aksara-bg-subtle, #f1f5f9);
+  border: 1px solid var(--aksara-border-subtle, #e2e8f0);
+  border-radius: 12px;
+  background: var(--aksara-bg-body-secondary, #f1f5f9);
   padding: 16px 20px;
   color: var(--aksara-text-body, #0f172a);
   font: 13.5px/1.65 var(--docs-font-mono);
   white-space: pre;
+}
+
+/* Tabbed code: HTML | Components */
+.docs-code-tabs {
+  margin-block: 0 24px;
+  border: 1px solid var(--aksara-border-subtle, #e2e8f0);
+  border-radius: 12px;
+  background: var(--aksara-bg-body-secondary, #f1f5f9);
+  overflow: hidden;
+}
+
+.docs-code-tablist {
+  display: flex;
+  gap: 4px;
+  padding: 6px 10px 0;
+  border-block-end: 1px solid var(--aksara-border-subtle, #e2e8f0);
+}
+
+.docs-code-tab {
+  position: relative;
+  padding: 8px 10px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--aksara-text-subtle, #64748b);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.docs-code-tab:hover {
+  color: var(--aksara-text-body, #0f172a);
+}
+
+.docs-code-tab[aria-selected="true"] {
+  color: var(--aksara-text-body, #0f172a);
+  box-shadow: inset 0 -2px 0 var(--aksara-text-body, #0f172a);
+}
+
+.docs-code-tabs > .docs-code {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
 }
 
 .docs-table {
@@ -573,7 +649,7 @@ body {
   top: 108px;
   height: calc(100vh - 108px);
   overflow-y: auto;
-  padding: 36px 20px 40px;
+  padding: 32px 16px 40px 8px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -621,8 +697,8 @@ body {
 }
 
 .docs-toc-link.active {
-  color: var(--aksara-text-body, #0f172a);
-  font-weight: 700;
+  color: color-mix(in srgb, rgb(var(--aksara-primary)) 78%, var(--aksara-text-body));
+  font-weight: 600;
 }
 
 .docs-toc-link.docs-toc-sublink {
@@ -707,6 +783,36 @@ body {
   color: var(--aksara-text-subtle, #64748b);
 }
 
+.docs-search-item-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docs-search-item-sep {
+  margin-inline: 6px;
+  color: var(--aksara-text-subtle, #64748b);
+  font-weight: 400;
+}
+
+.docs-search-item-snippet {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--aksara-text-subtle, #64748b);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.docs-search-item-snippet mark {
+  background: rgb(var(--aksara-warning) / 0.28);
+  color: var(--aksara-text-body, #0f172a);
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
 .docs-search-empty {
   padding: 20px;
   text-align: center;
@@ -737,6 +843,10 @@ body {
     padding: 0 16px;
   }
 
+  .docs-topbar-actions {
+    gap: 8px;
+  }
+
   .docs-search-wrapper {
     display: none;
   }
@@ -753,47 +863,15 @@ body {
     display: inline-flex;
   }
 
-  .docs-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 300;
-    display: block;
-    background: rgb(15 23 42 / 0.42);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease-in-out;
-  }
-
-  body.docs-menu-open .docs-backdrop {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
+  /* minmax(0, …) stops wide previews and code from stretching the page past the screen. */
   .docs-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     padding-block-start: 108px;
   }
 
+  /* On phones the sidebar becomes the Aksara bottom sheet built in docs.ts. */
   .docs-sidebar {
-    position: fixed;
-    inset-inline: 0;
-    inset-block: auto 0;
-    z-index: 310;
-    width: 100%;
-    max-height: min(78vh, 620px);
-    height: auto;
-    border-start-start-radius: 20px;
-    border-start-end-radius: 20px;
-    border-inline-end: 0;
-    border-block-start: 1px solid var(--aksara-border, #e2e8f0);
-    transform: translateY(100%);
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
-    padding: 20px 20px 36px;
-  }
-
-  body.docs-menu-open .docs-sidebar {
-    transform: translateY(0);
+    display: none;
   }
 
   .docs-main {
@@ -804,11 +882,11 @@ body {
     padding: 24px 20px 72px;
   }
 
-  .docs-main h1 {
+  .docs-main > h1 {
     font-size: 30px;
   }
 
-  .docs-main h2 {
+  .docs-main > h2 {
     font-size: 22px;
   }
 

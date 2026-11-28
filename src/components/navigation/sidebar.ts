@@ -23,10 +23,17 @@ export interface SidebarNavItemProps {
   attributes?: Record<string, unknown>;
 }
 
+/** A section heading placed between items: `{ header: "Account" }`. */
+export interface SidebarNavHeaderItem {
+  header: string;
+  className?: string;
+}
+
 // ── SidebarNavProps ───────────────────────────────────────────────────────────
 
 export interface SidebarNavProps {
-  items: SidebarNavItemProps[];
+  /** Nav items; `{ header: "..." }` entries render a `.sidebar-nav-header` at that position. */
+  items: Array<SidebarNavItemProps | SidebarNavHeaderItem>;
   /** Brand section title at the top */
   title?: string;
   /** Brand section subtitle */
@@ -66,7 +73,9 @@ export interface SidebarNavProps {
 export function SidebarNav(props: SidebarNavProps): string {
   const { items = [], title = "", subtitle = "", brandIcon = "", ariaLabel, className = "", attributes } = props;
 
-  const hasTabs = items.some((item) => Boolean(item.panelTarget) && !item.href);
+  const isHeader = (item: SidebarNavItemProps | SidebarNavHeaderItem): item is SidebarNavHeaderItem =>
+    typeof (item as SidebarNavHeaderItem).header === "string";
+  const hasTabs = items.some((item) => !isHeader(item) && Boolean(item.panelTarget) && !item.href);
 
   // Tab mode: the nav is the tablist. `data-tabs-root` marks it for the Tabs runtime
   // (which auto-initializes `.tabs` only); `data-tabs-orientation` drives arrow keys.
@@ -87,6 +96,7 @@ export function SidebarNav(props: SidebarNavProps): string {
   // Items
   const itemsHtml = items
     .map((item) => {
+      if (isHeader(item)) return SidebarNavHeader({ label: item.header, className: item.className });
       const isLink = Boolean(item.href);
       const isTab = Boolean(item.panelTarget) && !isLink;
       const Tag = isLink ? "a" : "button";
@@ -153,6 +163,10 @@ export interface SidebarLayoutProps {
   sidebar: string;
   content: string;
   className?: string;
+  /** Extra classes for `.sidebar-pane`. */
+  paneClassName?: string;
+  /** Extra classes for `.sidebar-content` (e.g. `p-5`). */
+  contentClassName?: string;
   attributes?: Record<string, unknown>;
 }
 
@@ -166,9 +180,9 @@ export interface SidebarLayoutProps {
  * })
  */
 export function SidebarLayout(props: SidebarLayoutProps): string {
-  const { sidebar, content, className = "", attributes } = props;
+  const { sidebar, content, className = "", paneClassName = "", contentClassName = "", attributes } = props;
   const baseAttrs = toAttributes(attributes);
-  return `<div class="${classNames("sidebar-layout", className)}"${baseAttrs}><div class="sidebar-pane">${sidebar}</div><div class="sidebar-content">${content}</div></div>`.trim();
+  return `<div class="${classNames("sidebar-layout", className)}"${baseAttrs}><div class="${classNames("sidebar-pane", paneClassName)}">${sidebar}</div><div class="${classNames("sidebar-content", contentClassName)}">${content}</div></div>`.trim();
 }
 
 export const sidebarLayout = SidebarLayout;

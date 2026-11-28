@@ -9,7 +9,7 @@ Aksara UI ships a modular, dependency-free TypeScript library. It provides acces
 Try Aksara UI's programmatic API. Click any button below to trigger and control components directly using the global browser `Aksara` instance API:
 
 ::html
-<div class="docs-preview" style="overflow: visible !important;">
+<div class="docs-preview [overflow:visible_!important]">
   <div class="docs-row flex-wrap">
 
     <!-- Programmatic Modal Summoner -->
@@ -29,7 +29,7 @@ Try Aksara UI's programmatic API. Click any button below to trigger and control 
       </button>
 
       <!-- Programmatic Target Dropdown Menu -->
-      <div class="dropdown-menu p-2 rounded-[12px] border border-subtle bg-body shadow-md mt-2" style="position: absolute; top: 100%; start: 0; z-index: 1050; min-width: 200px;">
+      <div class="dropdown-menu p-2 rounded-[12px] border border-subtle bg-body mt-2 [position:absolute] z-[1050] min-w-[200px] [top:100%] [start:0]">
         <span class="text-xs text-subtle font-extrabold uppercase tracking-widest block p-2">Programmatic Menu</span>
         <a href="#/helpers/javascript" class="dropdown-item rounded-[8px] p-2 hstack gap-2 text-sm">
           <span class="mdi mdi-book-open-outline"></span> Documentation
@@ -37,7 +37,7 @@ Try Aksara UI's programmatic API. Click any button below to trigger and control 
         <a href="#/" class="dropdown-item rounded-[8px] p-2 hstack gap-2 text-sm">
           <span class="mdi mdi-home-outline"></span> Overview Home
         </a>
-        <hr class="my-2" style="border:0; height:1px; background:var(--aksara-border-subtle)">
+        <hr class="my-2 h-[1px] [background:var(--aksara-border-subtle)] [border:0]">
         <button class="dropdown-item rounded-[8px] p-2 hstack gap-2 text-sm text-danger w-full text-start bg-transparent border-0 cursor-pointer" onclick="Aksara.dropdown('#jsDropdownDemo').hide()">
           <span class="mdi mdi-close-circle-outline"></span> Close Dropdown
         </button>
@@ -80,8 +80,8 @@ Try Aksara UI's programmatic API. Click any button below to trigger and control 
 </div>
 
 <!-- 2. Target Toast Stack (Bottom-Start Aligned) -->
-<div class="toast-stack toast-bottom-start" style="z-index: 1500; pointer-events: none;">
-  <div id="jsToastDemo" class="toast toast-success" data-toast-delay="3500" role="alert" style="pointer-events: auto;">
+<div class="toast-stack toast-bottom-start z-[1500] [pointer-events:none]">
+  <div id="jsToastDemo" class="toast toast-success [pointer-events:auto]" data-toast-delay="3500" role="alert">
     <div class="toast-header">
       <span class="mdi mdi-check-circle mdi-18px me-2 text-success"></span>
       <strong>API Handshake</strong>
@@ -239,9 +239,9 @@ Every component class inherits from a base `Component` controller, ensuring stan
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">Component Namespace</th>
-        <th style="width: 45%;">Target CSS / HTML Selectors</th>
-        <th style="width: 30%;">Core Control Methods</th>
+        <th class="w-[25%]">Component Namespace</th>
+        <th class="w-[45%]">Target CSS / HTML Selectors</th>
+        <th class="w-[30%]">Core Control Methods</th>
       </tr>
     </thead>
     <tbody>
@@ -333,8 +333,8 @@ The core engine dispatches general lifecycle events directly on the HTML root el
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 35%;">Global Event Key</th>
-        <th style="width: 65%;">Description</th>
+        <th class="w-[35%]">Global Event Key</th>
+        <th class="w-[65%]">Description</th>
       </tr>
     </thead>
     <tbody>

@@ -160,7 +160,7 @@ Use structural states for repeated items.
 
 ::html
 <div class="docs-preview">
-  <ul class="grid gap-2 p-0" style="list-style: none;">
+  <ul class="grid gap-2 p-0 [list-style:none]">
     <li class="p-3 rounded-[12px] border border-subtle first:border-primary odd:bg-primary/10 even:bg-success/10">First odd item</li>
     <li class="p-3 rounded-[12px] border border-subtle first:border-primary odd:bg-primary/10 even:bg-success/10">Even item</li>
     <li class="p-3 rounded-[12px] border border-subtle last:border-danger odd:bg-primary/10 even:bg-success/10">Last odd item</li>

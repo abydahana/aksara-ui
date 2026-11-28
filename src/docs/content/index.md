@@ -8,11 +8,11 @@ A lightweight, modern CSS + TypeScript frontend framework that blends **Bootstra
 <div class="p-5 bg-subtle border border-subtle rounded-2xl mb-5">
   <span class="badge bg-body-tertiary text-body mb-3 fw-bold">Aksara UI v1.4.0</span>
   <h2 class="text-[32px] font-black leading-[38px] text-body mb-2">Bootstrap Readability + Tailwind Flexibility</h2>
-  <p class="text-subtle text-base leading-relaxed mb-4" style="max-width:640px;">
+  <p class="text-subtle text-base leading-relaxed mb-4 max-w-[640px]">
     Build stunning, fully accessible interfaces with prebuilt CSS components, highly flexible logical utility classes, a strict variant grammar, and dependency-free TypeScript plugins. Ships as static CSS, with a small on-demand engine for arbitrary and opacity classes.
   </p>
   <div class="docs-row flex-wrap gap-3">
-    <a href="#/core/utility-first" class="btn btn-primary shadow-sm">Get Started</a>
+    <a href="#/core/utility-first" class="btn btn-primary">Get Started</a>
     <a href="#/helpers/javascript" class="btn btn-soft-secondary">JavaScript API Reference</a>
     <span class="badge badge-soft-success fw-bold hstack gap-2">
       <span class="mdi mdi-shield-check-outline mdi-18px"></span> Static CSS + On-Demand Runtime
@@ -30,7 +30,7 @@ Experience the flat, soft design aesthetics and modular components of Aksara UI.
   <div class="row gap-4">
     <!-- Component Cards 1 (Modal trigger) -->
     <div class="col-12 md:col-6">
-      <div class="card p-4 bg-body border border-subtle rounded-[16px] shadow-md transition duration-[300ms] h-100 d-flex flex-col">
+      <div class="card p-4 bg-body border border-subtle rounded-[16px] transition duration-[300ms] h-100 d-flex flex-col">
         <div class="hstack justify-between mb-4">
           <span class="badge badge-soft-danger fw-bold">Analytical Card</span>
           <span class="text-subtle text-xs">Updated 2m ago</span>
@@ -54,7 +54,7 @@ Experience the flat, soft design aesthetics and modular components of Aksara UI.
 
     <!-- Component Cards 2 (Toast trigger) -->
     <div class="col-12 md:col-6">
-      <div class="card p-4 bg-body border border-subtle rounded-[16px] shadow-md transition duration-[300ms] h-100 d-flex flex-col">
+      <div class="card p-4 bg-body border border-subtle rounded-[16px] transition duration-[300ms] h-100 d-flex flex-col">
         <div class="hstack justify-between mb-4">
           <span class="badge badge-soft-success fw-bold">Interactive Status</span>
           <span class="badge badge-dot badge-success"></span>
@@ -79,8 +79,8 @@ Experience the flat, soft design aesthetics and modular components of Aksara UI.
 </div>
 
 <!-- 1. Interactive Demo Toast Stack -->
-<div class="toast-stack toast-top-end" style="top: 80px; z-index: 1500; pointer-events: none;">
-  <div id="demoToast" class="toast toast-success" data-toast-delay="4000" role="alert" style="pointer-events: auto;">
+<div class="toast-stack toast-top-end z-[1500] [pointer-events:none] [top:80px]">
+  <div id="demoToast" class="toast toast-success [pointer-events:auto]" data-toast-delay="4000" role="alert">
     <div class="toast-header">
       <span class="mdi mdi-check-circle mdi-18px me-2"></span>
       <strong>System Alert</strong>
@@ -200,7 +200,7 @@ Reference the prebuilt minified CSS, the required Material Design Icons styleshe
   <body>
     <div class="container py-5">
       <h1 class="font-black text-[40px] mb-4">Hello Aksara UI!</h1>
-      <button class="btn btn-primary shadow" data-tooltip="Welcome tooltip!">Explore Framework</button>
+      <button class="btn btn-primary" data-tooltip="Welcome tooltip!">Explore Framework</button>
     </div>
 
     <!-- Aksara UI Vanilla JS Library -->

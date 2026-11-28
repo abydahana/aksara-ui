@@ -45,8 +45,8 @@ The stylesheet generator and the runtime engine **reject** class names that viol
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 50%;">✅ Valid Class Syntax</th>
-        <th style="width: 50%;">❌ Invalid Class Syntax</th>
+        <th class="w-[50%]">✅ Valid Class Syntax</th>
+        <th class="w-[50%]">❌ Invalid Class Syntax</th>
       </tr>
     </thead>
     <tbody>
@@ -78,9 +78,9 @@ Aksara UI uses a mobile-first responsive architecture. Unprefixed utilities appl
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 20%;">Breakpoint</th>
-        <th style="width: 30%;">Minimum Width</th>
-        <th style="width: 50%;">Example Class</th>
+        <th class="w-[20%]">Breakpoint</th>
+        <th class="w-[30%]">Minimum Width</th>
+        <th class="w-[50%]">Example Class</th>
       </tr>
     </thead>
     <tbody>
@@ -130,9 +130,9 @@ States apply custom classes during interactive triggers or structural conditions
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">State</th>
-        <th style="width: 35%;">Underlying CSS Pseudo-class</th>
-        <th style="width: 40%;">Example Usage</th>
+        <th class="w-[25%]">State</th>
+        <th class="w-[35%]">Underlying CSS Pseudo-class</th>
+        <th class="w-[40%]">Example Usage</th>
       </tr>
     </thead>
     <tbody>
@@ -209,7 +209,7 @@ Hover and focus the elements below to witness responsive, state-based, and theme
     <p class="text-subtle text-sm mb-4 mt-0">
       This box transitions its border color on hover. In dark mode the <code>dark:md:hover:border-primary</code> variant applies it on <code>md</code> viewports and larger.
     </p>
-    <button class="btn btn-soft-primary hover:bg-primary text-primary hover:text-light transition duration-[150ms] hstack gap-2">
+    <button class="btn btn-soft-primary hover:bg-primary text-primary hover:[color:var(--aksara-primary-foreground)] transition duration-[150ms] hstack gap-2">
       <span class="mdi mdi-gesture-tap"></span> Interactive State Button
     </button>
   </div>
@@ -222,7 +222,7 @@ Hover and focus the elements below to witness responsive, state-based, and theme
 
 <!-- Button changes text & background colors smoothly on hover -->
 <button
-  class="btn btn-soft-primary hover:bg-primary text-primary hover:text-light transition duration-[150ms] hstack gap-2"
+  class="btn btn-soft-primary hover:bg-primary text-primary hover:[color:var(--aksara-primary-foreground)] transition duration-[150ms] hstack gap-2"
 >
   <span class="mdi mdi-gesture-tap"></span> Interactive State Button
 </button>

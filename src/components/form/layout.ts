@@ -2,17 +2,20 @@ import { classNames, toAttributes } from "../utils";
 
 export interface FormRowProps {
   children?: string;
-  gutter?: 1 | 2 | 3 | 4 | 5;
+  /** Row and column spacing (`gap-{n}` on the row). */
+  gutter?: 0 | 1 | 2 | 3 | 4 | 5;
+  /** Render the row as a `<form>`. */
+  as?: "div" | "form";
   className?: string;
   attributes?: Record<string, unknown>;
 }
 
 export function FormRow(props: FormRowProps = {}): string {
-  const { children = "", gutter = 3, className = "", attributes } = props;
-  const classes = classNames("row", `g-${gutter}`, className);
+  const { children = "", gutter = 3, as = "div", className = "", attributes } = props;
+  const classes = classNames("row", `gap-${gutter}`, className);
   const baseAttrs = toAttributes(attributes);
 
-  return `<div class="${classes}"${baseAttrs}>${children}</div>`.trim();
+  return `<${as} class="${classes}"${baseAttrs}>${children}</${as}>`.trim();
 }
 
 export const formRow = FormRow;

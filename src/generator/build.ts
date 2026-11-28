@@ -22,7 +22,8 @@ import {
   addSpacing,
   addTypography
 } from "./css/utilities";
-import { addComponents, addComponentVariants } from "./css/components";
+import { addExtras } from "./css/extras";
+import { addAppComponents, addComponents, addComponentVariants, addSelectEnhancer, addSheets } from "./css/components";
 import { preflight } from "./css/preflight";
 import { addVariants, scanComponentRuntimeClasses } from "./css/variants";
 
@@ -57,6 +58,10 @@ function iconsCss(): string {
 function buildCss(): string {
   addComponents();
   addComponentVariants();
+  addSelectEnhancer();
+  addSheets();
+  addAppComponents();
+  addExtras();
   const utilitiesStart = rules.length;
   addSpacing();
   addSizing();
@@ -405,7 +410,23 @@ function copyMdiAssets(): void {
   }
 }
 
+/**
+ * Copies Tom Select into the docs vendor folder. It is an optional peer dependency:
+ * `Aksara.init()` enhances `.form-select` with it when present, styled by aksara.css.
+ */
+function copyTomSelectAssets(): void {
+  const source = path.join(root, "node_modules/tom-select/dist/js/tom-select.complete.min.js");
+  if (!fs.existsSync(source)) {
+    console.warn("[Aksara UI] tom-select is not installed; docs selects fall back to native.");
+    return;
+  }
+  const target = path.join(root, "src/docs/assets/vendor/tom-select");
+  fs.mkdirSync(target, { recursive: true });
+  fs.copyFileSync(source, path.join(target, "tom-select.complete.min.js"));
+}
+
 copyMdiAssets();
+copyTomSelectAssets();
 write(docsContentOutput, buildDocsContent());
 buildDocsJs();
 buildComponents();

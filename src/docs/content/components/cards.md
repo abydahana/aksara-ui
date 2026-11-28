@@ -20,7 +20,7 @@ This modern layout features a **rounded image embedded directly inside the padde
     <div class="col-12 md:col-6">
       <article class="card border border-subtle bg-body">
         <div class="card-body">
-          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-primary aspect-[16/10]">
             <span class="mdi mdi-laptop text-5xl opacity-4"></span>
           </div>
 
@@ -41,7 +41,7 @@ This modern layout features a **rounded image embedded directly inside the padde
     <div class="col-12 md:col-6">
       <article class="card border border-subtle bg-body">
         <div class="card-body">
-          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-success aspect-[16/10]">
             <span class="mdi mdi-palette-outline text-5xl opacity-4"></span>
           </div>
 
@@ -78,6 +78,23 @@ This modern layout features a **rounded image embedded directly inside the padde
 </div>
 ```
 
+```js components
+import { Button, Card, CardBody, CardTitle } from "@abydahana/aksara-ui/components";
+
+Card({
+  className: "border border-subtle bg-body",
+  children: CardBody({
+    children: [
+      '<img class="w-full rounded-[12px] mb-4" src="workspace.jpg" alt="Workspace" />',
+      '<span class="text-xs text-primary font-extrabold uppercase tracking-widest block mb-2">Category</span>',
+      CardTitle({ title: "Card Title", as: "h4" }),
+      '<p class="card-text">Descriptive text about the article or product.</p>',
+      Button({ label: "Action Button" })
+    ].join("")
+  })
+});
+```
+
 ### Complete Layouts (Borderless Headers & Footers)
 
 ::html
@@ -87,7 +104,7 @@ This modern layout features a **rounded image embedded directly inside the padde
     <!-- 1. Rich Card with Top Image Header -->
     <div class="col-12 md:col-6">
       <article class="card border border-subtle bg-body h-100">
-        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-info" style="aspect-ratio: 16/10;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-info aspect-[16/10]">
           <span class="mdi mdi-image-area text-5xl opacity-4"></span>
         </div>
 
@@ -154,7 +171,7 @@ By default, card heights adapt dynamically to their specific text content, resul
     <!-- Uneven Card 1 -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body">
-        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-primary aspect-[16/10]">
           <span class="mdi mdi-xml text-4xl opacity-4"></span>
         </div>
         <div class="card-body">
@@ -172,7 +189,7 @@ By default, card heights adapt dynamically to their specific text content, resul
     <!-- Uneven Card 2 -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body">
-        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-success aspect-[16/10]">
           <span class="mdi mdi-layers-triple-outline text-4xl opacity-4"></span>
         </div>
         <div class="card-body">
@@ -190,7 +207,7 @@ By default, card heights adapt dynamically to their specific text content, resul
     <!-- Uneven Card 3 (Tallest content) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body">
-        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-warning" style="aspect-ratio: 16/10;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-warning aspect-[16/10]">
           <span class="mdi mdi-speedometer text-4xl opacity-4"></span>
         </div>
         <div class="card-body">
@@ -219,6 +236,16 @@ By default, card heights adapt dynamically to their specific text content, resul
 </div>
 ```
 
+```js components
+import { Card } from "@abydahana/aksara-ui/components";
+
+`<div class="row gap-5">
+  <div class="col-12 md:col-4">
+    ${Card({ className: "bg-body border border-subtle", children: "..." })}
+  </div>
+</div>`;
+```
+
 ### 2. Equal-Height Columns (Stretched with `h-100`)
 
 By applying the **`h-100`** (or `h-full`) class to each card container inside the columns, all cards stretch to exactly match the vertical bounds of the tallest card in the row, creating a **harmonious, perfectly aligned bottom edge**:
@@ -230,7 +257,7 @@ By applying the **`h-100`** (or `h-full`) class to each card container inside th
     <!-- Equal Card 1 (Stretched) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100">
-        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-primary aspect-[16/10]">
           <span class="mdi mdi-xml text-4xl opacity-4"></span>
         </div>
         <div class="card-body">
@@ -248,7 +275,7 @@ By applying the **`h-100`** (or `h-full`) class to each card container inside th
     <!-- Equal Card 2 (Stretched) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100">
-        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-success aspect-[16/10]">
           <span class="mdi mdi-layers-triple-outline text-4xl opacity-4"></span>
         </div>
         <div class="card-body">
@@ -266,7 +293,7 @@ By applying the **`h-100`** (or `h-full`) class to each card container inside th
     <!-- Equal Card 3 (Tallest content) -->
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100">
-        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-warning" style="aspect-ratio: 16/10;">
+        <div class="card-img bg-subtle border-bottom border-subtle hstack justify-center items-center text-warning aspect-[16/10]">
           <span class="mdi mdi-speedometer text-4xl opacity-4"></span>
         </div>
         <div class="card-body">
@@ -295,6 +322,16 @@ By applying the **`h-100`** (or `h-full`) class to each card container inside th
 </div>
 ```
 
+```js components
+import { Card } from "@abydahana/aksara-ui/components";
+
+`<div class="row gap-5">
+  <div class="col-12 md:col-4">
+    ${Card({ className: "h-100 bg-body border border-subtle", children: "..." })}
+  </div>
+</div>`;
+```
+
 ---
 
 ## Bottom-Aligned Buttons inside Equal-Height Cards
@@ -315,7 +352,7 @@ Inside a `d-flex flex-col grow` card body, placing **`mt-auto`** on the button p
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100 d-flex flex-col">
         <div class="card-body d-flex flex-col grow">
-          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-primary" style="aspect-ratio: 16/10;">
+          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-primary aspect-[16/10]">
             <span class="mdi mdi-code-braces text-4xl opacity-4"></span>
           </div>
           <h4 class="card-title mt-0 mb-2 font-extrabold">Web Engineering</h4>
@@ -334,7 +371,7 @@ Inside a `d-flex flex-col grow` card body, placing **`mt-auto`** on the button p
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100 d-flex flex-col">
         <div class="card-body d-flex flex-col grow">
-          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-success" style="aspect-ratio: 16/10;">
+          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-success aspect-[16/10]">
             <span class="mdi mdi-swap-horizontal text-4xl opacity-4"></span>
           </div>
           <h4 class="card-title mt-0 mb-2 font-extrabold">Logical Frameworks</h4>
@@ -353,7 +390,7 @@ Inside a `d-flex flex-col grow` card body, placing **`mt-auto`** on the button p
     <div class="col-12 md:col-4">
       <article class="card border border-subtle bg-body h-100 d-flex flex-col">
         <div class="card-body d-flex flex-col grow">
-          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-warning" style="aspect-ratio: 16/10;">
+          <div class="w-full rounded-[12px] mb-4 bg-subtle border border-subtle hstack justify-center items-center text-warning aspect-[16/10]">
             <span class="mdi mdi-flash text-4xl opacity-4"></span>
           </div>
           <h4 class="card-title mt-0 mb-2 font-extrabold">Static-First Styling</h4>
@@ -385,6 +422,23 @@ Inside a `d-flex flex-col grow` card body, placing **`mt-auto`** on the button p
     <button class="btn btn-primary mt-auto">Action Trigger</button>
   </div>
 </div>
+```
+
+```js components
+import { Button, Card, CardBody, CardTitle } from "@abydahana/aksara-ui/components";
+
+Card({
+  className: "h-100 d-flex flex-col bg-body border border-subtle",
+  children: CardBody({
+    className: "d-flex flex-col grow",
+    children: [
+      '<img class="w-full rounded-[12px] mb-4" src="banner.jpg" alt="Banner" />',
+      CardTitle({ title: "Card Title", as: "h4" }),
+      '<p class="card-text mb-4">Varying length descriptive paragraph.</p>',
+      Button({ label: "Action Trigger", className: "mt-auto" })
+    ].join("")
+  })
+});
 ```
 
 ### 2. Header & Footer Cards with Flex `grow`
@@ -476,6 +530,119 @@ When using a separate `.card-footer` container, wrapping `.card` with `d-flex fl
 </div>
 ```
 
+```js components
+import { Button, Card, CardBody, CardFooter, CardHeader, CardTitle } from "@abydahana/aksara-ui/components";
+
+Card({
+  className: "h-100 d-flex flex-col bg-body border border-subtle",
+  children: [
+    CardHeader({ children: "Header Title" }),
+    CardBody({
+      className: "grow",
+      children: CardTitle({ title: "Card Title", as: "h4" }) + '<p class="card-text">Varying length description.</p>'
+    }),
+    CardFooter({ children: Button({ label: "Action Button", className: "btn-block" }) })
+  ].join("")
+});
+```
+
+---
+
+## Interactive, Muted And Divided Cards
+
+- `card-interactive` deepens the shadow and border on hover (the card does not move). Use it when the whole card is a link (pair with `stretched-link`).
+- `card-muted` sits on the secondary background with no shadow, for grouped settings or side panels.
+- `card-divided` adds a hairline under `.card-header` and a tinted `.card-footer`, for forms and dialogs where actions need separating from content.
+- `card-subtitle` is a small muted line under `card-title`.
+
+::html
+<div class="docs-preview">
+  <div class="row gap-3">
+    <div class="col-12 md:col-4">
+      <div class="card card-interactive h-100">
+        <div class="card-body">
+          <span class="badge badge-soft-primary mb-3">Interactive</span>
+          <h5 class="card-title"><a href="#/components/cards" class="stretched-link text-body [text-decoration:none]">Quarterly report</a></h5>
+          <p class="card-subtitle">Updated 2 hours ago</p>
+          <p class="card-text">Hover the card: the shadow and border deepen. The whole card is clickable.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-4">
+      <div class="card card-muted h-100">
+        <div class="card-body">
+          <span class="badge badge-outline-secondary mb-3">Muted</span>
+          <h5 class="card-title">Workspace limits</h5>
+          <p class="card-subtitle">Free plan</p>
+          <div class="vstack gap-2 mt-3">
+            <div class="hstack justify-between text-sm"><span class="text-subtle">Projects</span><span class="fw-semibold">3 / 5</span></div>
+            <div class="progress progress-thin"><div class="progress-bar w-[60%]"></div></div>
+            <div class="hstack justify-between text-sm mt-2"><span class="text-subtle">Storage</span><span class="fw-semibold">8.4 / 10 GB</span></div>
+            <div class="progress progress-thin"><div class="progress-bar bg-warning w-[84%]"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-4">
+      <div class="card card-divided h-100">
+        <div class="card-header">Invite teammate <span class="badge badge-soft-success">Divided</span></div>
+        <div class="card-body">
+          <label class="form-label" for="cardInviteEmail">Email</label>
+          <input id="cardInviteEmail" class="form-control" type="email" placeholder="name@company.com" />
+        </div>
+        <div class="card-footer justify-end">
+          <button class="btn btn-plain btn-sm">Cancel</button>
+          <button class="btn btn-primary btn-sm">Send invite</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+::end
+
+```html
+<div class="card card-interactive">
+  <div class="card-body">
+    <h5 class="card-title"><a href="/report" class="stretched-link">Quarterly report</a></h5>
+    <p class="card-subtitle">Updated 2 hours ago</p>
+  </div>
+</div>
+
+<div class="card card-divided">
+  <div class="card-header">Invite teammate</div>
+  <div class="card-body">...</div>
+  <div class="card-footer justify-end">
+    <button class="btn btn-plain btn-sm">Cancel</button>
+    <button class="btn btn-primary btn-sm">Send invite</button>
+  </div>
+</div>
+```
+
+```js components
+import { Button, Card, CardBody, CardFooter, CardHeader, CardSubtitle } from "@abydahana/aksara-ui/components";
+
+Card({
+  className: "card-interactive",
+  children: CardBody({
+    children:
+      '<h5 class="card-title"><a href="/report" class="stretched-link">Quarterly report</a></h5>' +
+      CardSubtitle({ subtitle: "Updated 2 hours ago", as: "p" })
+  })
+});
+
+Card({
+  className: "card-divided",
+  children: [
+    CardHeader({ children: "Invite teammate" }),
+    CardBody({ children: "..." }),
+    CardFooter({
+      className: "justify-end",
+      children: Button({ label: "Cancel", plain: true, size: "sm" }) + Button({ label: "Send invite", size: "sm" })
+    })
+  ].join("")
+});
+```
+
 ---
 
 ## HTML Structural Classes
@@ -487,9 +654,9 @@ Construct complex cards by nesting specific structural sub-components inside the
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">Class Identifier</th>
-        <th style="width: 25%;">HTML Element Tag</th>
-        <th style="width: 50%;">Usage & Description</th>
+        <th class="w-[25%]">Class Identifier</th>
+        <th class="w-[25%]">HTML Element Tag</th>
+        <th class="w-[50%]">Usage & Description</th>
       </tr>
     </thead>
     <tbody>
@@ -527,16 +694,16 @@ Construct complex cards by nesting specific structural sub-components inside the
 
 ## Card Styling Variations
 
-Alter shadows and border weights to match your surrounding interface elements:
+Cards are flat by default: a hairline border on the surface color, no shadow. Opt into elevation only where a card has to float above its surroundings:
 
 ::html
 <div class="table-responsive">
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">Class Identifier</th>
-        <th style="width: 35%;">Visual Shadow Profile</th>
-        <th style="width: 40%;">Best Practices & Usage</th>
+        <th class="w-[25%]">Class Identifier</th>
+        <th class="w-[35%]">Visual Shadow Profile</th>
+        <th class="w-[40%]">Best Practices & Usage</th>
       </tr>
     </thead>
     <tbody>
@@ -547,12 +714,12 @@ Alter shadows and border weights to match your surrounding interface elements:
       </tr>
       <tr>
         <td><code>card-elevated</code></td>
-        <td>Soft premium drop-shadow (<code>box-shadow</code>).</td>
+        <td>Opt-in soft drop-shadow for cards that float (popovers, sticky summaries).</td>
         <td>Ideal for hero components, pricing grids, and highlighted stats.</td>
       </tr>
       <tr>
         <td><code>card-flat</code></td>
-        <td>No borders or shadows. Completely flat background fills.</td>
+        <td>Same as the default (no shadow); kept for compatibility.</td>
       </tr>
     </tbody>
   </table>

@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, normalizeSize, toAttributes, type ComponentSize } from "../utils";
 
 export interface SwitchProps {
   label?: string;
@@ -6,6 +6,8 @@ export interface SwitchProps {
   id?: string;
   checked?: boolean;
   disabled?: boolean;
+  /** Matches the height of `.form-control-{size}` so it lines up with inputs of that size. */
+  size?: ComponentSize;
   isInvalid?: boolean;
   isValid?: boolean;
   className?: string;
@@ -21,6 +23,7 @@ export function Switch(props: SwitchProps = {}): string {
     id,
     checked = false,
     disabled = false,
+    size,
     isInvalid = false,
     isValid = false,
     className = "",
@@ -29,7 +32,11 @@ export function Switch(props: SwitchProps = {}): string {
     attributes
   } = props;
 
-  const containerClasses = classNames("form-check form-switch", className);
+  const containerClasses = classNames(
+    "form-check form-switch",
+    size && `form-switch-${normalizeSize(size)}`,
+    className
+  );
 
   const inputClasses = classNames("form-check-input", isInvalid && "is-invalid", isValid && "is-valid", inputClassName);
 

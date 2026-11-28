@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, normalizeSize, toAttributes, type ComponentSize } from "../utils";
 
 export interface RadioProps {
   label?: string;
@@ -8,6 +8,8 @@ export interface RadioProps {
   checked?: boolean;
   disabled?: boolean;
   inline?: boolean;
+  /** Matches the height of `.form-control-{size}` so it lines up with inputs of that size. */
+  size?: ComponentSize;
   isInvalid?: boolean;
   isValid?: boolean;
   className?: string;
@@ -25,6 +27,7 @@ export function Radio(props: RadioProps): string {
     checked = false,
     disabled = false,
     inline = false,
+    size,
     isInvalid = false,
     isValid = false,
     className = "",
@@ -33,7 +36,12 @@ export function Radio(props: RadioProps): string {
     attributes
   } = props;
 
-  const containerClasses = classNames("form-check", inline && "form-check-inline", className);
+  const containerClasses = classNames(
+    "form-check",
+    size && `form-check-${normalizeSize(size)}`,
+    inline && "form-check-inline",
+    className
+  );
 
   const inputClasses = classNames("form-check-input", isInvalid && "is-invalid", isValid && "is-valid", inputClassName);
 
@@ -77,11 +85,12 @@ export interface RadioGroupProps {
   options: RadioOption[];
   value?: string | number;
   inline?: boolean;
+  size?: ComponentSize;
   className?: string;
 }
 
 export function RadioGroup(props: RadioGroupProps): string {
-  const { name, options = [], value, inline = false, className = "" } = props;
+  const { name, options = [], value, inline = false, size, className = "" } = props;
 
   const itemsHtml = options
     .map((opt, idx) => {
@@ -95,12 +104,13 @@ export function RadioGroup(props: RadioGroupProps): string {
         value: opt.value,
         checked: isChecked,
         disabled: opt.disabled,
-        inline
+        inline,
+        size
       });
     })
     .join("\n");
 
-  return `<div class="${classNames("radio-group", className)}">${itemsHtml}</div>`.trim();
+  return `<div class="${classNames("radio-group", inline && "radio-group-inline", className)}" role="radiogroup">${itemsHtml}</div>`.trim();
 }
 
 export const radioGroup = RadioGroup;

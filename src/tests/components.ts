@@ -8,6 +8,24 @@ import {
   Avatar,
   Breadcrumb,
   Button,
+  Card,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Checkbox,
+  OffcanvasHeader,
+  Popover,
+  PopoverTrigger,
+  ScrollspyNav,
+  SidebarLayout,
+  Spinner,
+  Table,
+  TableBody,
+  TableFoot,
+  TableHead,
+  TableRow,
+  Tabs,
+  TimelineContent,
   Chip,
   DropdownItem,
   DropdownSelect,
@@ -205,7 +223,10 @@ function checkPropBugs(): void {
   const sized = Modal({ id: "m", size: "lg", dialogClassName: "max-w-[576px]", className: "z-[1055]" });
   assert.ok(sized.includes('class="modal-dialog modal-lg max-w-[576px]"'), sized);
   assert.ok(sized.includes('class="modal z-[1055]"'), sized);
-  assert.ok(OptionPickerModal({ title: "P", options: [] }).includes('data-modal-backdrop="static"'));
+  assert.ok(!OptionPickerModal({ title: "P", options: [] }).includes('data-modal-backdrop="static"'));
+  assert.ok(
+    OptionPickerModal({ title: "P", options: [], staticBackdrop: true }).includes('data-modal-backdrop="static"')
+  );
 
   const group = SettingsGroup({ title: "Privacy", attributes: { id: "grp", "data-x": "1" }, children: "c" });
   assert.ok(group.includes('id="grp"') && group.includes('data-x="1"'), group);
@@ -302,11 +323,98 @@ function checkNoAppSpecificNames(): void {
   }
 }
 
+/** Props added so the docs samples can be rendered by the string components. */
+function checkDocsProps(): void {
+  // PopoverTrigger title is the popover's title line, not a native tooltip.
+  const pop = PopoverTrigger({ content: "c", title: "T", children: "x" });
+  assert.ok(pop.includes('data-popover-title="T"'), pop);
+  assert.ok(!/\stitle="/.test(pop), pop);
+  assert.ok(pop.startsWith("<button data-popover="), pop);
+  const staticPop = Popover({ title: "S", body: "b", placement: "top" });
+  assert.ok(
+    staticPop.includes('class="popover popover-top"') && staticPop.includes('class="popover-header"'),
+    staticPop
+  );
+  assert.ok(Popover({ title: "S", body: "b", titleVariant: "title" }).includes('class="popover-title"'));
+
+  const decorative = Spinner({ size: "sm", decorative: true });
+  assert.equal(decorative, '<span class="spinner spinner-sm" aria-hidden="true"></span>');
+  assert.ok(Spinner().includes('role="status"'));
+
+  const toast = Toast({ title: "T", icon: "bell-outline", body: "B", bodyClassName: "hstack", role: "status" });
+  assert.ok(toast.includes('<span class="mdi mdi-bell-outline" aria-hidden="true"></span>'), toast);
+  assert.ok(toast.includes('class="btn-close btn-close-sm" data-dismiss=""'), toast);
+  assert.ok(toast.includes('class="toast-body hstack"') && toast.includes('aria-live="polite"'), toast);
+  assert.ok(Toast({ variant: "tertiary", body: "B" }).includes("toast toast-tertiary"));
+  assert.ok(!Toast({ title: "T", children: "<p>x</p>" }).includes("toast-body"));
+
+  assert.equal(TableBody({ children: "x" }), "<tbody>x</tbody>");
+  assert.equal(TableRow({ children: "x" }), "<tr>x</tr>");
+  assert.equal(TableHead({ attributes: { "aria-busy": "true" } }), '<thead aria-busy="true"></thead>');
+  assert.equal(TableFoot({ className: "f", children: "x" }), '<tfoot class="f">x</tfoot>');
+  assert.ok(
+    Table({ responsive: true, responsiveClassName: "max-h-[300px]" }).startsWith(
+      '<div class="table-responsive max-h-[300px]">'
+    )
+  );
+
+  assert.ok(
+    Navbar({ brandHtml: '<span class="mdi mdi-x"></span> A' }).includes('<span class="mdi mdi-x"></span> A</a>')
+  );
+  assert.ok(!Navbar({ expand: false }).includes("navbar-expand"));
+  assert.ok(Navbar().includes("navbar navbar-expand"));
+  const link = NavLink({ label: "Inbox", icon: "inbox-outline", labelHtml: "Inbox <b>3</b>" });
+  assert.ok(link.includes('<span class="mdi mdi-inbox-outline" aria-hidden="true"></span> Inbox <b>3</b></a>'), link);
+
+  const tabs = Tabs({
+    swipeable: false,
+    items: [
+      { id: "a", label: "", ariaLabel: "Grid view", icon: "<i></i>", content: "" },
+      { id: "b", label: "B", labelHtml: "B <b>1</b>", content: "" }
+    ]
+  });
+  assert.ok(tabs.includes('aria-label="Grid view"') && tabs.includes('class="tab-icon shrink-0"'), tabs);
+  assert.ok(tabs.includes("B <b>1</b>"), tabs);
+
+  const sidebar = SidebarNav({ items: [{ header: "Main" }, { label: "Home", href: "/" }] });
+  assert.ok(sidebar.includes('<span class="sidebar-nav-header">Main</span><a class="sidebar-nav-item"'), sidebar);
+  assert.ok(
+    SidebarLayout({ sidebar: "", content: "", contentClassName: "p-5" }).includes('class="sidebar-content p-5"')
+  );
+
+  const pills = ScrollspyNav({ as: "nav", vertical: false, items: [{ id: "a", label: "A" }] });
+  assert.ok(pills.startsWith('<nav class="nav"') && !pills.includes("data-scrollspy-container"), pills);
+  assert.ok(ScrollspyNav({ as: "nav", targetId: "t", items: [] }).includes("nav flex-column"));
+  assert.ok(
+    ScrollspyNav({ as: "sidebar", items: [{ id: "a", label: "A" }] }).includes('class="sidebar-nav-item active"')
+  );
+
+  assert.ok(OffcanvasHeader({ closeLabel: "Close menu" }).includes('aria-label="Close menu"'));
+  const content = TimelineContent({ title: "T", time: "1", titleClassName: "text-subtle", timeClassName: "m-0" });
+  assert.ok(content.includes('class="timeline-title text-subtle"') && content.includes('class="timeline-time m-0"'));
+
+  assert.ok(Card({ as: "article" }).startsWith('<article class="card"'));
+  assert.ok(Card().startsWith('<div class="card"'));
+  assert.ok(CardHeader({ as: "header" }).startsWith('<header class="card-header"'));
+  assert.ok(CardFooter({ as: "footer" }).endsWith("</footer>"));
+  assert.ok(CardTitle({ titleHtml: '<a class="stretched-link" href="#">T</a>' }).includes('<a class="stretched-link"'));
+  assertNoScript(CardTitle({ title: XSS }), "CardTitle title");
+
+  const check = Checkbox({ label: "Agree" });
+  const generatedId = /id="([^"]+)"/.exec(check)?.[1];
+  assert.ok(generatedId && check.includes(`for="${generatedId}"`), check);
+  assert.ok(!Checkbox().includes("id="));
+
+  const page = Pagination({ items: [{ label: "Next", content: "<i></i>" }, { label: "2" }] });
+  assert.ok(page.includes('aria-label="Next"') && !page.includes('aria-label="2"'), page);
+}
+
 export function runComponentChecks(): void {
   checkUtils();
   checkUrlSinks();
   checkRawSinks();
   checkPropBugs();
+  checkDocsProps();
   checkNoAppSpecificNames();
 }
 

@@ -8,6 +8,8 @@ export interface BadgeProps {
   variant?: BadgeVariant;
   size?: ComponentSize;
   soft?: boolean;
+  /** Hairline in the badge color, no fill (`badge-outline-{variant}`). */
+  outline?: boolean;
   pill?: boolean;
   dot?: boolean;
   className?: string;
@@ -21,13 +23,14 @@ export function Badge(props: BadgeProps = {}): string {
     variant = "primary",
     size,
     soft = false,
+    outline = false,
     pill = false,
     dot = false,
     className = "",
     attributes
   } = props;
 
-  const prefix = soft ? "badge-soft" : "badge";
+  const prefix = outline ? "badge-outline" : soft ? "badge-soft" : "badge";
   const sizeClass = size ? `badge-${normalizeSize(size)}` : "";
 
   const classes = classNames(

@@ -54,6 +54,7 @@ export interface DropdownItemProps {
   href?: string;
   active?: boolean;
   disabled?: boolean;
+  /** Destructive item (`.dropdown-item-danger`). */
   danger?: boolean;
   className?: string;
   attributes?: Record<string, unknown>;
@@ -68,7 +69,7 @@ export function DropdownItem(props: DropdownItemProps = {}): string {
     "dropdown-item",
     active && "active",
     disabled && "disabled",
-    danger && "text-danger",
+    danger && "dropdown-item-danger",
     className
   );
 
@@ -86,14 +87,19 @@ export function DropdownItem(props: DropdownItemProps = {}): string {
 
 export const dropdownItem = DropdownItem;
 
-export function DropdownDivider(className = ""): string {
-  return `<div class="${classNames("dropdown-divider", className)}"></div>`;
+/** Accepts a class string or `{ className }` (like every other component). */
+export function DropdownDivider(props: string | { className?: string } = ""): string {
+  const className = typeof props === "string" ? props : (props?.className ?? "");
+  return `<div class="${classNames("dropdown-divider", className)}" role="separator"></div>`;
 }
 
 export const dropdownDivider = DropdownDivider;
 
-export function DropdownHeader(title: string, className = ""): string {
-  return `<div class="${classNames("dropdown-header", className)}">${escapeHtml(title)}</div>`;
+/** `DropdownHeader("Title")` or `DropdownHeader({ title, className })`. */
+export function DropdownHeader(props: string | { title: string; className?: string }, className = ""): string {
+  const title = typeof props === "string" ? props : props.title;
+  const classes = typeof props === "string" ? className : (props.className ?? "");
+  return `<div class="${classNames("dropdown-header", classes)}">${escapeHtml(title)}</div>`;
 }
 
 export const dropdownHeader = DropdownHeader;

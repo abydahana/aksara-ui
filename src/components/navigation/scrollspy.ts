@@ -34,19 +34,29 @@ export interface ScrollspyNavItem {
 
 export interface ScrollspyNavProps {
   items: ScrollspyNavItem[];
-  targetId: string;
-  as?: "list-group" | "nav";
+  /** Scroll container id. Omit it to spy on the page scroll. */
+  targetId?: string;
+  /** `"list-group"` (default), `"nav"` (`.nav` + `.nav-link`) or `"sidebar"` (`.sidebar-nav` + `.sidebar-nav-item`). */
+  as?: "list-group" | "nav" | "sidebar";
+  /** Stack `as: "nav"` links vertically with `flex-column` (default `true`). */
+  vertical?: boolean;
   className?: string;
   attributes?: Record<string, unknown>;
 }
 
 export function ScrollspyNav(props: ScrollspyNavProps): string {
-  const { items = [], targetId, as = "list-group", className = "", attributes } = props;
+  const { items = [], targetId, as = "list-group", vertical = true, className = "", attributes } = props;
 
-  const targetSelector = targetId.startsWith("#") ? targetId : `#${targetId}`;
-  const isListGroup = as === "list-group";
+  const targetSelector = targetId ? (targetId.startsWith("#") ? targetId : `#${targetId}`) : "";
+  const containerAttr = targetSelector ? `\n          data-scrollspy-container="${escapeHtml(targetSelector)}"` : "";
 
-  const containerClasses = classNames(isListGroup ? "list-group" : "nav flex-column", className);
+  const containerClasses = classNames(
+    as === "list-group" ? "list-group" : as === "sidebar" ? "sidebar-nav" : "nav",
+    as === "nav" && vertical && "flex-column",
+    className
+  );
+  const linkBaseClass =
+    as === "list-group" ? "list-group-item list-group-item-action" : as === "sidebar" ? "sidebar-nav-item" : "nav-link";
 
   const baseAttrs = toAttributes({
     "data-scrollspy-nav": "true",
@@ -56,18 +66,14 @@ export function ScrollspyNav(props: ScrollspyNavProps): string {
   const linksHtml = items
     .map((item, idx) => {
       const isActive = item.active ?? idx === 0;
-      const linkClass = classNames(
-        isListGroup ? "list-group-item list-group-item-action" : "nav-link",
-        isActive && "active"
-      );
+      const linkClass = classNames(linkBaseClass, isActive && "active");
       const sectionSelector = item.id.startsWith("#") ? item.id : `#${item.id}`;
 
       return `
         <a
           href="${escapeHtml(sectionSelector)}"
           class="${linkClass}"
-          data-scrollspy-link
-          data-scrollspy-container="${escapeHtml(targetSelector)}"
+          data-scrollspy-link${containerAttr}
         >
           ${escapeHtml(item.label)}
         </a>

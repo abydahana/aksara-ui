@@ -1,6 +1,6 @@
 import { classNames, escapeHtml, pickTag, toAttributes } from "../utils";
 
-export type TooltipPlacement = "top" | "bottom" | "start" | "end" | "auto";
+export type TooltipPlacement = "top" | "bottom" | "start" | "end" | "left" | "right" | "auto";
 
 export interface TooltipTriggerProps {
   title: string;
@@ -22,7 +22,8 @@ export function TooltipTrigger(props: TooltipTriggerProps): string {
     ...attributes
   });
 
-  return `<${Tag} class="${classNames(className)}"${baseAttrs}>${children}</${Tag}>`.trim();
+  const classAttr = className ? ` class="${classNames(className)}"` : "";
+  return `<${Tag}${classAttr}${baseAttrs}>${children}</${Tag}>`.trim();
 }
 
 export const tooltipTrigger = TooltipTrigger;

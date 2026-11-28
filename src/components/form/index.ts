@@ -10,3 +10,8 @@ export * from "./form-control";
 export * from "./floating-label";
 export * from "./layout";
 export * from "./dropdown-select";
+export * from "./check-card";
+export * from "./dropzone";
+export * from "./number-input";
+export * from "./rating";
+export * from "./otp-input";

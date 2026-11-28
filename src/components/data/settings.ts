@@ -63,7 +63,7 @@ export interface SettingsItemProps {
  * SettingsItem({ label: "Private profile", icon: '<span class="mdi mdi-lock-outline">', value: "Public", showChevron: true, href: "#privacy" })
  *
  * @example Toggle row
- * SettingsItem({ label: "Floods & Inundations", icon: '<span class="mdi mdi-water-alert">', trailing: '<input type="checkbox" role="switch" class="form-check-input" checked />' })
+ * SettingsItem({ label: "Email notifications", icon: '<span class="mdi mdi-email-outline">', trailing: '<label class="form-switch m-0"><input type="checkbox" role="switch" class="form-check-input" checked aria-label="Email notifications" /></label>' })
  *
  * @example Description row
  * SettingsItem({ label: "Verified reports only", description: "Only display verified observations.", trailing: '<input type="checkbox" role="switch" class="form-check-input" />' })
@@ -101,6 +101,8 @@ export function SettingsItem(props: SettingsItemProps): string {
     disabled: Tag === "button" && disabled ? true : undefined,
     "aria-current": active ? "true" : undefined,
     "aria-disabled": disabled ? "true" : undefined,
+    // A disabled link row leaves the tab order.
+    tabindex: Tag === "a" && disabled ? "-1" : undefined,
     ...attributes
   });
 
@@ -118,7 +120,7 @@ export function SettingsItem(props: SettingsItemProps): string {
     ? `<span class="text-subtle opacity-[.5] text-sm ms-1" aria-hidden="true">&#8250;</span>`
     : "";
 
-  return `<${Tag} class="${classes}"${baseAttrs}><div class="flex items-center gap-3">${iconHtml}${labelBlock}${valueHtml}${trailing}${chevronHtml}</div></${Tag}>`.trim();
+  return `<${Tag} class="${classes}"${baseAttrs}><span class="flex items-center gap-3">${iconHtml}${labelBlock}${valueHtml}${trailing}${chevronHtml}</span></${Tag}>`.trim();
 }
 
 export const settingsItem = SettingsItem;

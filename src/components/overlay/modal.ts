@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes, normalizeSize } from "../utils";
+import { classNames, escapeHtml, pickTag, toAttributes, normalizeSize } from "../utils";
 
 export interface ModalProps {
   id: string;
@@ -67,15 +67,21 @@ export const modal = Modal;
 
 export interface ModalHeaderProps {
   title?: string;
+  /** `id` for the title, so the modal can point `aria-labelledby` at it. */
+  titleId?: string;
+  /** Heading level for the title. Defaults to `"h5"`. */
+  level?: "h2" | "h3" | "h4" | "h5" | "h6";
   children?: string;
   dismissible?: boolean;
   className?: string;
 }
 
 export function ModalHeader(props: ModalHeaderProps = {}): string {
-  const { title, children = "", dismissible = true, className = "" } = props;
+  const { title, titleId, children = "", dismissible = true, className = "" } = props;
+  const Tag = pickTag(props.level, ["h2", "h3", "h4", "h5", "h6"] as const, "h5");
 
-  const titleHtml = title ? `<h5 class="modal-title m-0">${escapeHtml(title)}</h5>` : "";
+  const titleAttrs = toAttributes({ id: titleId });
+  const titleHtml = title ? `<${Tag}${titleAttrs} class="modal-title m-0">${escapeHtml(title)}</${Tag}>` : "";
   const closeBtn = dismissible
     ? `<button class="modal-close btn-close" type="button" data-modal-close aria-label="Close"></button>`
     : "";

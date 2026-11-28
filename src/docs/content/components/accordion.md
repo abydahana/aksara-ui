@@ -70,6 +70,26 @@ Aksara UI features **Auto-Collapse Sibling Panels** natively. When a drawer pane
 </div>
 ```
 
+```js components
+import { Accordion, AccordionItem } from "@abydahana/aksara-ui/components";
+
+// Each item renders a header button, a chevron (`icon`) and a panel; only `expanded` items start open.
+Accordion({
+  children:
+    AccordionItem({
+      id: "accPanelOne",
+      title: "What is Aksara UI?",
+      body: "Aksara UI is a next-generation...",
+      expanded: true
+    }) +
+    AccordionItem({
+      id: "accPanelTwo",
+      title: "Does it require a build compiler?",
+      body: "No. Aksara UI..."
+    })
+});
+```
+
 ---
 
 ## Technical Specifications
@@ -165,6 +185,21 @@ Use `parent` as a selector when multiple accordion columns should behave like on
 </script>
 ```
 
+```js components
+import { Accordion, AccordionItem } from "@abydahana/aksara-ui/components";
+
+const column = (children) =>
+  `<div class="col-12 md:col-6">${Accordion({
+    attributes: { "data-accordion-parent": "#billingFaqGroup" },
+    children
+  })}</div>`;
+
+`<div id="billingFaqGroup" class="row gap-5">
+  ${column(AccordionItem({ id: "leftPanel", title: "Left column panel", body: "...", expanded: true }))}
+  ${column(AccordionItem({ id: "rightPanel", title: "Right column panel", body: "..." }))}
+</div>`;
+```
+
 ---
 
 ## HTML Data API Reference
@@ -208,8 +243,8 @@ Aksara dispatches bubbled events to trigger custom integrations:
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 35%;">Custom Event Key</th>
-        <th style="width: 65%;">Description</th>
+        <th class="w-[35%]">Custom Event Key</th>
+        <th class="w-[65%]">Description</th>
       </tr>
     </thead>
     <tbody>
@@ -243,4 +278,62 @@ Add `accordion-flush` to remove the outer borders, rounded corners and backgroun
 <div class="accordion accordion-flush">...</div>
 ```
 
+```js components
+import { Accordion } from "@abydahana/aksara-ui/components";
+
+Accordion({ flush: true, children: "..." });
+```
+
 The `Accordion` string component exposes this as the `flush` prop.
+
+---
+
+## Separated Accordion
+
+`accordion-separated` turns each item into its own rounded card with a gap between them. It suits FAQ pages where the items are read one at a time.
+
+::html
+<div class="docs-preview py-4">
+  <div class="accordion accordion-separated">
+    <div class="accordion-item">
+      <button class="accordion-button" data-accordion="#accSepOne" aria-expanded="true" aria-controls="accSepOne">
+        <span>Can I change plans later?</span>
+        <span class="accordion-icon mdi mdi-chevron-down text-sm"></span>
+      </button>
+      <div id="accSepOne" class="accordion-panel">Yes. Upgrades apply immediately; downgrades take effect at the end of the billing period.</div>
+    </div>
+    <div class="accordion-item">
+      <button class="accordion-button" data-accordion="#accSepTwo" aria-expanded="false" aria-controls="accSepTwo">
+        <span>Do you offer refunds?</span>
+        <span class="accordion-icon mdi mdi-chevron-down text-sm"></span>
+      </button>
+      <div id="accSepTwo" class="accordion-panel" hidden>Annual plans can be refunded within 14 days of purchase.</div>
+    </div>
+    <div class="accordion-item">
+      <button class="accordion-button" data-accordion="#accSepThree" aria-expanded="false" aria-controls="accSepThree">
+        <span>Is my data encrypted?</span>
+        <span class="accordion-icon mdi mdi-chevron-down text-sm"></span>
+      </button>
+      <div id="accSepThree" class="accordion-panel" hidden>Data is encrypted in transit (TLS 1.3) and at rest (AES-256).</div>
+    </div>
+  </div>
+</div>
+::end
+
+```html
+<div class="accordion accordion-separated">
+  <div class="accordion-item">...</div>
+  <div class="accordion-item">...</div>
+</div>
+```
+
+```js components
+import { Accordion, AccordionItem } from "@abydahana/aksara-ui/components";
+
+Accordion({
+  className: "accordion-separated",
+  children:
+    AccordionItem({ id: "accSepOne", title: "Can I change plans later?", body: "...", expanded: true }) +
+    AccordionItem({ id: "accSepTwo", title: "Do you offer refunds?", body: "..." })
+});
+```

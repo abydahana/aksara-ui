@@ -1,124 +1,101 @@
-import { classNames, escapeHtml, type ComponentSize, normalizeSize } from "../utils";
-import { Input } from "./input";
-import { Button } from "../buttons/button";
-import { Dropdown, DropdownItem, DropdownMenu } from "../overlay/dropdown";
+import { classNames, escapeHtml, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export interface DropdownSelectOption {
   value: string;
   label: string;
+  /** MDI icon class, e.g. `"mdi-earth"`. */
   icon?: string;
+  /** Extra classes for the icon (e.g. a text color). */
   iconClass?: string;
+  disabled?: boolean;
 }
 
 export interface DropdownSelectProps {
+  /** Name of the hidden input that carries the value in forms. */
   name: string;
   options: DropdownSelectOption[];
   defaultValue?: string;
-  className?: string;
-  btnClassName?: string;
-  size?: ComponentSize;
+  /** `chip` (compact soft button, default) or `form-select` (looks like a select field). */
   variant?: "chip" | "form-select";
+  size?: ComponentSize;
+  /** `id` for the trigger button, so a `<label for>` can point at it. */
+  id?: string;
+  /** Accessible name when there is no visible label (`aria-label` on the trigger). */
+  label?: string;
+  /** Id of a visible label element (`aria-labelledby` on the trigger). */
+  labelledBy?: string;
+  disabled?: boolean;
+  className?: string;
+  /** Extra classes for the trigger button (added to its own). */
+  btnClassName?: string;
   attributes?: Record<string, unknown>;
 }
 
+/**
+ * A button + menu that picks one value with icons per option. The runtime writes the choice
+ * to the hidden input (firing `input` / `change`), updates the trigger and fires
+ * `aksara:dropdown-select:change` ({ value, label, previous }).
+ */
 export function DropdownSelect(props: DropdownSelectProps): string {
   const {
     name,
     options = [],
     defaultValue,
+    variant = "chip",
+    id,
+    label,
+    labelledBy,
+    disabled = false,
     className = "",
     btnClassName = "",
-    size = props.variant === "form-select" ? "md" : "sm",
-    variant = "chip",
     attributes
   } = props;
-
-  const selectedOption = options.find((opt) => opt.value === defaultValue) ?? options[0];
   const isFormSelect = variant === "form-select";
+  const size = props.size ? normalizeSize(props.size) : isFormSelect ? "md" : "sm";
+  const selected = options.find((opt) => opt.value === defaultValue) ?? options[0];
 
-  const dropdownSizeClass = size ? `dropdown-${normalizeSize(size)}` : "dropdown-md";
-  const menuSizeClass = size && size !== "md" ? `dropdown-menu-${normalizeSize(size)}` : "";
-  const selectSizeClass = size ? `form-select-${normalizeSize(size)}` : "";
-  const chipSizeClass = size ? `chip-${normalizeSize(size)}` : "chip-md";
+  const icon = (opt: DropdownSelectOption | undefined, extra: string) =>
+    opt?.icon ? `<span class="${classNames("mdi", opt.icon, opt.iconClass, extra)}" aria-hidden="true"></span>` : "";
 
-  const hiddenInput = Input({
-    type: "hidden",
-    name,
-    value: selectedOption?.value ?? ""
+  const triggerAttrs = toAttributes({
+    type: "button",
+    id,
+    "data-dropdown": "",
+    "aria-haspopup": "menu",
+    "aria-expanded": "false",
+    "aria-label": label,
+    "aria-labelledby": labelledBy,
+    disabled
   });
+  const triggerClasses = isFormSelect
+    ? classNames("form-select dropdown-select-toggle", size !== "md" && `form-select-${size}`, btnClassName)
+    : classNames("btn btn-soft-secondary dropdown-select-toggle", size !== "md" && `btn-${size}`, btnClassName);
+  const chevron = isFormSelect
+    ? ""
+    : '<span class="mdi mdi-chevron-down dropdown-select-chevron" aria-hidden="true"></span>';
+  const trigger = `<button class="${triggerClasses}"${triggerAttrs}>${icon(selected, "select-current-icon")}<span class="select-current-label">${escapeHtml(selected?.label ?? "")}</span>${chevron}</button>`;
 
-  const triggerIcon = selectedOption?.icon
-    ? `<i class="${classNames("mdi", selectedOption.icon, selectedOption.iconClass, "me-2 select-current-icon")}"></i>`
-    : "";
-
-  const triggerBtn = isFormSelect
-    ? `<button type="button" class="${classNames("form-select", selectSizeClass, btnClassName, "text-start d-flex align-items-center justify-content-between cursor-pointer")}" data-dropdown="" aria-haspopup="true" aria-expanded="false">
-      <div class="d-flex align-items-center min-w-0 flex-1 me-2 truncate">
-        ${triggerIcon}
-        <span class="select-current-label truncate">${escapeHtml(selectedOption?.label ?? "")}</span>
-      </div>
-    </button>`
-    : Button({
+  const items = options
+    .map((opt) => {
+      const on = opt.value === selected?.value;
+      const attrs = toAttributes({
         type: "button",
-        variant: "secondary",
-        soft: true,
-        size: size === "md" ? undefined : size,
-        className: btnClassName || `dropdown-select-toggle ${chipSizeClass}`,
-        attributes: {
-          "data-dropdown": "",
-          "aria-haspopup": "true",
-          "aria-expanded": "false"
-        },
-        children: `
-          ${triggerIcon}
-          <span class="select-current-label truncate flex-1 min-w-0 text-start">${escapeHtml(selectedOption?.label ?? "")}</span>
-          <i class="mdi mdi-chevron-down ms-1 opacity-3 shrink-0"></i>
-        `
+        role: "menuitemradio",
+        "aria-checked": on ? "true" : "false",
+        "aria-current": on ? "true" : undefined,
+        "data-dropdown-option": opt.value,
+        "data-icon": opt.icon,
+        "data-icon-class": opt.iconClass,
+        disabled: opt.disabled
       });
+      return `<button class="${classNames("dropdown-item", on && "active")}"${attrs}>${icon(opt, "dropdown-select-option-icon")}<span class="dropdown-select-option-label">${escapeHtml(opt.label)}</span></button>`;
+    })
+    .join("");
 
-  const menuItems = options
-    .map((opt) =>
-      DropdownItem({
-        active: opt.value === selectedOption?.value,
-        attributes: {
-          type: "button",
-          "data-dropdown-option": opt.value,
-          "data-icon": opt.icon ?? "",
-          "data-icon-class": opt.iconClass ?? ""
-        },
-        content: `
-          ${opt.icon ? `<i class="${classNames("mdi", opt.icon, opt.iconClass, "me-2")}"></i>` : ""}
-          <span>${escapeHtml(opt.label)}</span>
-        `
-      })
-    )
-    .join("\n");
-
-  const menu = DropdownMenu({
-    className: `${menuSizeClass} ${isFormSelect ? "dropdown-select-menu" : ""}`.trim(),
-    attributes: {
-      "data-dropdown-select-menu": name
-    },
-    children: menuItems
-  });
-
-  return Dropdown({
-    className: classNames(
-      "aksara-select-dropdown",
-      isFormSelect && "variant-form-select w-100",
-      dropdownSizeClass,
-      className
-    ),
-    attributes: {
-      "data-dropdown-select": name,
-      ...attributes
-    },
-    children: `
-      ${hiddenInput}
-      ${triggerBtn}
-      ${menu}
-    `
-  });
+  const rootAttrs = toAttributes({ "data-dropdown-select": name, "data-value": selected?.value, ...attributes });
+  // A disabled select submits nothing, like a disabled native <select>.
+  const hidden = `<input${toAttributes({ type: "hidden", name, value: selected?.value ?? "", disabled })} />`;
+  return `<div class="${classNames("dropdown aksara-select-dropdown", isFormSelect && "variant-form-select w-100", className)}"${rootAttrs}>${hidden}${trigger}<div class="${classNames("dropdown-menu dropdown-select-menu", size === "sm" && "dropdown-menu-sm")}" role="menu">${items}</div></div>`;
 }
 
 export const dropdownSelect = DropdownSelect;

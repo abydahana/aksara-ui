@@ -31,15 +31,17 @@ export interface OffcanvasHeaderProps {
   title?: string;
   children?: string;
   dismissible?: boolean;
+  /** Accessible label of the close button. */
+  closeLabel?: string;
   className?: string;
 }
 
 export function OffcanvasHeader(props: OffcanvasHeaderProps = {}): string {
-  const { title, children = "", dismissible = true, className = "" } = props;
+  const { title, children = "", dismissible = true, closeLabel = "Close", className = "" } = props;
 
   const titleHtml = title ? `<h5 class="offcanvas-title m-0">${escapeHtml(title)}</h5>` : "";
   const closeBtn = dismissible
-    ? `<button class="modal-close btn-close" type="button" data-offcanvas-close aria-label="Close"></button>`
+    ? `<button class="modal-close btn-close" type="button" data-offcanvas-close aria-label="${escapeHtml(closeLabel)}"></button>`
     : "";
 
   return `

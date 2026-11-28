@@ -29,6 +29,6 @@ Text utilities control alignment, transform, whitespace, decoration, and overflo
 ## Overflow
 
 ```html
-<p class="truncate" style="max-width:320px;">Very long text that should truncate...</p>
+<p class="truncate max-w-[320px]">Very long text that should truncate...</p>
 <p class="break-words">Long words can wrap safely.</p>
 ```

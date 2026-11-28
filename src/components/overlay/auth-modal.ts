@@ -51,7 +51,7 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
     logoHtml,
     className = "",
     closeLabel = "Close",
-    zIndex = 10010,
+    zIndex,
     linkAttributes,
     attributes
   } = props;
@@ -65,69 +65,41 @@ export function AuthPromptModal(props: AuthPromptModalProps = {}): string {
   };
   const finalLoginUrl = loginUrl || withRedirect(loginPath);
   const finalRegisterUrl = registerUrl || withRedirect(registerPath);
-  const safeZIndex = Number.isFinite(Number(zIndex)) ? Math.trunc(Number(zIndex)) : 10010;
+  const safeZIndex = zIndex !== undefined && Number.isFinite(Number(zIndex)) ? Math.trunc(Number(zIndex)) : undefined;
 
-  const logoMarkup = logoHtml
-    ? `<div class="auth-modal-logo mb-3 text-body d-flex align-items-center justify-content-center w-[3.25rem] h-[3.25rem]">${logoHtml}</div>`
-    : '<div class="auth-modal-logo mb-3 text-primary d-flex align-items-center justify-content-center w-[3.25rem] h-[3.25rem] rounded-circle bg-primary/10"><i class="mdi mdi-account-circle-outline text-3xl"></i></div>';
+  const logoMarkup = `<div class="auth-modal-logo" aria-hidden="true">${logoHtml ?? '<span class="mdi mdi-account-circle-outline"></span>'}</div>`;
 
   return Modal({
     id,
-    size: "sm",
     centered: true,
-    scrollable: false,
     className: classNames("auth-modal", className),
     attributes: {
-      role: "dialog",
-      "aria-modal": "true",
       "aria-labelledby": `${id}-title`,
-      style: `z-index: ${safeZIndex};`,
+      "data-modal-draggable": "false",
+      // Only when asked for: the modal layer (1050) is already above page content.
+      style: safeZIndex !== undefined ? `z-index: ${safeZIndex};` : undefined,
       ...attributes
     },
     children: `
-      <div class="modal-body p-4 sm:p-[3rem] position-relative d-flex flex-column align-items-center text-center">
-        <div class="position-absolute top-0 end-0 p-3">
-          ${Button({
-            type: "button",
-            ghost: true,
-            size: "sm",
-            pill: true,
-            className:
-              "d-inline-flex align-items-center justify-content-center p-0 border-0 text-subtle hover:text-body w-[2rem] h-[2rem]",
-            attributes: {
-              "data-modal-close": "",
-              "aria-label": closeLabel
-            },
-            children: '<i class="mdi mdi-close text-lg"></i>'
-          })}
-        </div>
-
+      <div class="auth-modal-body">
+        <button class="modal-close btn-close" type="button" data-modal-close aria-label="${escapeHtml(closeLabel)}"></button>
         ${logoMarkup}
-
-        <h3 id="${escapeHtml(id)}-title" class="fw-bold text-xl leading-tight mb-2 text-body">
-          ${escapeHtml(title)}
-        </h3>
-
-        <p class="text-subtle text-sm mb-4 max-w-[300px]">
-          ${escapeHtml(description)}
-        </p>
-
-        <div class="w-100 d-flex flex-column gap-2">
+        <h3 id="${escapeHtml(id)}-title" class="auth-modal-title">${escapeHtml(title)}</h3>
+        <p class="auth-modal-text">${escapeHtml(description)}</p>
+        <div class="auth-modal-actions">
           ${Button({
             href: finalLoginUrl,
             variant: "primary",
             pill: true,
-            className: "w-100 py-2 fw-bold shadow-sm no-underline d-flex align-items-center justify-content-center",
+            className: "w-100",
             attributes: linkAttributes,
             children: escapeHtml(loginText)
           })}
-
           ${Button({
             href: finalRegisterUrl,
-            variant: "secondary",
-            outline: true,
+            plain: true,
             pill: true,
-            className: "w-100 py-2 fw-bold no-underline d-flex align-items-center justify-content-center",
+            className: "w-100",
             attributes: linkAttributes,
             children: escapeHtml(registerText)
           })}

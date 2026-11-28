@@ -50,12 +50,18 @@ export interface TimelineContentProps {
   time?: string;
   children?: string;
   className?: string;
+  /** Extra classes for `.timeline-title` (e.g. `text-subtle`). */
+  titleClassName?: string;
+  /** Extra classes for `.timeline-time` (e.g. `m-0`). */
+  timeClassName?: string;
 }
 
 export function TimelineContent(props: TimelineContentProps = {}): string {
-  const { title, time, children = "", className = "" } = props;
-  const titleHtml = title ? `<h4 class="timeline-title">${escapeHtml(title)}</h4>` : "";
-  const timeHtml = time ? `<span class="timeline-time">${escapeHtml(time)}</span>` : "";
+  const { title, time, children = "", className = "", titleClassName = "", timeClassName = "" } = props;
+  const titleHtml = title
+    ? `<h4 class="${classNames("timeline-title", titleClassName)}">${escapeHtml(title)}</h4>`
+    : "";
+  const timeHtml = time ? `<span class="${classNames("timeline-time", timeClassName)}">${escapeHtml(time)}</span>` : "";
   return `<div class="${classNames("timeline-content", className)}">${titleHtml}${timeHtml}${children}</div>`.trim();
 }
 

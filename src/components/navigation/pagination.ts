@@ -35,7 +35,11 @@ export function Pagination(props: PaginationProps): string {
       const href = item.disabled ? "#" : (item.href ?? "#");
       const currentAttr = item.active ? ' aria-current="page"' : "";
       const disabledAttr = item.disabled ? ' aria-disabled="true" tabindex="-1"' : "";
-      const itemAttrs = toAttributes(item.attributes);
+      // Icon-only content has no text, so the escaped label becomes its accessible name.
+      const itemAttrs = toAttributes({
+        "aria-label": item.content !== undefined ? item.label : undefined,
+        ...item.attributes
+      });
 
       return `
         <li class="${liClasses}">

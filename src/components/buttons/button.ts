@@ -10,7 +10,12 @@ export interface ButtonProps {
   variant?: ButtonVariant;
   outline?: boolean;
   soft?: boolean;
+  /** Text-only until hovered; with an explicit `variant` it renders `btn-ghost-{variant}`. */
   ghost?: boolean;
+  /** Surface button with a hairline border (`btn-plain`), e.g. "Cancel". */
+  plain?: boolean;
+  /** Neutral tinted button (`btn-subtle`). */
+  subtle?: boolean;
   size?: ComponentSize;
   pill?: boolean;
   disabled?: boolean;
@@ -28,6 +33,8 @@ export function Button(props: ButtonProps = {}): string {
     outline = false,
     soft = false,
     ghost = false,
+    plain = false,
+    subtle = false,
     size,
     pill = false,
     disabled = false,
@@ -37,8 +44,12 @@ export function Button(props: ButtonProps = {}): string {
   } = props;
 
   let variantClass = `btn-${variant}`;
-  if (ghost) {
-    variantClass = "btn-ghost";
+  if (plain) {
+    variantClass = "btn-plain";
+  } else if (subtle) {
+    variantClass = "btn-subtle";
+  } else if (ghost) {
+    variantClass = props.variant ? `btn-ghost-${variant}` : "btn-ghost";
   } else if (outline) {
     variantClass = `btn-outline-${variant}`;
   } else if (soft) {

@@ -5,17 +5,23 @@ export interface CollapseProps {
   children?: string;
   show?: boolean;
   horizontal?: boolean;
+  /** Group selector (`data-collapse-parent`): opening this panel closes the group's other panels. */
+  parent?: string;
+  /** Transition length in ms (`data-collapse-duration`); `0` switches instantly. */
+  duration?: number;
   className?: string;
   attributes?: Record<string, unknown>;
 }
 
 export function Collapse(props: CollapseProps): string {
-  const { id, children = "", show = false, horizontal = false, className = "", attributes } = props;
+  const { id, children = "", show = false, horizontal = false, parent, duration, className = "", attributes } = props;
 
   const classes = classNames("collapse", show && "collapse-show show", horizontal && "collapse-horizontal", className);
 
   const baseAttrs = toAttributes({
     id,
+    "data-collapse-parent": parent,
+    "data-collapse-duration": duration,
     ...attributes
   });
 
@@ -50,7 +56,10 @@ export function CollapseTrigger(props: CollapseTriggerProps): string {
     ...attributes
   });
 
-  return `<${Tag} class="${classNames(className)}"${baseAttrs}>${children}</${Tag}>`.trim();
+  const classes = classNames(className);
+  const classAttr = classes ? ` class="${classes}"` : "";
+
+  return `<${Tag}${classAttr}${baseAttrs}>${children}</${Tag}>`.trim();
 }
 
 export const collapseTrigger = CollapseTrigger;

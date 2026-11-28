@@ -53,8 +53,9 @@
           data-docs-menu
           aria-controls="docs-sidebar"
           aria-expanded="false"
+          aria-label="Open navigation menu"
         >
-          Menu
+          <span class="mdi mdi-menu"></span>
         </button>
       </div>
     </header>
@@ -83,6 +84,7 @@
           </button>
           <nav id="docs-group-start" class="docs-nav">
             <a href="#/" data-doc-link="/">Overview</a>
+            <a href="#/showcase" data-doc-link="/showcase">Showcase</a>
             <a href="#/helpers/javascript" data-doc-link="/helpers/javascript">JavaScript API</a>
           </nav>
         </div>
@@ -120,32 +122,55 @@
           <nav id="docs-group-components" class="docs-nav">
             <a href="#/components/accordion" data-doc-link="/components/accordion">Accordion</a>
             <a href="#/components/alerts" data-doc-link="/components/alerts">Alerts</a>
+            <a href="#/components/auth-modal" data-doc-link="/components/auth-modal">Auth Prompt</a>
+            <a href="#/components/avatar" data-doc-link="/components/avatar">Avatar</a>
             <a href="#/components/badges" data-doc-link="/components/badges">Badges</a>
             <a href="#/components/bento-card" data-doc-link="/components/bento-card">Bento Card</a>
+            <a href="#/components/bottom-sheet" data-doc-link="/components/bottom-sheet">Bottom Sheet</a>
             <a href="#/components/breadcrumb" data-doc-link="/components/breadcrumb">Breadcrumb</a>
             <a href="#/components/button-group" data-doc-link="/components/button-group">Button Group</a>
             <a href="#/components/buttons" data-doc-link="/components/buttons">Buttons</a>
             <a href="#/components/cards" data-doc-link="/components/cards">Cards</a>
             <a href="#/components/carousel" data-doc-link="/components/carousel">Carousel</a>
+            <a href="#/components/check-list" data-doc-link="/components/check-list">Check List</a>
+            <a href="#/components/chip" data-doc-link="/components/chip">Chip</a>
+            <a href="#/components/close-button" data-doc-link="/components/close-button">Close Button</a>
             <a href="#/components/collapse" data-doc-link="/components/collapse">Collapse</a>
+            <a href="#/components/copy-button" data-doc-link="/components/copy-button">Copy Button</a>
+            <a href="#/components/description-list" data-doc-link="/components/description-list">Description List</a>
+            <a href="#/components/divider" data-doc-link="/components/divider">Divider</a>
             <a href="#/components/dropdown" data-doc-link="/components/dropdown">Dropdown</a>
+            <a href="#/components/empty-state" data-doc-link="/components/empty-state">Empty State</a>
+            <a href="#/components/guest-gate" data-doc-link="/components/guest-gate">Guest Gate</a>
+            <a href="#/components/icon-tile" data-doc-link="/components/icon-tile">Icon Tile</a>
+            <a href="#/components/indicator" data-doc-link="/components/indicator">Indicator</a>
+            <a href="#/components/kbd" data-doc-link="/components/kbd">Kbd</a>
             <a href="#/components/list-group" data-doc-link="/components/list-group">List Group</a>
+            <a href="#/components/media-grid" data-doc-link="/components/media-grid">Media Grid</a>
+            <a href="#/components/media-viewer" data-doc-link="/components/media-viewer">Media Viewer</a>
             <a href="#/components/modal" data-doc-link="/components/modal">Modal</a>
             <a href="#/components/navbar" data-doc-link="/components/navbar">Navbar</a>
             <a href="#/components/offcanvas" data-doc-link="/components/offcanvas">Offcanvas</a>
+            <a href="#/components/option-picker" data-doc-link="/components/option-picker">Option Picker</a>
             <a href="#/components/pagination" data-doc-link="/components/pagination">Pagination</a>
             <a href="#/components/placeholders" data-doc-link="/components/placeholders">Placeholders</a>
             <a href="#/components/popover" data-doc-link="/components/popover">Popover</a>
             <a href="#/components/progress" data-doc-link="/components/progress">Progress</a>
+            <a href="#/components/quote-card" data-doc-link="/components/quote-card">Quote Card</a>
             <a href="#/components/scrollspy" data-doc-link="/components/scrollspy">Scrollspy</a>
+            <a href="#/components/segmented" data-doc-link="/components/segmented">Segmented &amp; Toggle</a>
+            <a href="#/components/settings-list" data-doc-link="/components/settings-list">Settings List</a>
             <a href="#/components/sidebar" data-doc-link="/components/sidebar">Sidebar Nav</a>
             <a href="#/components/skeleton" data-doc-link="/components/skeleton">Skeleton</a>
             <a href="#/components/spinner" data-doc-link="/components/spinner">Spinner</a>
+            <a href="#/components/stat" data-doc-link="/components/stat">Stat</a>
+            <a href="#/components/steps" data-doc-link="/components/steps">Steps</a>
             <a href="#/components/table" data-doc-link="/components/table">Table</a>
             <a href="#/components/tabs" data-doc-link="/components/tabs">Tabs</a>
             <a href="#/components/timeline" data-doc-link="/components/timeline">Timeline</a>
             <a href="#/components/toast" data-doc-link="/components/toast">Toast</a>
             <a href="#/components/tooltip" data-doc-link="/components/tooltip">Tooltip</a>
+            <a href="#/components/user-item" data-doc-link="/components/user-item">User Item</a>
           </nav>
         </div>
 
@@ -182,9 +207,18 @@
             <span class="docs-group-icon mdi mdi-chevron-down"></span>
           </button>
           <nav id="docs-group-forms" class="docs-nav">
-            <a href="#/forms/forms" data-doc-link="/forms/forms">Forms</a>
-            <a href="#/forms/validation" data-doc-link="/forms/validation">Validation</a>
+            <a href="#/forms/forms" data-doc-link="/forms/forms">Form Controls</a>
+            <a href="#/forms/select" data-doc-link="/forms/select">Select</a>
+            <a href="#/forms/dropdown-select" data-doc-link="/forms/dropdown-select">Dropdown Select</a>
+            <a href="#/forms/checks" data-doc-link="/forms/checks">Checks, Radios &amp; Switches</a>
+            <a href="#/forms/range" data-doc-link="/forms/range">Range</a>
+            <a href="#/forms/number-input" data-doc-link="/forms/number-input">Number Input</a>
+            <a href="#/forms/rating" data-doc-link="/forms/rating">Rating</a>
+            <a href="#/forms/otp" data-doc-link="/forms/otp">OTP Input</a>
+            <a href="#/forms/floating-labels" data-doc-link="/forms/floating-labels">Floating Labels</a>
             <a href="#/forms/input-group" data-doc-link="/forms/input-group">Input Group</a>
+            <a href="#/forms/layout" data-doc-link="/forms/layout">Form Layout</a>
+            <a href="#/forms/validation" data-doc-link="/forms/validation">Validation</a>
           </nav>
         </div>
 
@@ -263,6 +297,7 @@
       </aside>
     </div>
 
+    <script src="./assets/vendor/tom-select/tom-select.complete.min.js"></script>
     <script src="../../dist/aksara.min.js"></script>
     <script src="./assets/docs-content.js"></script>
     <script src="./assets/docs.js"></script>

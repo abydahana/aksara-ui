@@ -1,6 +1,6 @@
 # Responsive
 
-Aksara UI precompiles the responsive variants of layout utilities: `col-*`, `d-*`, `flex`, `grid`, `hidden`, `flex-row` / `flex-col`, `g-*` / `gx-*` / `gy-*`, `gap-*` and `sticky-top` / `sticky-bottom` (`md:col-6`, `lg:d-flex`, `md:gap-3`, `md:sticky-top`). Breakpoints are always a prefix: Bootstrap infix names such as `col-md-6` or `sticky-md-top` do not exist. Breakpoint variants of any other utility (`md:text-center`, `lg:p-5`, `md:w-[50%]`) are generated on demand by `Aksara.init()` the first time they appear in the DOM.
+Aksara UI precompiles the responsive variants of layout utilities: `col-*`, `d-*`, `flex`, `grid`, `hidden`, `flex-row` / `flex-col`, `gap-*` (on a `.row` it sets the column and row gutters) and `sticky-top` / `sticky-bottom` (`md:col-6`, `lg:d-flex`, `md:gap-3`, `md:sticky-top`). Breakpoints are always a prefix: Bootstrap infix names such as `col-md-6` or `sticky-md-top` do not exist. Breakpoint variants of any other utility (`md:text-center`, `lg:p-5`, `md:w-[50%]`) are generated on demand by `Aksara.init()` the first time they appear in the DOM.
 
 ## Breakpoints
 

@@ -1,7 +1,6 @@
 import { classNames, escapeHtml, parseAttributeString, toAttributes } from "../utils";
 import { Avatar } from "./avatar";
 import { Badge, type BadgeVariant } from "../feedback/badge";
-import { Button } from "../buttons/button";
 import { MediaGrid } from "./media-grid";
 
 export interface QuoteAuthor {
@@ -9,6 +8,8 @@ export interface QuoteAuthor {
   handle?: string;
   photo?: string;
   initials?: string;
+  /** Color of the initials avatar (`avatar-{variant}`). Default `primary`. */
+  avatarVariant?: "primary" | "secondary" | "tertiary" | "success" | "danger" | "warning" | "info" | "dark" | "light";
   verified?: boolean;
 }
 
@@ -24,7 +25,8 @@ export interface QuoteCardProps {
   timeAgo?: string;
   timestamp?: string;
   category?: QuoteCategoryBadge;
-  media?: string[];
+  /** Image URLs, or `{ src, alt }` objects to give each image alt text. */
+  media?: Array<string | { src: string; alt?: string }>;
   isPreview?: boolean;
   showRemoveBtn?: boolean;
   onRemoveTitle?: string;
@@ -61,14 +63,21 @@ export function QuoteCard(props: QuoteCardProps): string {
     children
   } = props;
 
-  const authorUsername = (author.handle || "@user").replace(/^@/, "");
-  const authorInitials = (author.initials || author.name || authorUsername || "U").slice(0, 1).toUpperCase();
+  const authorUsername = (author.handle || "user").replace(/^@/, "").trim();
+  // Up to two letters: the given initials, else the first letters of the first two words.
+  const authorInitials = (
+    author.initials ||
+    (author.name || authorUsername || "U")
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((word) => word.charAt(0))
+      .join("")
+  )
+    .slice(0, 2)
+    .toUpperCase();
 
-  const baseClasses = classNames(
-    "quote-card p-3 rounded-xl border border-subtle bg-surface mt-2 transition d-flex flex-column gap-2",
-    isPreview ? "quote-preview" : "cursor-pointer hover:bg-[var(--aksara-bg-subtle)]",
-    className
-  );
+  const baseClasses = classNames("quote-card", isPreview && "quote-preview", className);
 
   const baseAttrs = toAttributes({
     ...parseAttributeString(interactiveAttrs),
@@ -76,82 +85,53 @@ export function QuoteCard(props: QuoteCardProps): string {
     ...attributes
   });
 
-  const mediaList = media.filter((url): url is string => Boolean(url) && typeof url === "string" && mediaFilter(url));
-
+  const mediaList = media
+    .map((entry) => (typeof entry === "string" ? { src: entry } : entry))
+    .filter((entry) => Boolean(entry?.src) && typeof entry.src === "string" && mediaFilter(entry.src));
   const mediaHtml =
     mediaList.length > 0
-      ? `<div class="quote-media rounded-lg overflow-hidden border border-subtle">
-        ${MediaGrid({
-          items: mediaList.map((src) => ({ src }))
-        })}
-      </div>`
+      ? `<div class="quote-media">${MediaGrid({ items: mediaList.map((entry) => ({ src: entry.src, alt: entry.alt })) })}</div>`
       : "";
+
+  const time =
+    timeAgo || timestamp
+      ? `<time${timestamp ? ` datetime="${escapeHtml(timestamp)}"` : ""}>${escapeHtml(timeAgo || timestamp || "")}</time>`
+      : "";
+  // Handles always show with a leading "@", like UserItem.
+  const meta = [author.handle ? `<span>@${escapeHtml(authorUsername)}</span>` : "", time].filter(Boolean);
+
+  const categoryHtml = category
+    ? Badge({
+        variant: category.variant || "secondary",
+        soft: true,
+        pill: true,
+        children: `${category.icon ? `<span class="mdi ${escapeHtml(category.icon)}"></span> ` : ""}${escapeHtml(category.label)}`
+      })
+    : "";
+
+  const removeHtml = showRemoveBtn
+    ? `<button type="button" class="quote-card-remove btn-close" data-quote-card-remove${toAttributes({ title: onRemoveTitle, "aria-label": onRemoveTitle })}></button>`
+    : "";
 
   return `
     <div class="${baseClasses}"${baseAttrs}>
-      <!-- Header row: Author & Actions -->
-      <div class="quote-header d-flex align-items-center gap-2">
+      <div class="quote-header">
         ${Avatar({
           src: author.photo,
           initials: authorInitials,
           size: "md",
           shape: "circle",
-          className: "quote-avatar shrink-0",
+          variant: author.avatarVariant,
+          className: "quote-avatar",
           alt: author.name
         })}
-        <div class="quote-author-info d-flex flex-column justify-content-center min-w-0 flex-1">
-          <div class="d-inline-flex align-items-center gap-1 min-w-0">
-            <span class="fw-bold text-sm text-body truncate whitespace-nowrap leading-tight">${escapeHtml(author.name)}</span>
-            ${author.verified ? `<i class="mdi mdi-check-decagram text-primary text-sm shrink-0" title="Verified"></i>` : ""}
-          </div>
-          <div class="d-flex align-items-center gap-1 text-sm text-subtle truncate whitespace-nowrap min-w-0 leading-tight mt-1">
-            ${author.handle ? `<span class="truncate whitespace-nowrap">${escapeHtml(author.handle)}</span>` : ""}
-            ${author.handle && (timeAgo || timestamp) ? `<span class="text-subtle shrink-0">&bull;</span>` : ""}
-            ${
-              timeAgo || timestamp
-                ? `<time class="text-subtle shrink-0 whitespace-nowrap" ${timestamp ? `datetime="${escapeHtml(timestamp)}"` : ""}>${escapeHtml(timeAgo || "")}</time>`
-                : ""
-            }
-          </div>
+        <div class="quote-author-info">
+          <div class="quote-author-name"><span>${escapeHtml(author.name)}</span>${author.verified ? '<span class="mdi mdi-check-decagram text-primary" title="Verified"></span>' : ""}</div>
+          ${meta.length ? `<div class="quote-author-meta">${meta.join('<span aria-hidden="true">&middot;</span>')}</div>` : ""}
         </div>
-
-        <div class="d-flex align-items-center gap-2 shrink-0 ms-auto">
-          ${
-            category
-              ? Badge({
-                  variant: category.variant || "primary",
-                  soft: true,
-                  pill: true,
-                  className: "text-xs px-2 py-1",
-                  children: `${category.icon ? `<i class="mdi ${escapeHtml(category.icon)} me-1"></i>` : ""}${escapeHtml(category.label)}`
-                })
-              : ""
-          }
-          ${
-            showRemoveBtn
-              ? Button({
-                  type: "button",
-                  ghost: true,
-                  size: "sm",
-                  className: "quote-card-remove rounded-circle text-subtle hover:text-danger p-1",
-                  attributes: {
-                    title: onRemoveTitle,
-                    "aria-label": onRemoveTitle,
-                    "data-quote-card-remove": ""
-                  },
-                  children: '<i class="mdi mdi-close"></i>'
-                })
-              : ""
-          }
-        </div>
+        ${categoryHtml || removeHtml ? `<div class="quote-actions">${categoryHtml}${removeHtml}</div>` : ""}
       </div>
-
-      <!-- Main body: Content Text & Media Preview -->
-      ${
-        content
-          ? `<div class="quote-body font-normal text-sm text-body leading-relaxed break-words">${escapeHtml(content)}</div>`
-          : children || ""
-      }
+      ${content ? `<div class="quote-body">${escapeHtml(content)}</div>` : children || ""}
       ${mediaHtml}
     </div>
   `.trim();

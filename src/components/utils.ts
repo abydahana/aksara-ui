@@ -130,3 +130,13 @@ export function parseAttributeString(input?: string): Record<string, unknown> {
   }
   return result;
 }
+
+/**
+ * Normalizes an icon class list: a bare Material Design Icons name (`"mdi-plus"`) gets the
+ * `mdi` base class (`"mdi mdi-plus"`); anything else (`"mdi mdi-plus text-sm"`, `"bi bi-x"`)
+ * passes through. The result still needs {@link classNames} (or escaping) before use.
+ */
+export function iconClasses(icon: string): string {
+  const trimmed = String(icon ?? "").trim();
+  return /^mdi-[\w-]+$/.test(trimmed) ? `mdi ${trimmed}` : trimmed;
+}

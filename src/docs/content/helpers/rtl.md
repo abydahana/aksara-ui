@@ -68,10 +68,10 @@ Aksara UI precompiles its spacing, border, alignment and inset utilities with lo
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">Aksara Logical Class</th>
-        <th style="width: 35%;">Underlying CSS Logical property</th>
-        <th style="width: 25%;">Legacy Equivalent</th>
-        <th style="width: 15%;">RTL Behavior</th>
+        <th class="w-[25%]">Aksara Logical Class</th>
+        <th class="w-[35%]">Underlying CSS Logical property</th>
+        <th class="w-[25%]">Legacy Equivalent</th>
+        <th class="w-[15%]">RTL Behavior</th>
       </tr>
     </thead>
     <tbody>

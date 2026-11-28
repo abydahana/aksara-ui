@@ -1,6 +1,6 @@
 # Spacing System
 
-Aksara UI ships a precompiled rem-based spacing system for margin, padding, flex/grid gaps, inset and negative offsets. It uses a single `0..5` scale: `0` = `0`, `1` = `.25rem`, `2` = `.5rem`, `3` = `1rem`, `4` = `1.5rem` and `5` = `3rem`. Any other value is an arbitrary class (`p-[.75rem]`, `mt-[2rem]`), generated on demand by `Aksara.init()`. It relies strictly on **logical properties** for out-of-the-box RTL compliance.
+Aksara UI ships a precompiled rem-based spacing system for margin, padding, flex/grid gaps and inset. It uses a single `0..5` scale: `0` = `0`, `1` = `.25rem`, `2` = `.5rem`, `3` = `1rem`, `4` = `1.5rem` and `5` = `3rem`. Any other value, including negative margins, is an arbitrary class (`p-[.75rem]`, `mt-[2rem]`, `mt-[-1rem]`), generated on demand by `Aksara.init()`. It relies strictly on **logical properties** for out-of-the-box RTL compliance.
 
 ---
 
@@ -48,9 +48,9 @@ Aksara UI rejects legacy left/right naming conventions. To support RTL layouts s
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 20%;">Aksara Shorthand</th>
-        <th style="width: 40%;">Underlying CSS Logical property</th>
-        <th style="width: 40%;">Visual Direction behavior</th>
+        <th class="w-[20%]">Aksara Shorthand</th>
+        <th class="w-[40%]">Underlying CSS Logical property</th>
+        <th class="w-[40%]">Visual Direction behavior</th>
       </tr>
     </thead>
     <tbody>
@@ -100,10 +100,10 @@ Aksara UI uses a streamlined, Bootstrap-compatible **0 to 5** spacing scale for 
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 20%;">Step</th>
-        <th style="width: 30%;">Rem Value</th>
-        <th style="width: 25%;">Pixel (Base 16px)</th>
-        <th style="width: 25%;">Example Classes</th>
+        <th class="w-[20%]">Step</th>
+        <th class="w-[30%]">Rem Value</th>
+        <th class="w-[25%]">Pixel (Base 16px)</th>
+        <th class="w-[25%]">Example Classes</th>
       </tr>
     </thead>
     <tbody>
@@ -155,15 +155,63 @@ Aksara UI uses a streamlined, Bootstrap-compatible **0 to 5** spacing scale for 
 
 ---
 
-## Negative Spacing Modifiers
+## Negative Margins
 
-To pull adjacent elements closer or create overlap layouts, apply negative margins (precompiled for steps `1` to `5`):
+To pull elements closer or make them overlap, put a negative value in an arbitrary margin: `mt-[-1.5rem]`, `mx-[-1rem]`, `ms-[-4px]`. There are no `-`-prefixed classes; the value carries the sign, so any length works (`m-[-2px]`, `mt-[-50%]`). `ms-*` / `me-*` are logical, so they flip in RTL. Padding cannot be negative in CSS, so only margins (and the inset utilities, see [Position](#/layout/position)) take negative values. Typical uses: a card lifted over a hero banner, an avatar overlapping a profile cover, and a full-bleed block that cancels its container's padding.
 
-- **Negative Classes**: `-m-{1..5}`, `-mt-{1..5}`, `-mb-{1..5}`, `-ms-{1..5}`, `-me-{1..5}`, `-mx-{1..5}`, `-my-{1..5}`.
+::html
+<div class="docs-preview">
+  <div class="row gap-4">
+    <div class="col-12 md:col-6">
+      <div class="rounded-lg overflow-hidden border border-subtle">
+        <div class="h-[96px] [background:linear-gradient(135deg,#2f4858,#121110)]" role="img" aria-label="Cover"></div>
+        <div class="px-4 pb-4">
+          <span class="avatar avatar-xl avatar-primary rounded-full mt-[-3rem] border-4 border-[var(--aksara-surface)]">MC</span>
+          <p class="m-0 mt-2 fw-semibold">Maya Chen</p>
+          <p class="m-0 text-sm text-subtle">Product designer · London</p>
+        </div>
+      </div>
+      <p class="mt-2 mb-0 text-xs text-subtle"><code>mt-[-3rem]</code> pulls the avatar up over the cover.</p>
+    </div>
+    <div class="col-12 md:col-6">
+      <div class="rounded-lg overflow-hidden">
+        <div class="px-4 pt-4 pb-5 [background:linear-gradient(135deg,#2f4858,#121110)] text-[#f7f6f4]">
+          <p class="m-0 text-sm opacity-[.75]">Balance</p>
+          <p class="m-0 text-2xl fw-bold">$12,480.00</p>
+        </div>
+        <div class="card mx-3 mt-[-1.5rem]">
+          <div class="card-body hstack justify-between">
+            <span class="text-sm">Next payout</span>
+            <span class="fw-semibold">Dec 2</span>
+          </div>
+        </div>
+      </div>
+      <p class="mt-2 mb-0 text-xs text-subtle"><code>mt-[-1.5rem]</code> lifts the card over the banner.</p>
+    </div>
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <p class="m-0 mb-3 fw-semibold">Recent activity</p>
+          <div class="mx-[-1.5rem] px-4 py-2 bg-subtle text-sm">Full-bleed row: <code>mx-[-1.5rem]</code> cancels the card body's padding, <code>px-4</code> restores it inside.</div>
+          <p class="m-0 mt-3 text-sm text-subtle">Regular content keeps the padding.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+::end
 
 ```html
-<!-- Move card up to overlap a hero background by 1.5rem -->
-<div class="card -mt-4 bg-body">...</div>
+<!-- Avatar overlapping a cover image -->
+<div class="h-[96px]"><!-- cover --></div>
+<span class="avatar avatar-xl rounded-full mt-[-3rem] border-4">MC</span>
+
+<!-- Card lifted over a hero banner by 1.5rem -->
+<div class="px-4 pt-4 pb-5">...</div>
+<div class="card mx-3 mt-[-1.5rem]">...</div>
+
+<!-- Full-bleed row inside a padded card body -->
+<div class="mx-[-1.5rem] px-4 py-2 bg-subtle">...</div>
 ```
 
 ---
@@ -176,5 +224,5 @@ Align elements easily inside parent blocks using standard auto margin utilities:
 
 ```html
 <!-- Horizontally center a responsive box -->
-<div class="w-full mx-auto" style="max-width:200px;">Centered Content</div>
+<div class="w-full mx-auto max-w-[200px]">Centered Content</div>
 ```

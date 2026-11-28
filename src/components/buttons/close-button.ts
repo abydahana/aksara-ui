@@ -1,6 +1,8 @@
 import { classNames, toAttributes, type ComponentSize, normalizeSize } from "../utils";
 
 export interface CloseButtonProps {
+  /** `btn-close` (inline, default), `close` (absolutely placed in its parent's corner) or `modal-close`. */
+  kind?: "btn-close" | "close" | "modal-close";
   size?: ComponentSize;
   white?: boolean;
   disabled?: boolean;
@@ -10,11 +12,27 @@ export interface CloseButtonProps {
 }
 
 export function CloseButton(props: CloseButtonProps = {}): string {
-  const { size, white = false, disabled = false, ariaLabel = "Close", className = "", attributes } = props;
+  const {
+    kind = "btn-close",
+    size,
+    white = false,
+    disabled = false,
+    ariaLabel = "Close",
+    className = "",
+    attributes
+  } = props;
 
-  const sizeClass = size ? `btn-close-${normalizeSize(size)}` : "";
+  const sizeName = size ? normalizeSize(size) : "";
+  const sizeClass = !sizeName
+    ? ""
+    : kind === "btn-close"
+      ? `btn-close-${sizeName}`
+      : kind === "close"
+        ? `close-${sizeName}`
+        : `btn-${sizeName}`;
+  const whiteClass = white ? (kind === "close" ? "close-white" : "btn-close-white") : "";
 
-  const classes = classNames("btn-close", sizeClass, white && "btn-close-white", className);
+  const classes = classNames(kind, sizeClass, whiteClass, className);
 
   const baseAttrs = toAttributes({
     type: "button",

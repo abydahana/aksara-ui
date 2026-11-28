@@ -141,7 +141,7 @@ Combine a compact 1-column card (`bento-col-1`) with a wide 2-column showcase ca
         </button>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(145deg, #f59e0b 0%, #ea580c 50%, #991b1b 100%); min-height: 190px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="bento-visual p-0 rounded-lg overflow-hidden [background:linear-gradient(145deg,#f59e0b_0%,#ea580c_50%,#991b1b_100%)] min-h-[190px] [display:flex] [align-items:center] [justify-content:center] [position:relative]">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <circle cx="12" cy="12" r="4"></circle>
@@ -152,7 +152,7 @@ Combine a compact 1-column card (`bento-col-1`) with a wide 2-column showcase ca
             <line x1="2" y1="12" x2="4" y2="12"></line>
             <line x1="20" y1="12" x2="22" y2="12"></line>
           </svg>
-          <div style="position: absolute; bottom: 8px; left: 8px;" class="hstack gap-1">
+          <div class="hstack gap-1 [position:absolute] [left:8px] [bottom:8px]">
             <span class="badge badge-primary">RAW</span>
             <span class="badge badge-soft-primary">48 MP</span>
           </div>
@@ -182,16 +182,16 @@ Combine a compact 1-column card (`bento-col-1`) with a wide 2-column showcase ca
         </div>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3" style="background: linear-gradient(135deg, #0f172a 0%, #0369a1 50%, #10b981 100%); min-height: 190px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3 [background:linear-gradient(135deg,#1c1a18_0%,#3d3a37_50%,#8a847b_100%)] min-h-[190px] [display:flex] [align-items:center] [justify-content:center] [position:relative]">
           <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m8 3 4 8 5-5 5 15H2L8 3z"></path>
             <circle cx="18" cy="5" r="2"></circle>
           </svg>
-          <div style="position: absolute; top: 12px; right: 12px;" class="hstack gap-1">
+          <div class="hstack gap-1 [position:absolute] [right:12px] [top:12px]">
             <span class="badge badge-soft-info">Ultra HD</span>
             <span class="badge badge-soft-warning">DCI-P3</span>
           </div>
-          <div style="position: absolute; bottom: 12px; left: 12px; color: #ffffff;" class="text-xs fw-semibold">
+          <div class="text-xs fw-semibold [position:absolute] [left:12px] text-[#ffffff] [bottom:12px]">
             ISO 64 · 24mm · f/8.0 · 30s
           </div>
         </div>
@@ -263,6 +263,55 @@ Combine a compact 1-column card (`bento-col-1`) with a wide 2-column showcase ca
 </div>
 ```
 
+```js components
+import {
+  Badge,
+  BentoBody,
+  BentoCard,
+  BentoFooter,
+  BentoGrid,
+  BentoHeader,
+  BentoTitle,
+  BentoVisual,
+  Button
+} from "@abydahana/aksara-ui/components";
+
+BentoGrid({
+  cols: 3,
+  children: [
+    BentoCard({
+      colSpan: 1,
+      children: [
+        BentoHeader({
+          children: `<div>
+            ${Badge({ label: "Portrait · 3:4", variant: "warning", soft: true })}
+            ${BentoTitle({ title: "Golden Hour" })}
+            <p class="bento-subtitle">35mm Prime · f/1.4</p>
+          </div>`
+        }),
+        BentoBody({ children: BentoVisual({ children: "..." }) }),
+        BentoFooter({ children: "<span>Elena Rostova</span>" + Button({ label: "View", size: "sm", soft: true }) })
+      ].join("")
+    }),
+    BentoCard({
+      colSpan: 2,
+      featured: true,
+      children: [
+        BentoHeader({
+          children: `<div>
+            ${Badge({ label: "Featured · 16:9", soft: true })}
+            ${BentoTitle({ title: "Alpine Vista at Twilight" })}
+            <p class="bento-subtitle">24mm Ultra-Wide · HDR</p>
+          </div>`
+        }),
+        BentoBody({ children: BentoVisual({ children: "..." }) }),
+        BentoFooter({ children: "<span>Licensed CC BY-SA</span>" + Button({ label: "Download", size: "sm" }) })
+      ].join("")
+    })
+  ].join("")
+});
+```
+
 ---
 
 ### 1:3 Ratio Gallery (EXIF Specs Sidebar + Ultrawide Hero Banner)
@@ -308,11 +357,11 @@ Combine a compact 1-column specification sidebar (`bento-col-1`) with a sweeping
 
         <div class="text-xs text-subtle mb-1 fw-semibold">Color Palette</div>
         <div class="hstack gap-2">
-          <span style="inline-size: 18px; block-size: 18px; border-radius: 99px; background: #6366f1;"></span>
-          <span style="inline-size: 18px; block-size: 18px; border-radius: 99px; background: #ec4899;"></span>
-          <span style="inline-size: 18px; block-size: 18px; border-radius: 99px; background: #06b6d4;"></span>
-          <span style="inline-size: 18px; block-size: 18px; border-radius: 99px; background: #10b981;"></span>
-          <span style="inline-size: 18px; block-size: 18px; border-radius: 99px; background: #1e293b;"></span>
+          <span class="[inline-size:18px] [block-size:18px] rounded-[99px] [background:#6366f1]"></span>
+          <span class="[inline-size:18px] [block-size:18px] rounded-[99px] [background:#ec4899]"></span>
+          <span class="[inline-size:18px] [block-size:18px] rounded-[99px] [background:#06b6d4]"></span>
+          <span class="[inline-size:18px] [block-size:18px] rounded-[99px] [background:#10b981]"></span>
+          <span class="[inline-size:18px] [block-size:18px] rounded-[99px] [background:#1e293b]"></span>
         </div>
       </div>
       <div class="bento-footer">
@@ -339,7 +388,7 @@ Combine a compact 1-column specification sidebar (`bento-col-1`) with a sweeping
         </div>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3" style="background: linear-gradient(120deg, #18181b 0%, #311042 35%, #701a75 70%, #0369a1 100%); min-height: 190px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3 [background:linear-gradient(120deg,#18181b_0%,#311042_35%,#701a75_70%,#0369a1_100%)] min-h-[190px] [display:flex] [align-items:center] [justify-content:center] [position:relative]">
           <svg width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5">
             <rect x="10" y="20" width="18" height="40" rx="2"></rect>
             <rect x="34" y="10" width="24" height="50" rx="2"></rect>
@@ -347,12 +396,12 @@ Combine a compact 1-column specification sidebar (`bento-col-1`) with a sweeping
             <rect x="90" y="15" width="20" height="45" rx="2"></rect>
             <line x1="0" y1="60" x2="120" y2="60" stroke="#ec4899" stroke-width="2"></line>
           </svg>
-          <div style="position: absolute; bottom: 12px; left: 16px;" class="hstack gap-2">
+          <div class="hstack gap-2 [position:absolute] [left:16px] [bottom:12px]">
             <span class="badge badge-soft-light">Cyberpunk</span>
             <span class="badge badge-soft-light">Cityscape</span>
             <span class="badge badge-soft-light">Tokyo</span>
           </div>
-          <div style="position: absolute; top: 12px; right: 16px; color: #ffffff;" class="text-xs font-mono">
+          <div class="text-xs font-mono [position:absolute] [right:16px] text-[#ffffff] [top:12px]">
             Aspect: 21:9 · 7680 × 3290
           </div>
         </div>
@@ -408,6 +457,43 @@ Combine a compact 1-column specification sidebar (`bento-col-1`) with a sweeping
 </div>
 ```
 
+```js components
+import {
+  Badge,
+  BentoBody,
+  BentoCard,
+  BentoFooter,
+  BentoGrid,
+  BentoHeader,
+  BentoTitle,
+  BentoVisual,
+  Button
+} from "@abydahana/aksara-ui/components";
+
+BentoGrid({
+  cols: 4,
+  children: [
+    BentoCard({
+      colSpan: 1,
+      children: [
+        BentoHeader({ children: BentoTitle({ title: "Camera Info" }) }),
+        BentoBody({ children: "<!-- EXIF specs & color palette -->" }),
+        BentoFooter({ children: Badge({ label: "Verified RAW", variant: "success", soft: true }) })
+      ].join("")
+    }),
+    BentoCard({
+      colSpan: 3,
+      featured: true,
+      children: [
+        BentoHeader({ children: BentoTitle({ title: "Neon Nocturne: Rain Over Shinjuku" }) }),
+        BentoBody({ children: BentoVisual({ children: "..." }) }),
+        BentoFooter({ children: Button({ label: "License Print", size: "sm" }) })
+      ].join("")
+    })
+  ].join("")
+});
+```
+
 ---
 
 ### 2:2 Balanced Ratio Gallery (Dual Spotlight Split)
@@ -428,13 +514,13 @@ Equal 50/50 balance across desktop screens using two `bento-col-2` cards inside 
         <span class="mdi mdi-domain text-primary text-2xl"></span>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3" style="background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #64748b 100%); min-height: 160px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3 [background:linear-gradient(135deg,#272523_0%,#3d3a37_50%,#75716b_100%)] min-h-[160px] [display:flex] [align-items:center] [justify-content:center] [position:relative]">
           <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.3">
             <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
             <polyline points="2 17 12 22 22 17"></polyline>
             <polyline points="2 12 12 17 22 12"></polyline>
           </svg>
-          <div style="position: absolute; bottom: 8px; left: 12px;">
+          <div class="[position:absolute] [left:12px] [bottom:8px]">
             <span class="badge badge-soft-info">18 Works</span>
           </div>
         </div>
@@ -459,12 +545,12 @@ Equal 50/50 balance across desktop screens using two `bento-col-2` cards inside 
         <span class="mdi mdi-leaf text-success text-2xl"></span>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3" style="background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #10b981 100%); min-height: 160px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3 [background:linear-gradient(135deg,#064e3b_0%,#047857_50%,#10b981_100%)] min-h-[160px] [display:flex] [align-items:center] [justify-content:center] [position:relative]">
           <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.3">
             <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path>
             <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path>
           </svg>
-          <div style="position: absolute; bottom: 8px; left: 12px;">
+          <div class="[position:absolute] [left:12px] [bottom:8px]">
             <span class="badge badge-soft-success">24 Works</span>
           </div>
         </div>
@@ -511,6 +597,34 @@ Equal 50/50 balance across desktop screens using two `bento-col-2` cards inside 
 </div>
 ```
 
+```js components
+import {
+  BentoBody,
+  BentoCard,
+  BentoFooter,
+  BentoGrid,
+  BentoHeader,
+  BentoTitle,
+  BentoVisual,
+  Button
+} from "@abydahana/aksara-ui/components";
+
+const seriesCard = (title, variant) =>
+  BentoCard({
+    colSpan: 2,
+    children: [
+      BentoHeader({ children: BentoTitle({ title }) }),
+      BentoBody({ children: BentoVisual({ children: "..." }) }),
+      BentoFooter({ children: Button({ label: "Explore Series", size: "sm", soft: true, variant }) })
+    ].join("")
+  });
+
+BentoGrid({
+  cols: 4,
+  children: seriesCard("Monochrome Geometries", "primary") + seriesCard("Emerald Forest Canopy", "success")
+});
+```
+
 ---
 
 ### Asymmetric Mosaic with 2x2 Hero Spanning
@@ -531,7 +645,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
         <span class="mdi mdi-telescope text-warning text-2xl"></span>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3" style="background: linear-gradient(135deg, #09090b 0%, #1e1b4b 40%, #581c87 75%, #db2777 100%); min-height: 260px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="bento-visual p-0 rounded-xl overflow-hidden mb-3 [background:linear-gradient(135deg,#09090b_0%,#1e1b4b_40%,#581c87_75%,#db2777_100%)] min-h-[260px] [display:flex] [align-items:center] [justify-content:center] [position:relative]">
           <svg width="90" height="90" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="1.2">
             <circle cx="12" cy="12" r="9"></circle>
             <path d="m4.93 4.93 4.24 4.24"></path>
@@ -540,7 +654,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
             <path d="m9.17 14.83-4.24 4.24"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
-          <div style="position: absolute; bottom: 12px; left: 16px;" class="hstack gap-2">
+          <div class="hstack gap-2 [position:absolute] [left:16px] [bottom:12px]">
             <span class="badge badge-primary">Infrared composite</span>
             <span class="badge badge-soft-primary">Carina Nebula</span>
           </div>
@@ -568,7 +682,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
         <span class="mdi mdi-weather-night text-info text-xl"></span>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #022c22 0%, #059669 60%, #34d399 100%); min-height: 90px; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div class="bento-visual p-0 rounded-lg overflow-hidden [background:linear-gradient(135deg,#022c22_0%,#059669_60%,#34d399_100%)] min-h-[90px] [display:flex] [align-items:center] [justify-content:center] [position:relative]">
           <span class="text-xs font-mono text-light">KP-Index: 7.2 · Norway</span>
         </div>
       </div>
@@ -587,7 +701,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
         </div>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%); min-height: 80px; display: flex; align-items: center; justify-content: center;">
+        <div class="bento-visual p-0 rounded-lg overflow-hidden [background:linear-gradient(135deg,#7c2d12_0%,#ea580c_100%)] min-h-[80px] [display:flex] [align-items:center] [justify-content:center]">
           <span class="mdi mdi-white-balance-sunny text-light text-2xl"></span>
         </div>
       </div>
@@ -605,7 +719,7 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
         </div>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #334155 0%, #94a3b8 100%); min-height: 80px; display: flex; align-items: center; justify-content: center;">
+        <div class="bento-visual p-0 rounded-lg overflow-hidden [background:linear-gradient(135deg,#334155_0%,#94a3b8_100%)] min-h-[80px] [display:flex] [align-items:center] [justify-content:center]">
           <span class="mdi mdi-moon-waning-crescent text-light text-2xl"></span>
         </div>
       </div>
@@ -646,6 +760,43 @@ Create captivating asymmetric editorial layouts by combining a 2-column, 2-row p
 </div>
 ```
 
+```js components
+import {
+  BentoBody,
+  BentoCard,
+  BentoFooter,
+  BentoGrid,
+  BentoHeader,
+  BentoTitle,
+  BentoVisual,
+  Button
+} from "@abydahana/aksara-ui/components";
+
+BentoGrid({
+  cols: 4,
+  children: [
+    BentoCard({
+      colSpan: 2,
+      rowSpan: 2,
+      featured: true,
+      children: [
+        BentoHeader({ children: BentoTitle({ title: "Deep Space Nebula" }) }),
+        BentoBody({ children: BentoVisual({ children: "..." }) }),
+        BentoFooter({ children: Button({ label: "High-Res Viewer", size: "sm" }) })
+      ].join("")
+    }),
+    BentoCard({
+      colSpan: 2,
+      children:
+        BentoHeader({ children: BentoTitle({ title: "Tromsø Lights" }) }) +
+        BentoBody({ children: BentoVisual({ children: "..." }) })
+    }),
+    BentoCard({ colSpan: 1, children: "..." }),
+    BentoCard({ colSpan: 1, children: "..." })
+  ].join("")
+});
+```
+
 ---
 
 ### Triptych Gallery (1:1:1 Equal 3-Piece Suite)
@@ -666,7 +817,7 @@ For photo series shot across three harmonious moments, use three standard cards 
         <span class="mdi mdi-weather-sunset-up text-info text-xl"></span>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #0369a1 0%, #38bdf8 100%); min-height: 120px; display: flex; align-items: center; justify-content: center;">
+        <div class="bento-visual p-0 rounded-lg overflow-hidden [background:linear-gradient(135deg,#0369a1_0%,#38bdf8_100%)] min-h-[120px] [display:flex] [align-items:center] [justify-content:center]">
           <span class="badge badge-primary">Dawn</span>
         </div>
       </div>
@@ -687,7 +838,7 @@ For photo series shot across three harmonious moments, use three standard cards 
         <span class="mdi mdi-white-balance-sunny text-warning text-xl"></span>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%); min-height: 120px; display: flex; align-items: center; justify-content: center;">
+        <div class="bento-visual p-0 rounded-lg overflow-hidden [background:linear-gradient(135deg,#d97706_0%,#fbbf24_100%)] min-h-[120px] [display:flex] [align-items:center] [justify-content:center]">
           <span class="badge badge-primary">Noon</span>
         </div>
       </div>
@@ -708,7 +859,7 @@ For photo series shot across three harmonious moments, use three standard cards 
         <span class="mdi mdi-weather-sunset-down text-danger text-xl"></span>
       </div>
       <div class="bento-body">
-        <div class="bento-visual p-0 rounded-lg overflow-hidden" style="background: linear-gradient(135deg, #4338ca 0%, #818cf8 100%); min-height: 120px; display: flex; align-items: center; justify-content: center;">
+        <div class="bento-visual p-0 rounded-lg overflow-hidden [background:linear-gradient(135deg,#4338ca_0%,#818cf8_100%)] min-h-[120px] [display:flex] [align-items:center] [justify-content:center]">
           <span class="badge badge-primary">Dusk</span>
         </div>
       </div>
@@ -731,7 +882,7 @@ For photo series shot across three harmonious moments, use three standard cards 
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 220px;">Class</th>
+        <th class="w-[220px]">Class</th>
         <th>Description</th>
       </tr>
     </thead>

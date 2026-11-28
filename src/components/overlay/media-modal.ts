@@ -1,112 +1,96 @@
 import { classNames, escapeHtml, safeUrl, toAttributes } from "../utils";
 
+export interface MediaModalItem {
+  src: string;
+  alt?: string;
+  caption?: string;
+}
+
 export interface MediaPreviewModalProps {
   id?: string;
-  items: Array<{ src: string; alt?: string; caption?: string }>;
+  items: MediaModalItem[];
   activeIndex?: number;
+  /** Render it open (`media-modal-open`). Otherwise open it with `Aksara.media("#id").show(index)`. */
+  open?: boolean;
+  /** HTML for a side panel (comments, details); stacks under the stage on small screens. */
   sidebar?: string;
   showZoomControls?: boolean;
+  /** Wrap around from the last item to the first. */
+  loop?: boolean;
+  label?: string;
   className?: string;
   attributes?: Record<string, unknown>;
 }
 
+/**
+ * Full-screen media viewer. The runtime (`Aksara.media`, `[data-media-open]`,
+ * `[data-media-gallery]`) adds navigation, swipe, keyboard, zoom and pan.
+ */
 export function MediaPreviewModal(props: MediaPreviewModalProps): string {
   const {
     id = "media-modal",
     items = [],
     activeIndex = 0,
+    open = false,
     sidebar,
     showZoomControls = true,
+    loop = false,
+    label = "Media viewer",
     className = "",
     attributes
   } = props;
 
-  const total = items.length;
-  const currentIdx = Math.max(0, Math.min(activeIndex, Math.max(0, total - 1)));
-  const currentItem = items[currentIdx] || { src: "", alt: "" };
+  const safeItems = items.map((item) => ({
+    src: safeUrl(item.src),
+    alt: item.alt ?? "",
+    caption: item.caption ?? ""
+  }));
+  const total = safeItems.length;
+  const index = Math.max(0, Math.min(activeIndex, Math.max(0, total - 1)));
+  const current = safeItems[index] ?? { src: "", alt: "", caption: "" };
+  const multiple = total > 1;
 
   const baseAttrs = toAttributes({
     id,
     role: "dialog",
     "aria-modal": "true",
-    "data-active-index": currentIdx,
-    "data-total-items": total,
+    "aria-label": label,
+    "aria-hidden": open ? "false" : "true",
+    tabindex: "-1",
+    "data-media-items": JSON.stringify(safeItems),
+    "data-media-index": index,
+    "data-media-loop": loop ? "true" : undefined,
     ...attributes
   });
 
-  const counterHtml =
-    total > 1
-      ? `
-        <div class="media-modal-counter position-absolute top-4 start-[50%] translate-x-[-50%] z-[10] px-3 py-1 rounded-pill bg-[rgb(0_0_0/.6)] text-light text-sm fw-semibold pointer-events-none">
-          <span id="media-counter-text">${currentIdx + 1} / ${total}</span>
-        </div>
-      `.trim()
-      : "";
+  // Always rendered (hidden with fewer than two items) so items added later get navigation.
+  const hide = multiple ? "" : " hidden";
+  const nav = `<span class="media-modal-counter" aria-live="polite"${hide}><span data-media-current>${index + 1}</span> / <span data-media-total>${total}</span></span>
+      <button type="button" class="media-modal-btn media-modal-prev" data-media-prev aria-label="Previous"${!loop && index === 0 ? " disabled" : ""}${hide}><span class="mdi mdi-chevron-left"></span></button>
+      <button type="button" class="media-modal-btn media-modal-next" data-media-next aria-label="Next"${!loop && index >= total - 1 ? " disabled" : ""}${hide}><span class="mdi mdi-chevron-right"></span></button>`;
 
-  const prevBtnHtml =
-    total > 1
-      ? `
-        <button type="button" class="media-modal-btn media-modal-prev position-absolute start-4 top-[50%] translate-y-[-50%] z-[10] w-[3rem] h-[3rem] rounded-full d-flex align-items-center justify-content-center border-0 bg-[rgb(0_0_0/.6)] text-light text-xl cursor-pointer" data-media-prev aria-label="Previous media"${currentIdx === 0 ? " disabled" : ""}>
-          <span class="mdi mdi-chevron-left mdi-24px"></span>
-        </button>
-      `.trim()
-      : "";
-
-  const nextBtnHtml =
-    total > 1
-      ? `
-        <button type="button" class="media-modal-btn media-modal-next position-absolute end-4 top-[50%] translate-y-[-50%] z-[10] w-[3rem] h-[3rem] rounded-full d-flex align-items-center justify-content-center border-0 bg-[rgb(0_0_0/.6)] text-light text-xl cursor-pointer" data-media-next aria-label="Next media"${currentIdx === total - 1 ? " disabled" : ""}>
-          <span class="mdi mdi-chevron-right mdi-24px"></span>
-        </button>
-      `.trim()
-      : "";
-
-  const zoomControlsHtml = showZoomControls
-    ? `
-      <div class="media-modal-zoom-controls position-absolute bottom-4 start-[50%] translate-x-[-50%] z-[10] d-flex align-items-center gap-2 p-1 rounded-pill bg-[rgb(0_0_0/.7)]" id="media-zoom-controls">
-        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-light cursor-pointer" data-media-zoom-in aria-label="Zoom in" title="Zoom in">
-          <span class="mdi mdi-magnify-plus-outline mdi-18px"></span>
-        </button>
-        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-light cursor-pointer" data-media-zoom-out aria-label="Zoom out" title="Zoom out">
-          <span class="mdi mdi-magnify-minus-outline mdi-18px"></span>
-        </button>
-        <button type="button" class="media-zoom-btn w-[36px] h-[36px] rounded-full d-flex align-items-center justify-content-center border-0 bg-transparent text-light cursor-pointer" data-media-zoom-reset aria-label="Fit to screen" title="Fit to screen">
-          <span class="mdi mdi-fit-to-screen-outline mdi-18px"></span>
-        </button>
-      </div>
-    `.trim()
+  const zoom = showZoomControls
+    ? `<div class="media-modal-zoom" role="group" aria-label="Zoom">
+        <button type="button" data-media-zoom-out aria-label="Zoom out" title="Zoom out"><span class="mdi mdi-magnify-minus-outline"></span></button>
+        <button type="button" data-media-zoom-reset aria-label="Fit to screen" title="Fit to screen"><span class="mdi mdi-fit-to-screen-outline"></span></button>
+        <button type="button" data-media-zoom-in aria-label="Zoom in" title="Zoom in"><span class="mdi mdi-magnify-plus-outline"></span></button>
+      </div>`
     : "";
 
-  const sidebarHtml = sidebar
-    ? `
-      <div class="media-modal-sidebar w-full md:w-[360px] lg:w-[420px] shrink-0 border-start border-subtle bg-body d-flex flex-col overflow-y-auto">
-        ${sidebar}
-      </div>
-    `.trim()
-    : "";
+  const sidebarHtml = sidebar ? `<aside class="media-modal-sidebar">${sidebar}</aside>` : "";
 
   return `
-    <div class="${classNames("media-modal-backdrop position-fixed inset-0 z-[1050] d-flex bg-[rgb(0_0_0/.9)]", className)}"${baseAttrs}>
-      <div class="media-modal-container d-flex flex-col md:flex-row w-full h-full overflow-hidden">
-        <!-- Stage -->
-        <div class="media-modal-stage flex-1 position-relative d-flex align-items-center justify-content-center overflow-hidden">
-          <button type="button" class="media-modal-btn media-modal-close position-absolute top-4 start-4 z-[10] w-[2.5rem] h-[2.5rem] rounded-full d-flex align-items-center justify-content-center border-0 bg-[rgb(0_0_0/.6)] text-light cursor-pointer" data-media-close data-close-media-modal aria-label="Close">
-            <span class="mdi mdi-close mdi-18px"></span>
-          </button>
-
-          ${counterHtml}
-          ${prevBtnHtml}
-          ${nextBtnHtml}
-
-          <div class="media-modal-image-wrap d-flex align-items-center justify-content-center w-full h-full p-4">
-            <img src="${escapeHtml(safeUrl(currentItem.src))}" id="media-modal-active-img" class="mw-100 mh-100 object-contain block transition" alt="${escapeHtml(currentItem.alt || "Preview")}" />
-          </div>
-
-          ${zoomControlsHtml}
-        </div>
-
-        ${sidebarHtml}
+    <div class="${classNames("media-modal", open && "media-modal-open", className)}"${baseAttrs}>
+      <div class="media-modal-stage" data-media-stage>
+        <button type="button" class="media-modal-btn media-modal-close" data-media-close aria-label="Close"><span class="mdi mdi-close"></span></button>
+        ${nav}
+        <figure class="media-modal-figure">
+          <img class="media-modal-image" data-media-image src="${escapeHtml(current.src)}" alt="${escapeHtml(current.alt)}" draggable="false" />
+          <figcaption class="media-modal-caption" data-media-caption${current.caption ? "" : " hidden"}>${escapeHtml(current.caption)}</figcaption>
+        </figure>
+        ${zoom}
       </div>
+      ${sidebarHtml}
     </div>
   `.trim();
 }

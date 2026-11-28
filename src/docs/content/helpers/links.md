@@ -9,7 +9,7 @@ Link helpers provide semantic link colors and stretched clickable areas.
     <a class="link-success" href="#">Success link</a>
     <a class="link-danger" href="#">Danger link</a>
   </div>
-  <article class="card relative" style="max-width:420px;">
+  <article class="card relative max-w-[420px]">
     <div class="card-body">
       <h2 class="card-title">Stretched link card</h2>
       <p class="card-text">The link covers the whole positioned card.</p>

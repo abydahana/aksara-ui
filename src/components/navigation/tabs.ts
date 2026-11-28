@@ -2,7 +2,13 @@ import { classNames, escapeHtml, toAttributes } from "../utils";
 
 export interface TabItem {
   id: string;
+  /** Plain-text label (escaped). May be empty for icon-only tabs (set `ariaLabel`). */
   label: string;
+  /** Raw HTML label (e.g. text plus a badge); takes precedence over `label`. */
+  labelHtml?: string;
+  /** Accessible name for the tab button, required for icon-only tabs. */
+  ariaLabel?: string;
+  /** Raw HTML icon. */
   icon?: string;
   content: string;
   active?: boolean;
@@ -31,7 +37,10 @@ export function Tabs(props: TabsProps): string {
       const isSelected = idx === activeIndex;
       const btnClasses = classNames("tab", isSelected && "active", item.disabled && "disabled");
       const disabledAttr = item.disabled ? " disabled" : "";
-      const iconHtml = item.icon ? `<span class="tab-icon me-1 shrink-0" aria-hidden="true">${item.icon}</span>` : "";
+      const labelContent = item.labelHtml ?? escapeHtml(item.label);
+      const iconClass = classNames("tab-icon", labelContent && "me-1", "shrink-0");
+      const iconHtml = item.icon ? `<span class="${iconClass}" aria-hidden="true">${item.icon}</span>` : "";
+      const ariaLabelAttr = item.ariaLabel ? ` aria-label="${escapeHtml(item.ariaLabel)}"` : "";
 
       return `
         <button
@@ -42,10 +51,10 @@ export function Tabs(props: TabsProps): string {
           role="tab"
           aria-selected="${isSelected ? "true" : "false"}"
           tabindex="${isSelected ? "0" : "-1"}"
-          aria-controls="panel-${escapeHtml(item.id)}"
+          aria-controls="panel-${escapeHtml(item.id)}"${ariaLabelAttr}
           ${disabledAttr}
         >
-          ${iconHtml}${escapeHtml(item.label)}
+          ${iconHtml}${labelContent}
         </button>
       `.trim();
     })

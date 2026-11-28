@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, toAttributes } from "../utils";
+import { classNames, escapeHtml, normalizeSize, toAttributes, type ComponentSize } from "../utils";
 
 export interface CheckboxProps {
   label?: string;
@@ -8,6 +8,8 @@ export interface CheckboxProps {
   checked?: boolean;
   disabled?: boolean;
   inline?: boolean;
+  /** Matches the height of `.form-control-{size}` so it lines up with inputs of that size. */
+  size?: ComponentSize;
   isInvalid?: boolean;
   isValid?: boolean;
   className?: string;
@@ -16,15 +18,18 @@ export interface CheckboxProps {
   attributes?: Record<string, unknown>;
 }
 
+let checkboxIdCounter = 0;
+
 export function Checkbox(props: CheckboxProps = {}): string {
   const {
     label,
     name,
-    id,
+    id: idProp,
     value,
     checked = false,
     disabled = false,
     inline = false,
+    size,
     isInvalid = false,
     isValid = false,
     className = "",
@@ -33,7 +38,18 @@ export function Checkbox(props: CheckboxProps = {}): string {
     attributes
   } = props;
 
-  const containerClasses = classNames("form-check", inline && "form-check-inline", className);
+  // A label needs an id to point at; generate one when none is given.
+  const attrId = attributes?.id;
+  const id =
+    idProp ??
+    (typeof attrId === "string" && attrId ? attrId : label ? `aksara-check-${++checkboxIdCounter}` : undefined);
+
+  const containerClasses = classNames(
+    "form-check",
+    size && `form-check-${normalizeSize(size)}`,
+    inline && "form-check-inline",
+    className
+  );
 
   const inputClasses = classNames("form-check-input", isInvalid && "is-invalid", isValid && "is-valid", inputClassName);
 

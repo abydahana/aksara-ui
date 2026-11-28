@@ -7,3 +7,4 @@ export * from "./collapse";
 export * from "./media-modal";
 export * from "./picker-modal";
 export * from "./auth-modal";
+export * from "./bottom-sheet";

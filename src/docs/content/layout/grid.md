@@ -18,10 +18,10 @@ Use Bootstrap-like containers, rows, columns, offsets, plus CSS grid utilities.
 
 ```html
 <div class="container">
-  <div class="row gap-5">
+  <div class="row gap-3">
     <div class="col-12 md:col-6 lg:col-4">...</div>
   </div>
 </div>
 
-<div class="grid-3 gap-5"><div class="span-2">...</div></div>
+<div class="grid-3 gap-3"><div class="span-2">...</div></div>
 ```

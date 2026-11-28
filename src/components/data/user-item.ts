@@ -11,6 +11,7 @@ export interface UserItemProps {
   verified?: boolean;
   status?: "online" | "offline" | "busy" | "away";
   href?: string;
+  /** Trailing HTML (a badge, a button) placed at the end of the row. */
   action?: string;
   /** Extra attributes for the profile link (e.g. `{ "data-link": "" }` for a SPA router). */
   linkAttributes?: Record<string, unknown>;
@@ -35,10 +36,7 @@ export function UserItem(props: UserItemProps): string {
     attributes
   } = props;
 
-  const containerClasses = classNames(
-    "user-item d-flex align-items-center justify-content-between px-3 py-2 border-bottom border-subtle",
-    className
-  );
+  const containerClasses = classNames("user-item", className);
 
   const avatarHtml = Avatar({
     src: avatar,
@@ -47,55 +45,46 @@ export function UserItem(props: UserItemProps): string {
     shape: "circle",
     status,
     variant: avatarVariant,
-    alt: name
+    alt: status ? `${name}, ${status}` : name
   });
 
   const verifiedBadge = verified
-    ? `<i class="mdi mdi-check-decagram text-primary ms-1" style="font-size: 1rem; vertical-align: middle;" title="Verified"></i>`
+    ? `<span class="mdi mdi-check-decagram user-item-verified" title="Verified" aria-label="Verified" role="img"></span>`
     : "";
 
   const cleanHandle = handle ? handle.replace(/^@/, "").trim() : "";
   const handleHtml = cleanHandle
-    ? `<div class="user-item-handle text-subtle text-sm truncate">@${escapeHtml(cleanHandle)}</div>`
+    ? `<div class="user-item-subtitle user-item-handle truncate">@${escapeHtml(cleanHandle)}</div>`
     : "";
 
   const hasDistinctSubtitle = Boolean(subtitle && (!cleanHandle || subtitle.replace(/^@/, "").trim() !== cleanHandle));
   const subtitleHtml = hasDistinctSubtitle
-    ? `<div class="user-item-subtitle text-subtle ${cleanHandle ? "text-xs" : "text-sm"} truncate mt-1">${escapeHtml(subtitle!)}</div>`
+    ? `<div class="user-item-subtitle truncate">${escapeHtml(subtitle!)}</div>`
     : "";
 
-  const contentCol = `
-    <div class="user-item-info flex-1 min-w-0">
-      <div class="d-flex align-items-center">
-        <span class="user-item-name fw-bold text-sm truncate text-body">${escapeHtml(name)}</span>
-        ${verifiedBadge}
-      </div>
+  const infoHtml = `
+    <div class="user-item-info">
+      <div class="user-item-name">${escapeHtml(name)}${verifiedBadge}</div>
       ${handleHtml}
       ${subtitleHtml}
     </div>
   `.trim();
 
-  const leftPart = href
-    ? `
-      <a href="${escapeHtml(safeUrl(href))}" class="user-item-link d-flex align-items-center gap-3 no-underline flex-1 min-w-0"${toAttributes(linkAttributes)}>
+  // With `href`, the avatar and text become one link; otherwise they sit directly in the row.
+  const mainHtml = href
+    ? `<a href="${escapeHtml(safeUrl(href))}" class="user-item-link"${toAttributes(linkAttributes)}>
         ${avatarHtml}
-        ${contentCol}
-      </a>
-    `.trim()
-    : `
-      <div class="d-flex align-items-center gap-3 flex-1 min-w-0">
-        ${avatarHtml}
-        ${contentCol}
-      </div>
-    `.trim();
+        ${infoHtml}
+      </a>`
+    : `${avatarHtml}
+      ${infoHtml}`;
 
-  const actionHtml = action ? `<div class="user-item-action ms-3 shrink-0">${action}</div>` : "";
   const baseAttrs = toAttributes(attributes);
 
   return `
     <div class="${containerClasses}"${baseAttrs}>
-      ${leftPart}
-      ${actionHtml}
+      ${mainHtml}
+      ${action ?? ""}
     </div>
   `.trim();
 }

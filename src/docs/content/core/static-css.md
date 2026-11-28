@@ -85,9 +85,9 @@ Spacing, inset, translate, border width and opacity share one small `0..5` scale
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">Utility Group</th>
-        <th style="width: 35%;">Static Scale</th>
-        <th style="width: 40%;">Other Values</th>
+        <th class="w-[25%]">Utility Group</th>
+        <th class="w-[35%]">Static Scale</th>
+        <th class="w-[40%]">Other Values</th>
       </tr>
     </thead>
     <tbody>

@@ -1,25 +1,40 @@
 import { classNames, escapeHtml, toAttributes } from "../utils";
 import { Button } from "../buttons/button";
-import { Card } from "../data/card";
 
 export interface GuestGateProps {
   title?: string;
   description?: string;
   buttonText?: string;
+  /** Full login URL. Overrides `loginPath` + `redirectTo`. */
   loginUrl?: string;
+  /** Redirect target appended to `loginPath` as `?{redirectParam}=…`. */
   redirectTo?: string;
+  /** Base login path when `loginUrl` is not given. Default `/login`. */
+  loginPath?: string;
+  /** Query parameter carrying `redirectTo`. Default `redirect`. */
+  redirectParam?: string;
+  /** Optional second action (e.g. "Create account"). */
+  secondaryText?: string;
+  secondaryUrl?: string;
   className?: string;
+  /** `card` (default, with a blurred teaser above), `inline` (no frame) or `slide` (full-height panel). */
   variant?: "card" | "inline" | "slide";
+  /** Icon HTML; defaults to an MDI lock icon. */
   icon?: string;
   showTeaserSkeleton?: boolean;
-  /** Extra attributes for the login link (e.g. `{ "data-link": "" }` for a SPA router). */
+  /** Extra attributes for both action links (e.g. `{ "data-link": "" }` for a SPA router). */
   linkAttributes?: Record<string, unknown>;
   attributes?: Record<string, unknown>;
 }
 
+const TEASER = `<div class="guest-gate-teaser" aria-hidden="true">
+    <div class="hstack gap-3"><span class="skeleton skeleton-circle w-[40px] h-[40px]"></span><span class="vstack gap-2 flex-1"><span class="skeleton skeleton-text w-[40%] m-0"></span><span class="skeleton skeleton-text w-[25%] m-0"></span></span></div>
+    <span class="skeleton skeleton-text w-[90%] m-0"></span>
+    <span class="skeleton skeleton-text w-[70%] m-0"></span>
+  </div>`;
+
 /**
- * Universal guest gate component that prompts unauthenticated users
- * to log in with clear CTA and optional teaser skeleton preview.
+ * Prompts signed-out visitors to log in, optionally under a faded teaser of the hidden content.
  */
 export function GuestGate(props: GuestGateProps = {}): string {
   const {
@@ -28,6 +43,10 @@ export function GuestGate(props: GuestGateProps = {}): string {
     buttonText = "Log in",
     loginUrl,
     redirectTo,
+    loginPath = "/login",
+    redirectParam = "redirect",
+    secondaryText,
+    secondaryUrl = "/register",
     className = "",
     variant = "card",
     icon,
@@ -36,87 +55,52 @@ export function GuestGate(props: GuestGateProps = {}): string {
     attributes
   } = props;
 
-  const resolvedLoginUrl = loginUrl || (redirectTo ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login");
-  const baseAttrs = toAttributes(attributes);
+  const separator = loginPath.includes("?") ? "&" : "?";
+  const resolvedLoginUrl =
+    loginUrl ||
+    (redirectTo && redirectParam
+      ? `${loginPath}${separator}${encodeURIComponent(redirectParam)}=${encodeURIComponent(redirectTo)}`
+      : loginPath);
+  const defaultIcon = variant === "slide" ? "mdi-play-box-lock-outline" : "mdi-account-lock-outline";
+  const iconHtml = icon ?? `<span class="mdi ${defaultIcon}"></span>`;
 
-  if (variant === "slide") {
-    const slideIcon = icon || '<i class="mdi mdi-play-box-lock-outline text-3xl"></i>';
-    return `
-      <div class="${classNames("guest-gate-slide d-flex flex-column align-items-center justify-content-center h-100 p-4 text-center min-h-[70vh]", className)}"${baseAttrs}>
-        <div class="guest-gate-icon mb-3 rounded-circle bg-primary/10 text-primary d-flex align-items-center justify-content-center shadow-sm mx-auto w-[4rem] h-[4rem]">
-          ${slideIcon}
-        </div>
-        <h3 class="fw-bold text-2xl mb-2 text-body">${escapeHtml(title)}</h3>
-        <p class="text-subtle text-sm mx-auto mb-4 max-w-[360px]">${escapeHtml(description)}</p>
-        ${Button({
-          href: resolvedLoginUrl,
-          variant: "primary",
-          pill: true,
-          size: "lg",
-          className: "px-4 py-2 fw-semibold shadow-md mx-auto d-inline-flex align-items-center",
-          attributes: linkAttributes,
-          children: `<i class="mdi mdi-login me-2"></i><span>${escapeHtml(buttonText)}</span>`
-        })}
-      </div>
-    `.trim();
-  }
-
-  const teaserHtml = showTeaserSkeleton
-    ? `
-      <!-- Teaser Skeleton Blur Header -->
-      <div class="guest-gate-preview-blur position-relative overflow-hidden mb-3 pt-2 max-h-[70px] opacity-[.35] pointer-events-none [mask-image:linear-gradient(to_top,transparent,black_80%)] [-webkit-mask-image:linear-gradient(to_top,transparent,black_80%)]">
-        <div class="d-flex align-items-center gap-3 px-3 mb-2">
-          <div class="rounded-circle bg-subtle shrink-0 w-[40px] h-[40px]"></div>
-          <div class="flex-1">
-            <div class="bg-subtle rounded-pill mb-1 h-[0.75rem] w-[140px]"></div>
-            <div class="bg-subtle rounded-pill h-[0.5rem] w-[90px]"></div>
-          </div>
-        </div>
-        <div class="w-[75%] bg-subtle rounded-pill mx-3 mb-1 h-[0.5rem]"></div>
-        <div class="w-[50%] bg-subtle rounded-pill mx-3 h-[0.5rem]"></div>
-      </div>
-    `.trim()
-    : "";
-
-  const cardIcon = icon || '<i class="mdi mdi-account-lock-outline text-2xl"></i>';
-
-  const cardContent = `
-    <div class="d-flex flex-column align-items-center justify-content-center">
-      <div class="rounded-circle bg-primary/10 text-primary d-flex align-items-center justify-content-center mb-3 shadow-sm w-[3.25rem] h-[3.25rem]">
-        ${cardIcon}
-      </div>
-      <h4 class="fw-bold text-xl mb-2 text-body">${escapeHtml(title)}</h4>
-      <p class="text-subtle text-sm mb-3 leading-relaxed max-w-[420px]">${escapeHtml(description)}</p>
+  const content = `
+    <div class="guest-gate-icon" aria-hidden="true">${iconHtml}</div>
+    <h4 class="guest-gate-title">${escapeHtml(title)}</h4>
+    <p class="guest-gate-text">${escapeHtml(description)}</p>
+    <div class="guest-gate-actions">
       ${Button({
         href: resolvedLoginUrl,
         variant: "primary",
         pill: true,
-        size: "lg",
-        className:
-          "w-100 py-2 fw-semibold d-inline-flex align-items-center justify-content-center shadow-sm max-w-[320px]",
         attributes: linkAttributes,
-        children: `<span>${escapeHtml(buttonText)}</span>`
+        children: `<span class="mdi mdi-login"></span><span>${escapeHtml(buttonText)}</span>`
       })}
-    </div>
-  `.trim();
+      ${
+        secondaryText
+          ? Button({
+              href: secondaryUrl,
+              plain: true,
+              pill: true,
+              attributes: linkAttributes,
+              children: escapeHtml(secondaryText)
+            })
+          : ""
+      }
+    </div>`;
 
-  if (variant === "inline") {
-    return `
-      <div class="${classNames("guest-gate-wrapper my-4 position-relative text-center", className)}"${baseAttrs}>
-        ${cardContent}
-      </div>
-    `.trim();
+  const rootAttrs = toAttributes(attributes);
+
+  if (variant === "slide") {
+    return `<div class="${classNames("guest-gate guest-gate-slide", className)}"${rootAttrs}>${content}</div>`;
   }
-
-  return `
-    <div class="${classNames("guest-gate-wrapper my-4 position-relative text-center", className)}"${baseAttrs}>
-      ${teaserHtml}
-      ${Card({
-        className: "border border-subtle shadow-sm rounded-xl p-4 bg-body mx-auto text-center max-w-[540px]",
-        children: cardContent
-      })}
-    </div>
-  `.trim();
+  if (variant === "inline") {
+    return `<div class="${classNames("guest-gate guest-gate-inline", className)}"${rootAttrs}>${content}</div>`;
+  }
+  return `<div class="${classNames("guest-gate", className)}"${rootAttrs}>
+    ${showTeaserSkeleton ? TEASER : ""}
+    <div class="guest-gate-card">${content}</div>
+  </div>`;
 }
 
 export const guestGate = GuestGate;

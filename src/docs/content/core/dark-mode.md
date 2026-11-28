@@ -43,51 +43,61 @@ Aksara UI provides powerful optional **adaptive utilities** that automatically t
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 25%;">Adaptive Class</th>
-        <th style="width: 35%;">Light Theme Value</th>
-        <th style="width: 40%;">Dark Theme Value</th>
+        <th class="w-[25%]">Adaptive Class</th>
+        <th class="w-[35%]">Light Theme Value</th>
+        <th class="w-[40%]">Dark Theme Value</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td><code>bg-body</code></td>
-        <td>Soft clean background (<code>#fbfcff</code>)</td>
-        <td>Deep rich navy/gray (<code>#0b1020</code>)</td>
+        <td>Warm paper (<code>#fcfcfb</code>)</td>
+        <td>Warm black (<code>#121110</code>)</td>
+      </tr>
+      <tr>
+        <td><code>bg-surface</code></td>
+        <td>Card surface (<code>#ffffff</code>)</td>
+        <td>Lifted black (<code>#1a1918</code>)</td>
       </tr>
       <tr>
         <td><code>bg-subtle</code></td>
-        <td>Light slate tint (<code>#f4f7fb</code>)</td>
-        <td>Subtle navy slate (<code>#182033</code>)</td>
+        <td>Soft stone tint (<code>#f3f2f0</code>)</td>
+        <td>Soft charcoal tint (<code>#242321</code>)</td>
       </tr>
       <tr>
         <td><code>bg-invert</code></td>
-        <td>Dark slate (<code>#0f172a</code>)</td>
-        <td>White slate (<code>#f8fafc</code>)</td>
+        <td>Near-black (<code>#1c1a18</code>)</td>
+        <td>Off-white (<code>#f7f6f4</code>)</td>
       </tr>
       <tr>
         <td><code>text-body</code></td>
-        <td>Dark slate text (<code>#172033</code>)</td>
-        <td>Pure off-white text (<code>#f8fafc</code>)</td>
+        <td>Near-black text (<code>#1c1a18</code>)</td>
+        <td>Soft off-white text (<code>#edebe8</code>)</td>
       </tr>
       <tr>
         <td><code>text-subtle</code></td>
-        <td>Medium gray (<code>#64748b</code>)</td>
-        <td>Soft muted blue-gray (<code>#aebacc</code>)</td>
+        <td>Warm gray (<code>#69655f</code>)</td>
+        <td>Muted stone (<code>#a19d97</code>)</td>
       </tr>
       <tr>
         <td><code>text-invert</code></td>
-        <td>Off-white text (<code>#f8fafc</code>)</td>
-        <td>Dark slate text (<code>#0f172a</code>)</td>
+        <td>Off-white text (<code>#f7f6f4</code>)</td>
+        <td>Near-black text (<code>#1c1a18</code>)</td>
       </tr>
       <tr>
         <td><code>border-body</code></td>
-        <td>Muted cool-gray border (<code>#d7deea</code>)</td>
-        <td>Medium slate border (<code>#334155</code>)</td>
+        <td>Quiet border (<code>#e5e3df</code>)</td>
+        <td>Charcoal border (<code>#2e2c2a</code>)</td>
       </tr>
       <tr>
         <td><code>border-subtle</code></td>
-        <td>Extra soft border (<code>#e6ebf3</code>)</td>
-        <td>Soft dark border (<code>#263247</code>)</td>
+        <td>Hairline (<code>#ebe9e6</code>)</td>
+        <td>Soft hairline (<code>#272523</code>)</td>
+      </tr>
+      <tr>
+        <td><code>primary</code> palette</td>
+        <td>Near-black (<code>34 32 29</code>), white text</td>
+        <td>Off-white (<code>236 233 228</code>), dark text</td>
       </tr>
     </tbody>
   </table>
@@ -123,35 +133,35 @@ document.documentElement.addEventListener("aksara:theme:change", (event) => {
 
 ## Interactive Theme Showcase
 
-See the contrast side-by-side! Below are identical HTML card components rendered specifically inside simulated Light and Dark containers:
+Wrap any subtree in `.light` or `.dark` to scope a theme to it. Surfaces, text, borders **and the palette** switch together, so the same markup below renders as a real light card and a real dark card:
 
 ::html
 <div class="docs-preview">
-  <div class="row gap-4">
-    <!-- Light Mode Container -->
+  <div class="row gap-3">
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-[16px] border" style="background-color: #fbfcff; border-color: #d7deea; color: #172033;">
-        <span class="badge badge-soft-primary mb-3">Light Sandbox</span>
-        <h4 class="mt-0 mb-2 font-extrabold" style="color: #172033;">Aksara UI Soft Light</h4>
-        <p class="text-sm mb-5 mt-0" style="color: #64748b; line-height: 1.6;">
-          Adaptive utilities automatically render elegant bright surfaces with soft contrast lines and highly readable primary accents.
-        </p>
-        <button class="btn btn-primary btn-sm">Primary Action</button>
+      <div class="light p-4 rounded-[16px] border border-subtle bg-body text-body">
+        <span class="badge badge-soft-primary mb-3">Light scope</span>
+        <h4 class="mt-0 mb-2">Soft Light</h4>
+        <p class="text-subtle text-sm mb-4 mt-0">Soft paper surfaces, hairline borders and a near-black primary with white text.</p>
+        <div class="docs-row">
+          <button class="btn btn-primary btn-sm">Primary</button>
+          <button class="btn btn-soft-success btn-sm">Soft</button>
+          <button class="btn btn-outline-danger btn-sm">Outline</button>
+        </div>
       </div>
     </div>
-
-    <!-- Dark Mode Container -->
     <div class="col-12 md:col-6">
-      <div class="p-4 rounded-[16px] border" style="background-color: #0b1020; border-color: #334155; color: #f8fafc;">
-        <span class="badge badge-soft-primary mb-3">Dark Sandbox</span>
-        <h4 class="mt-0 mb-2 font-extrabold" style="color: #f8fafc;">Aksara UI Deep Dark</h4>
-        <p class="text-sm mb-5 mt-0" style="color: #aebacc; line-height: 1.6;">
-          Automatically toggling to dark mode adjusts backgrounds to an ultra-comfortable dark shade, keeping typography crisp.
-        </p>
-        <button class="btn btn-primary btn-sm">Primary Action</button>
+      <div class="dark p-4 rounded-[16px] border border-subtle bg-body text-body">
+        <span class="badge badge-soft-primary mb-3">Dark scope</span>
+        <h4 class="mt-0 mb-2">Soft Dark</h4>
+        <p class="text-subtle text-sm mb-4 mt-0">Near-black surfaces with lifted fills; the primary turns off-white with dark text.</p>
+        <div class="docs-row">
+          <button class="btn btn-primary btn-sm">Primary</button>
+          <button class="btn btn-soft-success btn-sm">Soft</button>
+          <button class="btn btn-outline-danger btn-sm">Outline</button>
+        </div>
       </div>
     </div>
-
   </div>
 </div>
 ::end

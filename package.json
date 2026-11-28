@@ -1,6 +1,6 @@
 {
   "name": "@abydahana/aksara-ui",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "publishConfig": {
     "access": "public"
   },
@@ -60,6 +60,11 @@
       "import": "./dist/components/navigation/index.js",
       "default": "./dist/components/navigation/index.js"
     },
+    "./components/layout": {
+      "types": "./dist/components/layout/index.d.ts",
+      "import": "./dist/components/layout/index.js",
+      "default": "./dist/components/layout/index.js"
+    },
     "./components/buttons": {
       "types": "./dist/components/buttons/index.d.ts",
       "import": "./dist/components/buttons/index.js",
@@ -110,12 +115,14 @@
     "eslint-plugin-unicorn": "^65.0.1",
     "jiti": "^2.7.0",
     "prettier": "^3.9.6",
+    "tom-select": "^2.7.0",
     "tsx": "^4.19.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.68.0"
   },
   "peerDependencies": {
-    "@mdi/font": "^7.4.47"
+    "@mdi/font": "^7.4.47",
+    "tom-select": "^2.4.0"
   },
   "author": "Aby Dahana",
   "sideEffects": [
@@ -127,5 +134,10 @@
   ],
   "engines": {
     "node": ">=20"
+  },
+  "peerDependenciesMeta": {
+    "tom-select": {
+      "optional": true
+    }
   }
 }

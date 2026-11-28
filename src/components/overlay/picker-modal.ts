@@ -1,15 +1,19 @@
-import { classNames, escapeHtml } from "../utils";
+import { classNames, escapeHtml, toAttributes } from "../utils";
 import { Modal, ModalHeader, ModalBody, ModalFooter } from "./modal";
 import { Button } from "../buttons/button";
 
 export interface OptionPickerItem {
   value: string;
   label: string;
+  /** MDI icon name, with or without the `mdi-` prefix. */
   icon?: string;
+  /** Extra classes for the icon circle (e.g. `text-danger`). */
   iconClass?: string;
   badge?: string;
+  /** Badge color; rendered as a soft badge (`badge-soft-{variant}`). */
   badgeVariant?: string;
   description?: string;
+  disabled?: boolean;
 }
 
 export interface OptionPickerModalOptions {
@@ -20,10 +24,26 @@ export interface OptionPickerModalOptions {
   options: OptionPickerItem[];
   selectedValue?: string;
   cancelLabel?: string;
+  /** Close when an option is picked (default `true`). */
+  closeOnSelect?: boolean;
+  /** Ignore backdrop clicks (shakes instead). Default `false`: tapping outside cancels. */
+  staticBackdrop?: boolean;
   className?: string;
   attributes?: Record<string, unknown>;
 }
 
+const BADGE_VARIANTS = ["primary", "secondary", "tertiary", "success", "danger", "warning", "info", "dark", "light"];
+
+function mdiClass(icon: string): string {
+  const name = icon.replace(/^mdi\s+/, "").trim();
+  return name.startsWith("mdi-") ? name : `mdi-${name}`;
+}
+
+/**
+ * Modal list of options with icons, descriptions and a check on the current value.
+ * The runtime marks the picked option, emits `aksara:picker:select` ({ value, label, option })
+ * and closes; `Aksara.pick({...})` builds one on the fly and resolves with the value.
+ */
 export function OptionPickerModal(options: OptionPickerModalOptions): string {
   const {
     id = "aksaraOptionPickerModal",
@@ -33,122 +53,69 @@ export function OptionPickerModal(options: OptionPickerModalOptions): string {
     options: items = [],
     selectedValue,
     cancelLabel = "Cancel",
+    closeOnSelect = true,
+    staticBackdrop = false,
     className = "",
     attributes
   } = options;
+
+  const titleId = `${id}-title`;
+  const optionsHtml = items
+    .map((item) => {
+      const selected =
+        selectedValue !== undefined && String(selectedValue).toLowerCase() === String(item.value).toLowerCase();
+      const variant = BADGE_VARIANTS.includes(item.badgeVariant ?? "") ? item.badgeVariant : "secondary";
+      const badge = item.badge
+        ? `<span class="badge badge-soft-${variant} rounded-pill">${escapeHtml(item.badge)}</span>`
+        : "";
+      const description = item.description
+        ? `<span class="picker-option-desc">${escapeHtml(item.description)}</span>`
+        : "";
+      const attrs = toAttributes({
+        type: "button",
+        role: "option",
+        "aria-selected": selected ? "true" : "false",
+        "data-picker-value": item.value,
+        disabled: item.disabled
+      });
+      return `<button class="${classNames("picker-option", selected && "is-selected")}"${attrs}>
+          <span class="${classNames("picker-option-icon", item.iconClass)}" aria-hidden="true"><span class="mdi ${escapeHtml(mdiClass(item.icon || "mdi-circle-medium"))}"></span></span>
+          <span class="picker-option-text"><span class="picker-option-label">${escapeHtml(item.label)}</span>${description}</span>
+          ${badge}
+          <span class="picker-option-check mdi mdi-check" aria-hidden="true"></span>
+        </button>`;
+    })
+    .join("");
 
   return Modal({
     id,
     centered: true,
     scrollable: true,
-    staticBackdrop: true,
+    staticBackdrop,
     className: classNames("picker-modal", className),
     attributes: {
-      style: "z-index: 10050 !important;",
+      "aria-labelledby": titleId,
       "data-modal-draggable": "false",
+      "data-picker-close": closeOnSelect ? undefined : "false",
       ...attributes
     },
     children: `
       ${ModalHeader({
-        dismissible: true,
-        className: "px-3 md:px-[1.5rem] py-3 border-bottom border-subtle bg-transparent",
-        children: `
-          <div class="d-flex align-items-center gap-2 me-auto min-w-0">
-            <div class="w-[38px] h-[38px] min-w-[38px] rounded-circle bg-primary/10 text-primary d-flex align-items-center justify-content-center shrink-0">
-              <i class="mdi ${escapeHtml(icon)} text-lg"></i>
+        children: `<div class="picker-heading">
+            <span class="picker-option-icon" aria-hidden="true"><span class="mdi ${escapeHtml(mdiClass(icon))}"></span></span>
+            <div class="picker-heading-text">
+              <h5 id="${escapeHtml(titleId)}" class="modal-title m-0">${escapeHtml(title)}</h5>
+              ${subtitle ? `<div class="picker-subtitle">${escapeHtml(subtitle)}</div>` : ""}
             </div>
-            <div class="min-w-0">
-              <h5 class="modal-title fw-bold text-body m-0 text-sm md:text-[1rem] truncate leading-tight">
-                ${escapeHtml(title)}
-              </h5>
-              ${subtitle ? `<div class="text-xs text-subtle truncate leading-tight mt-1">${escapeHtml(subtitle)}</div>` : ""}
-            </div>
-          </div>
-        `
+          </div>`
       })}
-      ${ModalBody({
-        className: "p-0 overflow-y-auto max-h-[60vh] bg-transparent",
-        children: `
-          <div class="list-group list-group-flush border-0 bg-transparent w-100" id="${escapeHtml(id)}-list">
-            ${items
-              .map((item, index) => {
-                const isSelected =
-                  selectedValue !== undefined &&
-                  String(selectedValue).toLowerCase() === String(item.value).toLowerCase();
-                const rawIcon = (item.icon || "mdi-circle-medium").replace(/^mdi\s+/, "").trim();
-                const iconClass = rawIcon.startsWith("mdi-") ? rawIcon : `mdi-${rawIcon}`;
-                const isLast = index === items.length - 1;
-                return `
-                  <button
-                    type="button"
-                    class="${classNames(
-                      "list-group-item list-group-item-action d-flex align-items-center justify-content-between px-3 md:px-[1.5rem] py-3 bg-transparent border-0",
-                      !isLast && "border-bottom border-subtle",
-                      "text-start transition"
-                    )}"
-                    data-picker-value="${escapeHtml(item.value)}"
-                  >
-                    <div class="d-flex align-items-center gap-3 min-w-0 flex-1">
-                      <!-- Perfectly Round Circular Icon -->
-                      <div class="${classNames(
-                        "w-[38px] h-[38px] min-w-[38px] rounded-circle",
-                        isSelected ? "bg-primary text-light" : `bg-subtle ${item.iconClass || "text-body"}`,
-                        "d-flex align-items-center justify-content-center shrink-0"
-                      )}">
-                        <i class="mdi ${escapeHtml(iconClass)} text-lg leading-none"></i>
-                      </div>
-                      <!-- Label & Description -->
-                      <div class="d-flex flex-column min-w-0 flex-1">
-                        <span class="fw-semibold text-sm ${
-                          isSelected ? "text-primary fw-bold" : "text-body"
-                        } truncate leading-tight">
-                          ${escapeHtml(item.label)}
-                        </span>
-                        ${
-                          item.description
-                            ? `<span class="text-xs text-subtle truncate leading-tight mt-1">${escapeHtml(
-                                item.description
-                              )}</span>`
-                            : ""
-                        }
-                      </div>
-                    </div>
-                    <!-- Right Checkmark Indicator & Badge -->
-                    <div class="d-flex align-items-center gap-2 shrink-0 ms-2">
-                      ${
-                        item.badge
-                          ? `<span class="${classNames(
-                              "badge",
-                              item.badgeVariant ? `badge-${item.badgeVariant}` : "badge-subtle",
-                              "text-xs px-2 py-1 rounded-pill fw-semibold"
-                            )}">${escapeHtml(item.badge)}</span>`
-                          : ""
-                      }
-                      ${
-                        isSelected
-                          ? `<i class="mdi mdi-check text-primary fw-bold text-xl leading-none"></i>`
-                          : `<span class="w-[1.25rem]"></span>`
-                      }
-                    </div>
-                  </button>
-                `;
-              })
-              .join("")}
-          </div>
-        `
-      })}
+      ${ModalBody({ children: `<div class="picker-list" role="listbox" aria-labelledby="${escapeHtml(titleId)}">${optionsHtml}</div>` })}
       ${ModalFooter({
-        className:
-          "d-flex align-items-center justify-content-end px-3 md:px-[1.5rem] py-3 border-top border-subtle bg-transparent shrink-0",
         children: Button({
           type: "button",
-          ghost: true,
+          plain: true,
           size: "sm",
-          pill: true,
-          className: "px-4 text-subtle hover:text-body fw-semibold",
-          attributes: {
-            "data-modal-close": ""
-          },
+          attributes: { "data-modal-close": "" },
           children: escapeHtml(cancelLabel)
         })
       })}

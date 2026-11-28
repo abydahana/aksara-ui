@@ -62,6 +62,62 @@ Aksara UI features a clean, bordered pagination pattern. Use active (`aria-curre
 </ul>
 ```
 
+```js components
+import { Pagination } from "@abydahana/aksara-ui/components";
+
+// Standard Pagination
+Pagination({
+  items: [{ label: "Previous" }, { label: "1" }, { label: "2", active: true }, { label: "3" }, { label: "Next" }]
+});
+
+// Icon Navigation: `content` is raw HTML, `label` is the escaped fallback
+Pagination({
+  items: [
+    { label: "First", content: '<span class="mdi mdi-chevron-double-left"></span>', disabled: true },
+    { label: "1" },
+    { label: "2", active: true },
+    { label: "Next", content: '<span class="mdi mdi-chevron-right"></span>' }
+  ]
+});
+```
+
+---
+
+## Outline Pagination
+
+Page links are borderless by default: the current page is a solid primary pill and the rest only tint on hover. Add `pagination-outline` to give every link a hairline border, which reads better on busy backgrounds.
+
+::html
+<div class="docs-preview py-4">
+  <ul class="pagination pagination-outline">
+    <li><a href="#" class="page-link"><span class="mdi mdi-chevron-left"></span></a></li>
+    <li><a href="#" class="page-link">1</a></li>
+    <li><a href="#" class="page-link" aria-current="page">2</a></li>
+    <li><a href="#" class="page-link">3</a></li>
+    <li><span class="page-link disabled">…</span></li>
+    <li><a href="#" class="page-link">12</a></li>
+    <li><a href="#" class="page-link"><span class="mdi mdi-chevron-right"></span></a></li>
+  </ul>
+</div>
+::end
+
+```html
+<ul class="pagination pagination-outline">
+  <li><a href="#" class="page-link">1</a></li>
+  <li><a href="#" class="page-link" aria-current="page">2</a></li>
+  <li><a href="#" class="page-link">3</a></li>
+</ul>
+```
+
+```js components
+import { Pagination } from "@abydahana/aksara-ui/components";
+
+Pagination({
+  className: "pagination-outline",
+  items: [{ label: "1" }, { label: "2", active: true }, { label: "3" }]
+});
+```
+
 ---
 
 ## Technical Specifications

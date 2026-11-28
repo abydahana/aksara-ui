@@ -6,7 +6,7 @@ Typography utilities cover font size, weight, decoration, transform, alignment, 
 <div class="docs-preview">
   <p class="text-[32px] font-extrabold leading-[40px] m-0">Large heading text</p>
   <p class="text-sm text-subtle leading-[24px] tracking-[.02em] uppercase">Uppercase label</p>
-  <p class="truncate" style="max-width:320px;">This long line truncates when it reaches the fixed width container.</p>
+  <p class="truncate max-w-[320px]">This long line truncates when it reaches the fixed width container.</p>
 </div>
 ::end
 

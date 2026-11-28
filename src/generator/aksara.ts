@@ -66,7 +66,63 @@ export interface CarouselOptions extends ComponentOptions {
   keyboard?: boolean;
   loop?: boolean;
   activeIndex?: number;
+  /** Swipe with touch, pen or mouse drag. */
+  swipe?: boolean;
+  /** Allow dragging with a mouse (touch and pen always swipe when `swipe` is on). */
+  drag?: boolean;
+  /** "slide" (default) or "fade"; `.carousel-fade` also selects fade. */
+  effect?: "slide" | "fade";
+  /** Slides visible at once (slide effect). Responsive: `data-carousel-per-view-md="2"`. */
+  perView?: number;
+  /** Gap between slides when `perView` > 1 (any CSS length). */
+  gap?: string;
+  /** Slides moved per next/prev. Defaults to 1. */
+  step?: number;
+  /** Resize the viewport to the active slide's height. */
+  autoHeight?: boolean;
+  /** Transition length in milliseconds. */
+  speed?: number;
 }
+
+export interface SelectOptions extends ComponentOptions {
+  /** Type to filter options. Defaults to true. */
+  search?: boolean;
+  /** Let users add values that are not in the list. */
+  create?: boolean;
+  /** Show a button that clears the selection. */
+  clearable?: boolean;
+  /** Remove buttons on selected items of a multiple select. Defaults to true. */
+  removeButton?: boolean;
+  /** Render a checkbox next to each option (multiple selects). */
+  checkboxes?: boolean;
+  /** Maximum number of selected items (multiple). */
+  maxItems?: number;
+  /** Maximum number of options rendered in the dropdown. */
+  maxOptions?: number;
+  placeholder?: string;
+  /** Where the dropdown is mounted: "body" (default) or "wrapper". */
+  dropdownParent?: string;
+  /** Raw Tom Select settings, merged last. */
+  settings?: Record<string, unknown>;
+}
+
+/** The subset of the Tom Select API Aksara relies on. */
+export interface TomSelectInstance {
+  destroy(): void;
+  getValue(): string | string[];
+  setValue(value: string | string[], silent?: boolean): void;
+  clear(silent?: boolean): void;
+  addOption(data: Record<string, unknown>): void;
+  sync(): void;
+  enable(): void;
+  disable(): void;
+  open(): void;
+  close(): void;
+  focus(): void;
+  [key: string]: unknown;
+}
+
+export type TomSelectConstructor = new (element: HTMLElement, settings: Record<string, unknown>) => TomSelectInstance;
 
 export type OffcanvasOptions = ModalOptions;
 
@@ -305,6 +361,24 @@ function isTopOverlay(overlay: Component): boolean {
   return overlayStack[overlayStack.length - 1] === overlay;
 }
 
+const nudgeTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
+/** Restartable shake: re-adding the class mid-animation starts it over instead of being ignored. */
+function nudgeElement(element: HTMLElement, className: string, duration = 420): void {
+  const pending = nudgeTimers.get(element);
+  if (pending) clearTimeout(pending);
+  element.classList.remove(className);
+  void element.offsetWidth;
+  element.classList.add(className);
+  nudgeTimers.set(
+    element,
+    setTimeout(() => {
+      element.classList.remove(className);
+      nudgeTimers.delete(element);
+    }, duration)
+  );
+}
+
 export class Modal extends Component {
   static componentName = "modal";
 
@@ -331,9 +405,7 @@ export class Modal extends Component {
     this.on(this.element, "click", (event: Event) => {
       if (this.isBackdropClick(event)) {
         if (this.backdrop === "static") {
-          const staticClass = `${(this.constructor as typeof Modal).componentName}-static`;
-          this.element.classList.add(staticClass);
-          setTimeout(() => this.element.classList.remove(staticClass), 150);
+          this.nudge();
         } else if (this.backdrop) {
           this.hide();
         }
@@ -462,10 +534,24 @@ export class Modal extends Component {
     return this.isOpen ? this.hide() : this.show();
   }
 
+  /** "Buzz" feedback when a static backdrop or a blocked Escape refuses to close. */
+  nudge(): void {
+    nudgeElement(this.element, `${(this.constructor as typeof Modal).componentName}-static`);
+  }
+
+  /**
+   * Initial focus: an `[autofocus]` element, else the first control that is not a close
+   * button, else the dialog itself (so opening never lands on, and rings, the × button).
+   */
   focusFirst(): void {
-    const focusable = Array.from(this.element.querySelectorAll<HTMLElement>(focusableSelector));
-    const first = focusable[0] || this.element;
     if (!this.element.hasAttribute("tabindex")) this.element.setAttribute("tabindex", "-1");
+    const focusable = Array.from(this.element.querySelectorAll<HTMLElement>(focusableSelector));
+    const dismiss =
+      "[data-modal-close],[data-offcanvas-close],[data-sheet-close],[data-dismiss],.btn-close,.modal-close";
+    const first =
+      this.element.querySelector<HTMLElement>("[autofocus]") ||
+      focusable.find((item) => !item.matches(dismiss)) ||
+      this.element;
     first.focus({ preventScroll: true });
   }
 
@@ -476,9 +562,7 @@ export class Modal extends Component {
         event.preventDefault();
         this.hide();
       } else if (this.backdrop === "static") {
-        const staticClass = `${(this.constructor as typeof Modal).componentName}-static`;
-        this.element.classList.add(staticClass);
-        setTimeout(() => this.element.classList.remove(staticClass), 150);
+        this.nudge();
       }
       return;
     }
@@ -499,6 +583,54 @@ export class Modal extends Component {
       first.focus();
     }
   }
+}
+
+/**
+ * Applies a DropdownSelect choice: hidden input value (+ `input`/`change` events), trigger
+ * label and icon, the option's active state, and `aksara:dropdown-select:change`.
+ */
+function applyDropdownSelect(root: HTMLElement, item: HTMLElement, menu: HTMLElement | null): void {
+  if ((item as HTMLButtonElement).disabled || item.classList.contains("disabled")) return;
+  const value = item.getAttribute("data-dropdown-option") ?? "";
+  const label =
+    item.querySelector<HTMLElement>(".dropdown-select-option-label")?.textContent?.trim() ??
+    item.textContent?.trim() ??
+    "";
+  const input = root.querySelector<HTMLInputElement>("input[type='hidden']");
+  const previous = input?.value ?? root.getAttribute("data-value") ?? "";
+  (menu ?? root).querySelectorAll<HTMLElement>("[data-dropdown-option]").forEach((option) => {
+    const on = option === item;
+    option.classList.toggle("active", on);
+    option.setAttribute("aria-checked", String(on));
+    if (on) option.setAttribute("aria-current", "true");
+    else option.removeAttribute("aria-current");
+  });
+  const trigger = root.querySelector<HTMLElement>("[data-dropdown]");
+  const labelEl = trigger?.querySelector<HTMLElement>(".select-current-label");
+  if (labelEl) labelEl.textContent = label;
+  if (trigger) {
+    const icon = item.getAttribute("data-icon");
+    let iconEl = trigger.querySelector<HTMLElement>(".select-current-icon");
+    if (icon) {
+      if (!iconEl) {
+        iconEl = document.createElement("span");
+        iconEl.setAttribute("aria-hidden", "true");
+        labelEl?.before(iconEl);
+      }
+      iconEl.className = ["mdi", icon, item.getAttribute("data-icon-class") ?? "", "select-current-icon"]
+        .filter(Boolean)
+        .join(" ");
+    } else {
+      iconEl?.remove();
+    }
+  }
+  root.setAttribute("data-value", value);
+  if (input && value !== previous) {
+    input.value = value;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  if (value !== previous) emit(root, "dropdown-select:change", { value, label, previous, item });
 }
 
 export class Dropdown extends Component {
@@ -625,6 +757,10 @@ export class Dropdown extends Component {
       this.on(this.menu, "click", (event: Event) => {
         const target = event.target as Element;
         const item = target.closest<HTMLElement>(".dropdown-item");
+        // DropdownSelect: write the picked option back to the hidden input and the trigger.
+        if (item?.hasAttribute("data-dropdown-option") && this.element.hasAttribute("data-dropdown-select")) {
+          applyDropdownSelect(this.element, item, this.menu);
+        }
         if (
           this.closeOnSelect &&
           item &&
@@ -878,6 +1014,11 @@ export class FloatingText extends Component {
   showDelay!: number;
   hideDelay!: number;
   keyboard!: boolean;
+  /** Listeners of the current `trigger` option; rebound when the option changes. */
+  triggerCleanups: Array<() => void> = [];
+  boundTrigger: string | null = null;
+  /** Listeners that only exist while the tip is shown (outside click, scroll, resize). */
+  openCleanups: Array<() => void> = [];
 
   constructor(element: HTMLElement, options: FloatingTextOptions = {}) {
     super(element, options);
@@ -885,9 +1026,8 @@ export class FloatingText extends Component {
     this.showTimeout = null;
     this.hideTimeout = null;
     this.updateOptions(options);
-    this.bindTriggers();
     this.on(document, "keydown", (event: Event) => {
-      if (this.keyboard && (event as KeyboardEvent).key === "Escape") this.hide();
+      if (this.tip && this.keyboard && (event as KeyboardEvent).key === "Escape") this.hide();
     });
   }
 
@@ -928,32 +1068,46 @@ export class FloatingText extends Component {
     this.hideDelay = getNumberOption(this.options, this.element, component, "hideDelay", 0);
     this.keyboard = getBooleanOption(this.options, this.element, component, "keyboard", true);
     if (this.tip) {
-      if (this.html) {
-        this.tip.innerHTML = this.content;
-      } else {
-        this.tip.textContent = this.content;
-      }
-      this.position();
+      // Rebuild the open tip so a new title/content/html option shows immediately.
+      this.hide();
+      this.show();
     }
+    if (this.boundTrigger !== this.trigger) this.bindTriggers();
     return this;
   }
 
+  get triggers(): string[] {
+    return String(this.trigger).split(/\s+/).filter(Boolean);
+  }
+
   bindTriggers(): void {
-    const triggers = String(this.trigger).split(/\s+/).filter(Boolean);
+    this.triggerCleanups.splice(0).forEach((cleanup) => cleanup());
+    this.boundTrigger = this.trigger;
+    const listen = (type: string, handler: EventListener) => {
+      this.element.addEventListener(type, handler);
+      this.triggerCleanups.push(() => this.element.removeEventListener(type, handler));
+    };
+    const triggers = this.triggers;
     if (triggers.includes("hover")) {
-      this.on(this.element, "mouseenter", () => this.scheduleShow());
-      this.on(this.element, "mouseleave", () => this.scheduleHide());
+      listen("mouseenter", () => this.scheduleShow());
+      listen("mouseleave", () => this.scheduleHide());
     }
     if (triggers.includes("focus")) {
-      this.on(this.element, "focus", () => this.scheduleShow());
-      this.on(this.element, "blur", () => this.scheduleHide());
+      listen("focus", () => this.scheduleShow());
+      listen("blur", () => this.scheduleHide());
     }
     if (triggers.includes("click")) {
-      this.on(this.element, "click", (event: Event) => {
+      listen("click", (event: Event) => {
         event.preventDefault();
         this.toggle();
       });
     }
+  }
+
+  /** Hover popovers stay open while the pointer travels from the trigger into the tip. */
+  get effectiveHideDelay(): number {
+    const interactive = (this.constructor as typeof FloatingText).componentName === "popover";
+    return interactive && this.triggers.includes("hover") ? Math.max(this.hideDelay, 120) : this.hideDelay;
   }
 
   scheduleShow(): void {
@@ -965,7 +1119,7 @@ export class FloatingText extends Component {
   scheduleHide(): void {
     if (this.showTimeout) clearTimeout(this.showTimeout);
     if (this.hideTimeout) clearTimeout(this.hideTimeout);
-    this.hideTimeout = setTimeout(() => this.hide(), this.hideDelay);
+    this.hideTimeout = setTimeout(() => this.hide(), this.effectiveHideDelay);
   }
 
   show(): this {
@@ -1006,10 +1160,51 @@ export class FloatingText extends Component {
       containerEl = this.container;
     }
     containerEl.append(this.tip);
+    floatingTips.set(this.tip, this);
+    this.bindOpenListeners();
 
     this.position();
     emit(this.element, `${ctor.componentName}:show`, { instance: this });
     return this;
+  }
+
+  bindOpenListeners(): void {
+    const tip = this.tip;
+    if (!tip) return;
+    const listen = (target: EventTarget, type: string, handler: EventListener, opts?: AddEventListenerOptions) => {
+      target.addEventListener(type, handler, opts);
+      this.openCleanups.push(() => target.removeEventListener(type, handler, opts));
+    };
+    const triggers = this.triggers;
+    if (triggers.includes("hover")) {
+      listen(tip, "mouseenter", () => {
+        if (this.hideTimeout) clearTimeout(this.hideTimeout);
+      });
+      listen(tip, "mouseleave", () => this.scheduleHide());
+    }
+    if (triggers.includes("click")) {
+      // Click-triggered tips close on a press outside both the trigger and the tip.
+      listen(document, "pointerdown", (event: Event) => {
+        const target = event.target instanceof Node ? event.target : null;
+        if (target && !this.element.contains(target) && !tip.contains(target)) this.hide();
+      });
+    }
+    // `[data-dismiss]` / `[data-popover-close]` inside the tip close it (handled here, not by the
+    // global dismiss handler, so the instance state stays in sync).
+    listen(tip, "click", (event: Event) => {
+      const close = (event.target as Element | null)?.closest?.(
+        "[data-popover-close],[data-tooltip-close],[data-dismiss]"
+      );
+      if (close && tip.contains(close) && !close.getAttribute("data-dismiss")) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.hide();
+        this.element.focus?.({ preventScroll: true });
+      }
+    });
+    const reposition = () => this.position();
+    listen(window, "resize", reposition);
+    listen(window, "scroll", reposition, { passive: true, capture: true });
   }
 
   toggle(): this {
@@ -1024,6 +1219,8 @@ export class FloatingText extends Component {
       .filter((id) => id && id !== this.tip?.id);
     if (remaining.length) this.element.setAttribute("aria-describedby", remaining.join(" "));
     else this.element.removeAttribute("aria-describedby");
+    this.openCleanups.splice(0).forEach((cleanup) => cleanup());
+    floatingTips.delete(this.tip);
     this.tip.remove();
     this.tip = null;
     emit(this.element, `${ctor.componentName}:hide`, { instance: this });
@@ -1052,6 +1249,22 @@ export class FloatingText extends Component {
       physicalPlacement = isRtl ? "left" : "right";
     }
 
+    // Flip to the opposite side when the preferred one has no room but the other does.
+    const room: Record<string, number> = {
+      top: rect.top,
+      bottom: window.innerHeight - rect.bottom,
+      left: rect.left,
+      right: window.innerWidth - rect.right
+    };
+    const opposite: Record<string, string> = { top: "bottom", bottom: "top", left: "right", right: "left" };
+    const needed = physicalPlacement === "top" || physicalPlacement === "bottom" ? tipRect.height : tipRect.width;
+    const other = opposite[physicalPlacement];
+    if (other && room[physicalPlacement] < needed + gap && room[other] > room[physicalPlacement]) {
+      physicalPlacement = other;
+      const logical: Record<string, string> = isRtl ? { left: "end", right: "start" } : { left: "start", right: "end" };
+      placement = logical[other] ?? other;
+    }
+
     const ctor = this.constructor as typeof FloatingText;
     this.tip.className = `${ctor.componentName} ${ctor.componentName}-${placement}`;
 
@@ -1071,17 +1284,24 @@ export class FloatingText extends Component {
     };
     const left = leftMap[physicalPlacement] ?? rect.left;
 
+    // Keep the tip inside the viewport horizontally (its arrow stays centred on the tip).
+    const maxLeft = window.innerWidth - tipRect.width - 4;
+    const clampedLeft = Math.max(4, Math.min(left, maxLeft));
     this.tip.style.top = `${Math.max(4, top + window.scrollY)}px`;
-    this.tip.style.left = `${Math.max(4, left + window.scrollX)}px`;
+    this.tip.style.left = `${clampedLeft + window.scrollX}px`;
   }
 
   destroy(): void {
     if (this.showTimeout) clearTimeout(this.showTimeout);
     if (this.hideTimeout) clearTimeout(this.hideTimeout);
     this.hide();
+    this.triggerCleanups.splice(0).forEach((cleanup) => cleanup());
     super.destroy();
   }
 }
+
+/** Open tip element → its instance, so dismiss buttons and `Aksara.hide` can find the owner. */
+const floatingTips = new WeakMap<HTMLElement, FloatingText>();
 
 export class Tooltip extends FloatingText {
   static override componentName = "tooltip";
@@ -1322,6 +1542,15 @@ export class Accordion extends Component {
   }
 }
 
+/** A tab is skipped by clicks, arrow keys, swipes and initial activation when it is disabled. */
+function isTabDisabled(tab: Element): boolean {
+  return (
+    (tab as HTMLButtonElement).disabled === true ||
+    tab.getAttribute("aria-disabled") === "true" ||
+    tab.classList.contains("disabled")
+  );
+}
+
 export class Tabs extends Component {
   static componentName = "tabs";
 
@@ -1346,15 +1575,33 @@ export class Tabs extends Component {
     this.on(element, "keydown", (event: Event) => {
       if (!this.keyboard) return;
       const keyEvent = event as KeyboardEvent;
-      const keys = this.orientation === "vertical" ? ["ArrowUp", "ArrowDown"] : ["ArrowLeft", "ArrowRight"];
+      const vertical = this.orientation === "vertical";
+      const keys = vertical ? ["ArrowUp", "ArrowDown", "Home", "End"] : ["ArrowLeft", "ArrowRight", "Home", "End"];
       if (!keys.includes(keyEvent.key)) return;
-      const tabs = Array.from(element.querySelectorAll<HTMLElement>(this.tabSelector));
-      const index = tabs.indexOf(document.activeElement as HTMLElement);
+      const all = Array.from(element.querySelectorAll<HTMLElement>(this.tabSelector));
+      const index = all.indexOf(document.activeElement as HTMLElement);
       if (index < 0) return;
       event.preventDefault();
-      const isNext = keyEvent.key === "ArrowRight" || keyEvent.key === "ArrowDown";
-      const fallback = this.loop ? (isNext ? tabs[0] : tabs[tabs.length - 1]) : tabs[index];
-      const next = isNext ? tabs[index + 1] || fallback : tabs[index - 1] || fallback;
+      // Disabled tabs are skipped; RTL flips the horizontal arrows.
+      const rtl = !vertical && getComputedStyle(element).direction === "rtl";
+      const forwardKey = vertical ? "ArrowDown" : rtl ? "ArrowLeft" : "ArrowRight";
+      let next: HTMLElement | undefined;
+      if (keyEvent.key === "Home") next = all.find((tab) => !isTabDisabled(tab));
+      else if (keyEvent.key === "End") next = [...all].reverse().find((tab) => !isTabDisabled(tab));
+      else {
+        const step = keyEvent.key === forwardKey ? 1 : -1;
+        for (let i = 1; i < all.length; i++) {
+          let j = index + step * i;
+          if (j < 0 || j >= all.length) {
+            if (!this.loop) break;
+            j = (j + all.length) % all.length;
+          }
+          if (!isTabDisabled(all[j])) {
+            next = all[j];
+            break;
+          }
+        }
+      }
       if (next) {
         next.focus();
         this.show(next);
@@ -1401,8 +1648,12 @@ export class Tabs extends Component {
     if (!initial && this.activeIndex >= 0) {
       initial = tabs[this.activeIndex] || null;
     }
-    if (!initial) {
-      initial = tabs.find((tab) => tab.getAttribute("aria-selected") === "true") || tabs[0];
+    if (!initial || isTabDisabled(initial)) {
+      initial =
+        tabs.find((tab) => tab.getAttribute("aria-selected") === "true" && !isTabDisabled(tab)) ||
+        tabs.find((tab) => tab.classList.contains("active") && !isTabDisabled(tab)) ||
+        tabs.find((tab) => !isTabDisabled(tab)) ||
+        null;
     }
     if (initial) this.show(initial, false);
   }
@@ -1497,10 +1748,10 @@ export class Tabs extends Component {
       const safeIdx = currentIdx >= 0 ? currentIdx : 0;
       track.style.transition = "transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)";
 
-      if (deltaX < -50 && safeIdx < maxIdx) {
-        this.show(tabs[safeIdx + 1]);
-      } else if (deltaX > 50 && safeIdx > 0) {
-        this.show(tabs[safeIdx - 1]);
+      const target =
+        deltaX < -50 && safeIdx < maxIdx ? tabs[safeIdx + 1] : deltaX > 50 && safeIdx > 0 ? tabs[safeIdx - 1] : null;
+      if (target && !isTabDisabled(target)) {
+        this.show(target);
       } else {
         track.style.transform = `translate3d(-${safeIdx * 100}%, 0, 0)`;
       }
@@ -1511,6 +1762,7 @@ export class Tabs extends Component {
   }
 
   show(tab: HTMLElement, animate = true): this {
+    if (isTabDisabled(tab)) return this;
     const selector = tab.getAttribute("data-tabs");
     const panel = selector ? document.querySelector<HTMLElement>(selector) : null;
     if (!panel) return this;
@@ -1527,9 +1779,12 @@ export class Tabs extends Component {
       item.setAttribute("aria-selected", String(selected));
       item.classList.toggle("active", selected);
       item.tabIndex = selected ? 0 : -1;
+      if (isTabDisabled(item)) item.setAttribute("aria-disabled", "true");
       const targetSelector = item.getAttribute("data-tabs");
       const target = targetSelector ? document.querySelector<HTMLElement>(targetSelector) : null;
       if (target) {
+        if (target.id && !item.hasAttribute("aria-controls")) item.setAttribute("aria-controls", target.id);
+        if (item.id && !target.hasAttribute("aria-labelledby")) target.setAttribute("aria-labelledby", item.id);
         target.classList.toggle("active", selected);
         if (!isSlider) {
           target.hidden = !selected;
@@ -1605,116 +1860,937 @@ export class Toast extends Component {
   }
 }
 
+const CAROUSEL_INTERACTIVE = "a,button,input,select,textarea,label,[contenteditable='true'],[data-carousel-no-swipe]";
+
+/**
+ * Carousel with a sliding track (or cross-fade), swipe and mouse drag, responsive
+ * slides-per-view, autoplay that pauses on hover, focus, interaction and hidden tabs,
+ * keyboard control, auto-generated indicators, counters and a progress bar.
+ *
+ * Items are moved into `.carousel-viewport > .carousel-track` on init when the markup does
+ * not provide them, so the legacy markup (items as direct children) keeps working.
+ */
 export class Carousel extends Component {
   static componentName = "carousel";
 
-  timeout: ReturnType<typeof setInterval> | null = null;
-  items: HTMLElement[];
-  index: number;
+  timeout: ReturnType<typeof setTimeout> | null = null;
+  items: HTMLElement[] = [];
+  index = 0;
   interval!: number;
   autoplay!: boolean;
   pauseOnHover!: boolean;
   keyboard!: boolean;
   loop!: boolean;
+  swipe!: boolean;
+  drag!: boolean;
+  effect!: "slide" | "fade";
+  perView = 1;
+  step!: number;
+  autoHeight!: boolean;
+  speed!: number;
+  viewport!: HTMLElement;
+  track!: HTMLElement;
+  paused = false;
+  hovered = false;
+  focused = false;
+  dragDistance = 0;
+  private mediaQueries: MediaQueryList[] = [];
 
   constructor(element: HTMLElement, options: CarouselOptions = {}) {
     super(element, options);
-    this.items = Array.from(element.querySelectorAll<HTMLElement>("[data-carousel-item]"));
+    this.readOptions();
+    this.buildStructure();
     this.index = this.resolveInitialIndex();
-    this.updateOptions(options);
-    this.show(this.index);
-    this.on(element, "click", (event: Event) => {
-      const target = event.target as Element;
-      const indicator = target.closest<HTMLElement>("[data-carousel-to]");
-      if (indicator) {
-        this.show(Number(indicator.getAttribute("data-carousel-to")));
-        return;
-      }
-      const action = target.closest<HTMLElement>("[data-carousel]");
-      if (!action) return;
-      const value = action.getAttribute("data-carousel");
-      if (value === "next") this.next();
-      if (value === "prev") this.prev();
-      if (value !== "next" && value !== "prev" && value !== "") this.show(Number(value));
-    });
-    this.on(element, "keydown", (event: Event) => {
-      const keyEvent = event as KeyboardEvent;
-      if (!this.keyboard || !["ArrowLeft", "ArrowRight"].includes(keyEvent.key)) return;
-      event.preventDefault();
-      if (keyEvent.key === "ArrowRight") this.next();
-      if (keyEvent.key === "ArrowLeft") this.prev();
-    });
-    if (this.pauseOnHover) {
-      this.on(element, "mouseenter", () => this.pause());
-      this.on(element, "mouseleave", () => this.play());
-    }
+    this.bindEvents();
+    this.applyLayout();
+    this.show(this.index, { instant: true });
     if (this.autoplay) this.play();
+  }
+
+  private readOptions(): void {
+    const o = this.options;
+    const el = this.element;
+    this.interval = getNumberOption(o, el, "carousel", "interval", 5000);
+    this.autoplay = getBooleanOption(o, el, "carousel", "autoplay", false);
+    this.pauseOnHover = getBooleanOption(o, el, "carousel", "pauseOnHover", true);
+    this.keyboard = getBooleanOption(o, el, "carousel", "keyboard", true);
+    this.loop = getBooleanOption(o, el, "carousel", "loop", true);
+    this.swipe = getBooleanOption(o, el, "carousel", "swipe", true);
+    this.drag = getBooleanOption(o, el, "carousel", "drag", true);
+    const effect = getOption<string>(
+      o,
+      el,
+      "carousel",
+      "effect",
+      el.classList.contains("carousel-fade") ? "fade" : "slide"
+    );
+    this.effect = effect === "fade" ? "fade" : "slide";
+    this.step = Math.max(1, getNumberOption(o, el, "carousel", "step", 1));
+    this.autoHeight = getBooleanOption(o, el, "carousel", "autoHeight", el.classList.contains("carousel-auto-height"));
+    this.speed = getNumberOption(o, el, "carousel", "speed", this.effect === "fade" ? 600 : 500);
+    const gap = getOption<string>(o, el, "carousel", "gap", "");
+    if (gap) el.style.setProperty("--aksara-carousel-gap", /^\d+(\.\d+)?$/.test(gap) ? `${gap}px` : gap);
+    el.style.setProperty("--aksara-carousel-speed", `${this.speed}ms`);
+    el.style.setProperty("--aksara-carousel-interval", `${this.interval}ms`);
+    el.classList.toggle("carousel-fade", this.effect === "fade");
+    el.classList.toggle("carousel-draggable", this.swipe && this.drag && this.effect === "slide");
+  }
+
+  /** Slides per view for the current viewport width (`data-carousel-per-view-{bp}` wins upward). */
+  private resolvePerView(): number {
+    if (this.effect === "fade") return 1;
+    let value = getNumberOption(this.options, this.element, "carousel", "perView", 1);
+    for (const [bp, minWidth] of Object.entries(runtimeBreakpoints)) {
+      const raw = this.element.getAttribute(`data-carousel-per-view-${bp}`);
+      if (raw !== null && typeof window !== "undefined" && window.matchMedia(`(min-width:${minWidth})`).matches) {
+        const n = Number(raw);
+        if (!Number.isNaN(n)) value = n;
+      }
+    }
+    return Math.max(1, Math.floor(value));
+  }
+
+  private buildStructure(): void {
+    const el = this.element;
+    let track = el.querySelector<HTMLElement>(":scope .carousel-track");
+    let viewport = el.querySelector<HTMLElement>(":scope .carousel-viewport");
+    const items = Array.from(el.querySelectorAll<HTMLElement>("[data-carousel-item], .carousel-item")).filter(
+      (item) => item.closest(".carousel") === el
+    );
+    if (!track) {
+      track = document.createElement("div");
+      track.className = "carousel-track";
+      if (items[0]?.parentElement) items[0].parentElement.insertBefore(track, items[0]);
+      else el.prepend(track);
+      items.forEach((item) => track!.append(item));
+    }
+    if (!viewport) {
+      viewport = document.createElement("div");
+      viewport.className = "carousel-viewport";
+      track.parentElement!.insertBefore(viewport, track);
+      viewport.append(track);
+    }
+    this.viewport = viewport;
+    this.track = track;
+    this.items = Array.from(track.children).filter((child): child is HTMLElement => child instanceof HTMLElement);
+    el.setAttribute("role", el.getAttribute("role") || "region");
+    el.setAttribute("aria-roledescription", "carousel");
+    if (!el.hasAttribute("tabindex")) el.tabIndex = 0;
+    this.items.forEach((item, i) => {
+      item.classList.add("carousel-item");
+      item.removeAttribute("hidden");
+      item.setAttribute("role", "group");
+      item.setAttribute("aria-roledescription", "slide");
+      if (!item.hasAttribute("aria-label")) item.setAttribute("aria-label", `${i + 1} / ${this.items.length}`);
+    });
+    // Empty `.carousel-indicators` are filled with one button per page.
+    el.querySelectorAll<HTMLElement>(".carousel-indicators").forEach((list) => {
+      if (list.children.length || list.closest(".carousel") !== el) return;
+      list.dataset.carouselGenerated = "true";
+    });
+  }
+
+  private renderIndicators(): void {
+    const pages = this.pageCount();
+    this.element.querySelectorAll<HTMLElement>(".carousel-indicators[data-carousel-generated]").forEach((list) => {
+      if (list.children.length === pages) return;
+      list.replaceChildren(
+        ...Array.from({ length: pages }, (_, i) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "carousel-indicator";
+          button.setAttribute(
+            "data-carousel-to",
+            String(i * this.step > this.maxIndex() ? this.maxIndex() : i * this.step)
+          );
+          button.setAttribute("aria-label", `Go to slide ${i + 1}`);
+          return button;
+        })
+      );
+    });
+  }
+
+  private pageCount(): number {
+    return Math.ceil((this.maxIndex() + 1) / this.step);
+  }
+
+  maxIndex(): number {
+    return Math.max(0, this.items.length - this.perView);
+  }
+
+  private isRtl(): boolean {
+    return getComputedStyle(this.element).direction === "rtl";
+  }
+
+  private bindEvents(): void {
+    const el = this.element;
+    this.on(
+      el,
+      "click",
+      (event: Event) => {
+        if (this.dragDistance > 6) {
+          event.preventDefault();
+          event.stopPropagation();
+          this.dragDistance = 0;
+          return;
+        }
+        const target = event.target as Element;
+        const indicator = target.closest<HTMLElement>("[data-carousel-to]");
+        if (indicator && indicator.closest(".carousel") === el) {
+          this.show(Number(indicator.getAttribute("data-carousel-to")));
+          this.restart();
+          return;
+        }
+        const action = target.closest<HTMLElement>("[data-carousel]");
+        if (!action || action.closest(".carousel") !== el) return;
+        const value = action.getAttribute("data-carousel");
+        if (value === "next") this.next();
+        else if (value === "prev") this.prev();
+        else if (value === "play") this.play();
+        else if (value === "pause") this.pause();
+        else if (value === "toggle") {
+          if (this.paused) this.play();
+          else this.pause();
+        } else if (value) this.show(Number(value));
+        if (value !== "pause" && value !== "toggle") this.restart();
+      },
+      true
+    );
+    this.on(el, "keydown", (event: Event) => {
+      const key = (event as KeyboardEvent).key;
+      if (!this.keyboard || (event.target as Element).closest("input,textarea,select,[contenteditable='true']")) return;
+      const rtl = this.isRtl();
+      if (key === "ArrowRight" || key === "ArrowLeft") {
+        if ((key === "ArrowRight") !== rtl) this.next();
+        else this.prev();
+      } else if (key === "Home") this.show(0);
+      else if (key === "End") this.show(this.maxIndex());
+      else return;
+      event.preventDefault();
+      this.restart();
+    });
+    this.on(el, "mouseenter", () => {
+      this.hovered = true;
+      this.syncPlayback();
+    });
+    this.on(el, "mouseleave", () => {
+      this.hovered = false;
+      this.syncPlayback();
+    });
+    this.on(el, "focusin", () => {
+      this.focused = true;
+      this.syncPlayback();
+    });
+    this.on(el, "focusout", (event: Event) => {
+      if (!el.contains((event as FocusEvent).relatedTarget as Node | null)) {
+        this.focused = false;
+        this.syncPlayback();
+      }
+    });
+    if (typeof document !== "undefined") this.on(document, "visibilitychange", () => this.syncPlayback());
+    if (typeof window !== "undefined") {
+      this.on(window, "resize", () => this.applyLayout());
+      for (const minWidth of Object.values(runtimeBreakpoints)) {
+        const query = window.matchMedia(`(min-width:${minWidth})`);
+        const handler = (): void => this.applyLayout();
+        query.addEventListener?.("change", handler);
+        this.cleanups.push(() => query.removeEventListener?.("change", handler));
+        this.mediaQueries.push(query);
+      }
+    }
+    if (this.swipe) this.bindSwipe();
+  }
+
+  private bindSwipe(): void {
+    let startX = 0;
+    let startY = 0;
+    let startTime = 0;
+    let pointerId: number | null = null;
+    let horizontal: boolean | null = null;
+    let delta = 0;
+    const viewport = this.viewport;
+
+    const onDown = (event: PointerEvent): void => {
+      if (event.button !== 0 || pointerId !== null) return;
+      if (event.pointerType === "mouse" && !this.drag) return;
+      if ((event.target as Element).closest(CAROUSEL_INTERACTIVE) && event.pointerType === "mouse") return;
+      pointerId = event.pointerId;
+      startX = event.clientX;
+      startY = event.clientY;
+      startTime = performance.now();
+      horizontal = null;
+      delta = 0;
+      this.dragDistance = 0;
+    };
+    const onMove = (event: PointerEvent): void => {
+      if (event.pointerId !== pointerId) return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (horizontal === null) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        horizontal = Math.abs(dx) > Math.abs(dy);
+        if (!horizontal) {
+          pointerId = null;
+          return;
+        }
+        viewport.setPointerCapture?.(event.pointerId);
+        this.element.classList.add("is-dragging");
+        this.hovered = true;
+        this.syncPlayback();
+      }
+      event.preventDefault();
+      delta = dx;
+      this.dragDistance = Math.abs(dx);
+      if (this.effect === "slide") {
+        const atEdge =
+          !this.loop &&
+          ((this.index === 0 && this.towardsPrev(dx)) || (this.index >= this.maxIndex() && !this.towardsPrev(dx)));
+        this.translate(atEdge ? dx / 3 : dx);
+      }
+    };
+    const onUp = (event: PointerEvent): void => {
+      if (event.pointerId !== pointerId) return;
+      pointerId = null;
+      this.element.classList.remove("is-dragging");
+      if (event.pointerType !== "mouse") this.hovered = false;
+      if (!horizontal) return;
+      const elapsed = Math.max(1, performance.now() - startTime);
+      const velocity = Math.abs(delta) / elapsed;
+      const threshold = Math.min(80, viewport.clientWidth * 0.15);
+      if (Math.abs(delta) > threshold || velocity > 0.45) {
+        if (this.towardsPrev(delta)) this.prev();
+        else this.next();
+      } else {
+        this.show(this.index);
+      }
+      this.syncPlayback();
+      this.restart();
+    };
+    this.on(viewport, "pointerdown", onDown as EventListener);
+    this.on(viewport, "pointermove", onMove as EventListener, { passive: false });
+    this.on(viewport, "pointerup", onUp as EventListener);
+    this.on(viewport, "pointercancel", onUp as EventListener);
+    this.on(viewport, "dragstart", (event: Event) => event.preventDefault());
+  }
+
+  /** A drag in `dx` direction reveals the previous slide (flips in RTL). */
+  private towardsPrev(dx: number): boolean {
+    return this.isRtl() ? dx < 0 : dx > 0;
+  }
+
+  private translate(offsetPx = 0): void {
+    if (this.effect === "fade") return;
+    const slide = this.items[0];
+    const gap = Number.parseFloat(getComputedStyle(this.track).columnGap || "0") || 0;
+    const size = (slide?.getBoundingClientRect().width ?? 0) + gap;
+    const sign = this.isRtl() ? 1 : -1;
+    this.track.style.transform = `translate3d(${sign * this.index * size + offsetPx}px,0,0)`;
+  }
+
+  private applyLayout(): void {
+    const perView = this.resolvePerView();
+    const changed = perView !== this.perView;
+    this.perView = perView;
+    this.element.style.setProperty("--aksara-carousel-per-view", String(perView));
+    if (changed && this.index > this.maxIndex()) this.index = this.maxIndex();
+    this.renderIndicators();
+    this.track.style.transition = "none";
+    this.translate();
+    void this.track.offsetWidth;
+    this.track.style.transition = "";
+    this.updateHeight();
+  }
+
+  private updateHeight(): void {
+    if (!this.autoHeight) {
+      this.viewport.style.height = "";
+      return;
+    }
+    const visible = this.items.slice(this.index, this.index + this.perView);
+    const height = Math.max(...visible.map((item) => item.offsetHeight), 0);
+    if (height) this.viewport.style.height = `${height}px`;
   }
 
   updateOptions(options: CarouselOptions = {}): this {
     super.updateOptions(options);
-    this.interval = getNumberOption(this.options, this.element, "carousel", "interval", 5000);
-    this.autoplay = getBooleanOption(this.options, this.element, "carousel", "autoplay", false);
-    this.pauseOnHover = getBooleanOption(this.options, this.element, "carousel", "pauseOnHover", true);
-    this.keyboard = getBooleanOption(this.options, this.element, "carousel", "keyboard", true);
-    this.loop = getBooleanOption(this.options, this.element, "carousel", "loop", true);
+    if (!this.track) return this;
+    this.readOptions();
+    this.applyLayout();
     const activeIndex = getNumberOption(this.options, this.element, "carousel", "activeIndex", -1);
     if (activeIndex >= 0) this.show(activeIndex);
     if (this.autoplay) this.play();
-    if (!this.autoplay) this.pause();
+    else this.pause();
     return this;
+  }
+
+  /** Re-reads slides after items were added or removed. */
+  update(): this {
+    this.items = Array.from(this.track.children).filter((child): child is HTMLElement => child instanceof HTMLElement);
+    this.items.forEach((item) => item.classList.add("carousel-item"));
+    this.element
+      .querySelectorAll<HTMLElement>(".carousel-indicators[data-carousel-generated]")
+      .forEach((list) => list.replaceChildren());
+    this.applyLayout();
+    return this.show(Math.min(this.index, this.maxIndex()), { instant: true });
   }
 
   resolveInitialIndex(): number {
     const configured = getNumberOption(this.options, this.element, "carousel", "activeIndex", -1);
     if (configured >= 0) return configured;
-    return Math.max(
-      0,
-      this.items.findIndex((item) => !item.hidden)
-    );
+    const marked = this.items.findIndex((item) => item.classList.contains("active"));
+    return Math.max(0, marked);
   }
 
-  show(index: number): this {
+  show(index: number, { instant = false }: { instant?: boolean } = {}): this {
     if (!this.items.length) return this;
-    if (!this.loop && (index < 0 || index >= this.items.length)) return this;
-    this.index = (index + this.items.length) % this.items.length;
-    this.items.forEach((item, itemIndex) => {
-      item.hidden = itemIndex !== this.index;
+    const max = this.maxIndex();
+    let next = index;
+    if (next < 0) next = this.loop ? max : 0;
+    else if (next > max) next = this.loop ? (this.index >= max ? 0 : max) : max;
+    const from = this.index;
+    this.index = next;
+    if (instant) this.track.style.transition = "none";
+    this.translate();
+    if (instant) {
+      void this.track.offsetWidth;
+      this.track.style.transition = "";
+    }
+    this.items.forEach((item, i) => {
+      const visible = i >= this.index && i < this.index + this.perView;
+      item.classList.toggle("active", i === this.index);
+      item.toggleAttribute("inert", !visible);
+      item.setAttribute("aria-hidden", visible ? "false" : "true");
     });
     this.element.querySelectorAll<HTMLElement>("[data-carousel-to]").forEach((indicator) => {
-      const isActive = Number(indicator.getAttribute("data-carousel-to")) === this.index;
+      if (
+        indicator.closest(".carousel") !== this.element &&
+        !indicator.closest(`[data-carousel-for="#${this.element.id}"]`)
+      )
+        return;
+      const target = Number(indicator.getAttribute("data-carousel-to"));
+      const isActive =
+        target === this.index ||
+        (this.step > 1 && Math.floor(this.index / this.step) === Math.floor(target / this.step));
       indicator.classList.toggle("active", isActive);
       if (isActive) indicator.setAttribute("aria-current", "true");
       else indicator.removeAttribute("aria-current");
     });
-    emit(this.element, "carousel:show", { index: this.index, instance: this });
-    return this;
-  }
-
-  next(): this {
-    return this.show(this.index + 1);
-  }
-
-  prev(): this {
-    return this.show(this.index - 1);
-  }
-
-  play(): this {
-    if (this.timeout) clearInterval(this.timeout);
-    if (this.autoplay && this.interval > 0) {
-      this.timeout = setInterval(() => this.next(), this.interval);
+    this.syncExternal();
+    this.element.querySelectorAll<HTMLElement>("[data-carousel-current]").forEach((node) => {
+      node.textContent = String(this.index + 1);
+    });
+    this.element.querySelectorAll<HTMLElement>("[data-carousel-total]").forEach((node) => {
+      node.textContent = String(this.items.length);
+    });
+    this.element
+      .querySelectorAll<HTMLButtonElement>('[data-carousel="prev"],[data-carousel="next"]')
+      .forEach((control) => {
+        if (this.loop) return control.removeAttribute("disabled");
+        const atEnd = control.getAttribute("data-carousel") === "prev" ? this.index === 0 : this.index >= max;
+        control.toggleAttribute("disabled", atEnd);
+      });
+    this.updateHeight();
+    this.restartProgress();
+    if (from !== this.index || instant) {
+      emit(this.element, "carousel:show", { index: this.index, from, instance: this });
     }
     return this;
   }
 
-  pause(): this {
-    if (this.timeout) clearInterval(this.timeout);
+  /** Thumbnails or indicators outside the carousel: `data-carousel-for="#id"`. */
+  private syncExternal(): void {
+    if (!this.element.id || typeof document === "undefined") return;
+    document
+      .querySelectorAll<HTMLElement>(`[data-carousel-for="#${this.element.id}"] [data-carousel-to]`)
+      .forEach((indicator) => {
+        const isActive = Number(indicator.getAttribute("data-carousel-to")) === this.index;
+        indicator.classList.toggle("active", isActive);
+        if (isActive) {
+          indicator.setAttribute("aria-current", "true");
+          // Scroll only the strip, never the page.
+          const strip = indicator.parentElement;
+          if (strip && strip.scrollWidth > strip.clientWidth) {
+            strip.scrollTo({
+              left: indicator.offsetLeft - strip.offsetLeft - (strip.clientWidth - indicator.offsetWidth) / 2,
+              behavior: "smooth"
+            });
+          }
+        } else indicator.removeAttribute("aria-current");
+      });
+  }
+
+  next(): this {
+    if (!this.loop && this.index >= this.maxIndex()) return this;
+    if (this.index >= this.maxIndex()) return this.show(0);
+    return this.show(Math.min(this.index + this.step, this.maxIndex()));
+  }
+
+  prev(): this {
+    if (!this.loop && this.index <= 0) return this;
+    if (this.index <= 0) return this.show(this.maxIndex());
+    return this.show(Math.max(this.index - this.step, 0));
+  }
+
+  private restartProgress(): void {
+    this.element.querySelectorAll<HTMLElement>(".carousel-progress-bar").forEach((bar) => {
+      bar.style.animation = "none";
+      void bar.offsetWidth;
+      bar.style.animation = "";
+    });
+  }
+
+  private schedule(): void {
+    if (this.timeout) clearTimeout(this.timeout);
     this.timeout = null;
+    if (!this.autoplay || this.paused || this.interval <= 0) return;
+    this.timeout = setTimeout(() => {
+      this.next();
+      this.schedule();
+    }, this.interval);
+  }
+
+  /** Pauses while hovered (if `pauseOnHover`), focused, dragged or in a hidden tab. */
+  private syncPlayback(): void {
+    const hidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+    const hold = (this.pauseOnHover && this.hovered) || this.focused || hidden;
+    this.element.classList.toggle("is-paused", !this.autoplay || this.paused || hold);
+    if (!this.autoplay || this.paused) return;
+    if (hold) {
+      if (this.timeout) clearTimeout(this.timeout);
+      this.timeout = null;
+    } else if (!this.timeout) {
+      this.restartProgress();
+      this.schedule();
+    }
+  }
+
+  private restart(): void {
+    if (!this.autoplay || this.paused) return;
+    this.restartProgress();
+    if (this.timeout) this.schedule();
+  }
+
+  play(): this {
+    this.autoplay = true;
+    this.paused = false;
+    this.element.classList.add("is-playing");
+    this.schedule();
+    this.syncPlayback();
+    emit(this.element, "carousel:play", { instance: this });
+    return this;
+  }
+
+  pause(): this {
+    if (this.timeout) clearTimeout(this.timeout);
+    this.timeout = null;
+    this.paused = true;
+    this.element.classList.remove("is-playing");
+    this.element.classList.add("is-paused");
+    emit(this.element, "carousel:pause", { instance: this });
     return this;
   }
 
   destroy(): void {
-    this.pause();
+    if (this.timeout) clearTimeout(this.timeout);
+    this.timeout = null;
+    super.destroy();
+  }
+}
+
+let tomSelectConstructor: TomSelectConstructor | null = null;
+
+/** Registers Tom Select for bundler users: `Aksara.useTomSelect(TomSelect)`. */
+export function useTomSelect(constructor: TomSelectConstructor): void {
+  tomSelectConstructor = constructor;
+}
+
+function resolveTomSelect(): TomSelectConstructor | null {
+  if (tomSelectConstructor) return tomSelectConstructor;
+  const global =
+    typeof window !== "undefined" ? (window as unknown as { TomSelect?: TomSelectConstructor }).TomSelect : undefined;
+  return global ?? null;
+}
+
+/** Selects that `Aksara.init()` enhances. Opt out with `data-select="native"` or `.form-select-native`. */
+export const ENHANCED_SELECT_SELECTOR =
+  'select.form-select:not([data-select="native"]):not(.form-select-native),select[data-select]:not([data-select="native"])';
+
+/**
+ * Enhances a `<select>` with Tom Select: searchable single and multiple selects, tagging,
+ * clear button and checkbox options, skinned by Aksara's CSS. Without Tom Select on the
+ * page (or registered through `Aksara.useTomSelect`) the native, styled select is kept.
+ */
+export class Select extends Component {
+  static componentName = "select";
+
+  tomSelect: TomSelectInstance | null = null;
+
+  constructor(element: HTMLElement, options: SelectOptions = {}) {
+    super(element, options);
+    this.mount();
+  }
+
+  private mount(): void {
+    const Ctor = resolveTomSelect();
+    const select = this.element as HTMLSelectElement;
+    if (!Ctor || select.classList.contains("tomselected")) return;
+    const o = this.options;
+    const multiple = select.multiple;
+    const plugins: Record<string, unknown> = {};
+    if (multiple && getBooleanOption(o, select, "select", "removeButton", true)) {
+      plugins.remove_button = { title: "Remove" };
+    }
+    if (getBooleanOption(o, select, "select", "clearable", false)) {
+      plugins.clear_button = {
+        title: "Clear",
+        html: (data: { title: string }) =>
+          `<button type="button" class="clear-button" title="${escapeHtmlStr(data.title)}" aria-label="${escapeHtmlStr(data.title)}">&times;</button>`
+      };
+    }
+    if (multiple && getBooleanOption(o, select, "select", "checkboxes", false)) plugins.checkbox_options = {};
+
+    const firstOption = select.options[0];
+    const fallbackPlaceholder = firstOption && firstOption.value === "" ? firstOption.text : undefined;
+    const placeholder = getOption<string | undefined>(
+      o,
+      select,
+      "select",
+      "placeholder",
+      select.getAttribute("placeholder") ?? fallbackPlaceholder
+    );
+    const parent = getOption<string>(o, select, "select", "dropdownParent", "body");
+    const maxItems = getNumberOption(o, select, "select", "maxItems", 0);
+
+    const settings: Record<string, unknown> = {
+      plugins,
+      create: getBooleanOption(o, select, "select", "create", false),
+      maxItems: multiple ? maxItems || null : 1,
+      maxOptions: getNumberOption(o, select, "select", "maxOptions", 200),
+      dropdownParent: parent === "wrapper" ? null : parent,
+      copyClassesToDropdown: false,
+      // Hide the placeholder as soon as something is selected (single and multiple).
+      hidePlaceholder: true,
+      closeAfterSelect: !multiple,
+      render: {
+        no_results: () => '<div class="no-results">No results found</div>',
+        option_create: (data: { input: string }, escape: (value: string) => string) =>
+          `<div class="create">Add <strong>${escape(data.input)}</strong>&hellip;</div>`
+      },
+      onDropdownOpen: () => emit(select, "select:open", { instance: this }),
+      onDropdownClose: () => emit(select, "select:close", { instance: this }),
+      onChange: (value: unknown) => emit(select, "select:change", { value, instance: this })
+    };
+    if (placeholder) settings.placeholder = placeholder;
+    if (!getBooleanOption(o, select, "select", "search", true)) settings.controlInput = null;
+    Object.assign(settings, (o.settings as Record<string, unknown> | undefined) ?? {});
+
+    this.tomSelect = new Ctor(select, settings);
+    emit(select, "select:init", { instance: this, tomSelect: this.tomSelect });
+  }
+
+  getValue(): string | string[] {
+    if (this.tomSelect) return this.tomSelect.getValue();
+    const select = this.element as HTMLSelectElement;
+    return select.multiple ? Array.from(select.selectedOptions).map((option) => option.value) : select.value;
+  }
+
+  setValue(value: string | string[], silent = false): this {
+    if (this.tomSelect) this.tomSelect.setValue(value, silent);
+    else {
+      const values = new Set(Array.isArray(value) ? value : [value]);
+      Array.from((this.element as HTMLSelectElement).options).forEach((option) => {
+        option.selected = values.has(option.value);
+      });
+      if (!silent) this.element.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+    return this;
+  }
+
+  /** Re-reads `<option>` elements after the markup changed. */
+  sync(): this {
+    this.tomSelect?.sync();
+    return this;
+  }
+
+  destroy(): void {
+    this.tomSelect?.destroy();
+    this.tomSelect = null;
+    super.destroy();
+  }
+}
+
+export interface SheetOptions extends ComponentOptions {
+  /** Backdrop tap dismisses the top sheet (`true`), shakes (`"static"`), or does nothing (`false`). */
+  backdrop?: boolean | "static";
+  /** Escape goes back one sheet (and closes the last one). */
+  keyboard?: boolean;
+  /** Drag a sheet down to dismiss it. */
+  swipe?: boolean;
+  scrollLock?: boolean;
+}
+
+/**
+ * Bottom sheet with stacked sub-sheets (the GitHub / iOS pattern): `data-sheet-push="#panel"`
+ * slides a sub-sheet over the current one, which shrinks and dims behind it; back, swipe down
+ * or Escape pops it. Panels are the `.sheet-panel` children of a `.sheet` root.
+ */
+export class BottomSheet extends Component {
+  static componentName = "sheet";
+
+  isOpen = false;
+  stack: HTMLElement[] = [];
+  previousFocus: HTMLElement | null = null;
+  backdrop!: boolean | "static";
+  keyboard!: boolean;
+  swipe!: boolean;
+  scrollLock!: boolean;
+  private closeTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor(element: HTMLElement, options: SheetOptions = {}) {
+    super(element, options);
+    this.updateOptions(options);
+    element.setAttribute("aria-hidden", "true");
+    this.panels().forEach((panel) => {
+      panel.setAttribute("role", panel.getAttribute("role") || "dialog");
+      panel.setAttribute("aria-modal", "true");
+      if (!panel.hasAttribute("tabindex")) panel.tabIndex = -1;
+      panel.inert = true;
+    });
+    this.on(element, "click", (event: Event) => this.onClick(event));
+    this.on(document, "keydown", (event: Event) => this.onKeydown(event as KeyboardEvent));
+    if (this.swipe) this.bindSwipe();
+  }
+
+  updateOptions(options: SheetOptions = {}): this {
+    super.updateOptions(options);
+    const backdrop = getOption<unknown>(this.options, this.element, "sheet", "backdrop", true);
+    this.backdrop = backdrop === "static" ? "static" : backdrop !== "false" && backdrop !== false;
+    this.keyboard = getBooleanOption(this.options, this.element, "sheet", "keyboard", true);
+    this.swipe = getBooleanOption(this.options, this.element, "sheet", "swipe", true);
+    this.scrollLock = getBooleanOption(this.options, this.element, "sheet", "scrollLock", true);
+    return this;
+  }
+
+  panels(): HTMLElement[] {
+    return Array.from(this.element.children).filter(
+      (child): child is HTMLElement => child instanceof HTMLElement && child.classList.contains("sheet-panel")
+    );
+  }
+
+  private resolvePanel(selector: string | null): HTMLElement | null {
+    if (!selector) return null;
+    try {
+      const panel = this.element.querySelector<HTMLElement>(selector);
+      return panel?.classList.contains("sheet-panel") ? panel : null;
+    } catch {
+      return null;
+    }
+  }
+
+  get top(): HTMLElement | undefined {
+    return this.stack[this.stack.length - 1];
+  }
+
+  private onClick(event: Event): void {
+    const target = event.target as Element;
+    // The backdrop (and the dimmed sheets behind, which let clicks through) dismiss only the
+    // top sheet, like a swipe or Escape; the last one closes the whole sheet.
+    if (target === this.element) {
+      if (this.backdrop === true) this.back();
+      else if (this.backdrop === "static") nudgeElement(this.element, "sheet-static");
+      return;
+    }
+    const push = target.closest<HTMLElement>("[data-sheet-push]");
+    if (push) {
+      event.preventDefault();
+      const panel = this.resolvePanel(push.getAttribute("data-sheet-push"));
+      if (panel) this.push(panel);
+      return;
+    }
+    if (target.closest("[data-sheet-back]")) {
+      event.preventDefault();
+      this.back();
+      return;
+    }
+    if (target.closest("[data-sheet-close]")) {
+      event.preventDefault();
+      this.hide();
+      return;
+    }
+    // Choosing a link navigates, so the sheet gets out of the way (opt out with data-sheet-keep).
+    const link = target.closest<HTMLAnchorElement>("a[href]");
+    if (link && !link.hasAttribute("data-sheet-keep")) this.hide();
+  }
+
+  private render(): void {
+    const depthOf = (panel: HTMLElement): number => {
+      const index = this.stack.indexOf(panel);
+      return index < 0 ? -1 : this.stack.length - 1 - index;
+    };
+    this.panels().forEach((panel) => {
+      const depth = depthOf(panel);
+      panel.classList.toggle("is-open", depth >= 0);
+      panel.classList.toggle("is-behind", depth > 0);
+      panel.style.setProperty("--aksara-sheet-depth", String(Math.max(depth, 0)));
+      panel.inert = depth !== 0;
+      panel.setAttribute("aria-hidden", String(depth !== 0));
+    });
+    this.element.classList.toggle("sheet-stacked", this.stack.length > 1);
+  }
+
+  /** Opens the sheet on its first panel (or on `panel`). */
+  show(panel?: HTMLElement | string): this {
+    const root = typeof panel === "string" ? this.resolvePanel(panel) : (panel ?? this.panels()[0]);
+    if (!root) return this;
+    if (this.closeTimer) clearTimeout(this.closeTimer);
+    this.closeTimer = null;
+    if (!this.isOpen) {
+      this.previousFocus = document.activeElement as HTMLElement | null;
+      this.isOpen = true;
+      this.element.classList.add("sheet-open");
+      this.element.setAttribute("aria-hidden", "false");
+      pushOverlay(this, this.scrollLock);
+      void this.element.offsetWidth; // start the slide-in from the closed position
+    }
+    this.element.classList.add("sheet-visible");
+    this.stack = [root];
+    this.render();
+    this.focusTop();
+    emit(this.element, "sheet:show", { instance: this, panel: root });
+    return this;
+  }
+
+  /** Slides a sub-sheet over the current one. */
+  push(panel: HTMLElement | string): this {
+    const next = typeof panel === "string" ? this.resolvePanel(panel) : panel;
+    if (!next) return this;
+    if (!this.isOpen) return this.show(next);
+    const existing = this.stack.indexOf(next);
+    if (existing >= 0) this.stack = this.stack.slice(0, existing);
+    this.stack.push(next);
+    this.render();
+    this.focusTop();
+    emit(this.element, "sheet:push", { instance: this, panel: next, depth: this.stack.length });
+    return this;
+  }
+
+  /** Pops the top sub-sheet; closes the sheet when only one is left. */
+  back(): this {
+    if (this.stack.length <= 1) return this.hide();
+    const popped = this.stack.pop();
+    this.render();
+    this.focusTop();
+    emit(this.element, "sheet:back", { instance: this, panel: popped, depth: this.stack.length });
+    return this;
+  }
+
+  hide(): this {
+    if (!this.isOpen) return this;
+    this.isOpen = false;
+    this.stack = [];
+    this.render();
+    this.element.classList.remove("sheet-visible");
+    this.element.setAttribute("aria-hidden", "true");
+    popOverlay(this, this.scrollLock);
+    this.closeTimer = setTimeout(() => {
+      this.element.classList.remove("sheet-open");
+      this.closeTimer = null;
+    }, 340);
+    if (this.previousFocus && typeof this.previousFocus.focus === "function") {
+      this.previousFocus.focus({ preventScroll: true });
+    }
+    emit(this.element, "sheet:hide", { instance: this });
+    return this;
+  }
+
+  toggle(): this {
+    return this.isOpen ? this.hide() : this.show();
+  }
+
+  private focusTop(): void {
+    const panel = this.top;
+    if (!panel) return;
+    const first = panel.querySelector<HTMLElement>(focusableSelector);
+    (first ?? panel).focus({ preventScroll: true });
+  }
+
+  private onKeydown(event: KeyboardEvent): void {
+    if (!this.isOpen || !isTopOverlay(this)) return;
+    if (event.key === "Escape" && this.keyboard) {
+      event.preventDefault();
+      this.back();
+      return;
+    }
+    const panel = this.top;
+    if (event.key !== "Tab" || !panel) return;
+    const focusable = Array.from(panel.querySelectorAll<HTMLElement>(focusableSelector));
+    if (!focusable.length) {
+      event.preventDefault();
+      panel.focus();
+      return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
+
+  /** Drag the top sheet down from its handle or header (or anywhere when its body is scrolled to the top). */
+  private bindSwipe(): void {
+    let pointerId: number | null = null;
+    let startY = 0;
+    let startTime = 0;
+    let delta = 0;
+    let panel: HTMLElement | null = null;
+
+    const onDown = (event: PointerEvent): void => {
+      const top = this.top;
+      const target = event.target as Element;
+      if (!this.isOpen || !top || !top.contains(target) || event.button !== 0) return;
+      if (target.closest("input,textarea,select,[contenteditable='true'],.sheet-grid,[data-sheet-no-swipe]")) return;
+      const fromGrip = Boolean(target.closest(".sheet-handle,.sheet-header"));
+      const body = top.querySelector<HTMLElement>(".sheet-body");
+      if (!fromGrip && (event.pointerType === "mouse" || (body && body.scrollTop > 0))) return;
+      pointerId = event.pointerId;
+      panel = top;
+      startY = event.clientY;
+      startTime = performance.now();
+      delta = 0;
+    };
+    const onMove = (event: PointerEvent): void => {
+      if (event.pointerId !== pointerId || !panel) return;
+      delta = Math.max(0, event.clientY - startY);
+      if (delta < 4) return;
+      panel.classList.add("is-dragging");
+      panel.style.transform = `translateY(${delta}px)`;
+    };
+    const onUp = (event: PointerEvent): void => {
+      if (event.pointerId !== pointerId || !panel) return;
+      const current = panel;
+      pointerId = null;
+      panel = null;
+      current.classList.remove("is-dragging");
+      current.style.transform = "";
+      const velocity = delta / Math.max(1, performance.now() - startTime);
+      if (delta > current.offsetHeight * 0.25 || (delta > 24 && velocity > 0.5)) this.back();
+    };
+    this.on(this.element, "pointerdown", onDown as EventListener);
+    this.on(this.element, "pointermove", onMove as EventListener);
+    this.on(this.element, "pointerup", onUp as EventListener);
+    this.on(this.element, "pointercancel", onUp as EventListener);
+  }
+
+  destroy(): void {
+    if (this.isOpen) {
+      popOverlay(this, this.scrollLock);
+      this.element.classList.remove("sheet-open", "sheet-visible");
+    }
+    if (this.closeTimer) clearTimeout(this.closeTimer);
     super.destroy();
   }
 }
@@ -1722,26 +2798,45 @@ export class Carousel extends Component {
 export class Offcanvas extends Modal {
   static override componentName = "offcanvas";
 
-  constructor(element: HTMLElement, options: OffcanvasOptions = {}) {
-    super(element, options);
-    // The panel is the element itself, so "outside" means outside the panel.
-    this.on(document, "pointerdown", (event: Event) => {
-      const target = event.target instanceof Element ? event.target : null;
-      if (!this.isOpen || !isTopOverlay(this) || !target || this.element.contains(target)) return;
-      if (target.closest("[data-offcanvas], [data-offcanvas-toggle]")) return;
-      if (this.backdrop === "static") return;
-      if (this.backdrop) this.hide();
-    });
-  }
+  /** Dimmed layer behind the panel (`backdrop: false` leaves the page usable instead). */
+  backdropElement: HTMLElement | null = null;
+  backdropTimer: ReturnType<typeof setTimeout> | null = null;
 
   override isBackdropClick(): boolean {
     return false;
+  }
+
+  showBackdrop(): void {
+    if (this.backdropTimer) clearTimeout(this.backdropTimer);
+    let layer = this.backdropElement;
+    if (!layer) {
+      layer = document.createElement("div");
+      layer.className = "offcanvas-backdrop";
+      layer.addEventListener("click", () => {
+        if (!this.isOpen) return;
+        if (this.backdrop === "static") this.nudge();
+        else this.hide();
+      });
+      this.backdropElement = layer;
+    }
+    // Sits right below its panel, so stacked overlays keep their order.
+    this.element.parentElement?.insertBefore(layer, this.element);
+    void layer.offsetWidth;
+    layer.classList.add("is-visible");
+  }
+
+  hideBackdrop(): void {
+    const layer = this.backdropElement;
+    if (!layer) return;
+    layer.classList.remove("is-visible");
+    this.backdropTimer = setTimeout(() => layer.remove(), 300);
   }
 
   override show(): this {
     if (this.isOpen) return this;
     this.previousFocus = document.activeElement as HTMLElement | null;
     this.isOpen = true;
+    if (this.backdrop) this.showBackdrop();
     this.element.classList.add("offcanvas-open");
     this.element.setAttribute("aria-hidden", "false");
     pushOverlay(this, this.scrollLock);
@@ -1750,9 +2845,16 @@ export class Offcanvas extends Modal {
     return this;
   }
 
+  override destroy(): void {
+    if (this.backdropTimer) clearTimeout(this.backdropTimer);
+    this.backdropElement?.remove();
+    super.destroy();
+  }
+
   override hide(): this {
     if (!this.isOpen) return this;
     this.isOpen = false;
+    this.hideBackdrop();
     this.element.classList.remove("offcanvas-open");
     this.element.setAttribute("aria-hidden", "true");
     popOverlay(this, this.scrollLock);
@@ -1760,6 +2862,487 @@ export class Offcanvas extends Modal {
     emit(this.element, "offcanvas:hide", { instance: this });
     return this;
   }
+}
+
+/** Options a data-API trigger applied last, per instance, so the next trigger can drop them. */
+const triggerOptionValues = new WeakMap<Component, Record<string, unknown>>();
+
+/**
+ * Applies a trigger's `data-*` options for this opening only: options a previous trigger set
+ * (and nothing else changed since) are removed first, so they fall back to the element's own
+ * attributes or the defaults instead of sticking to the instance.
+ */
+function applyTriggerOptions<T extends Component>(instance: T, options: Record<string, string>): T {
+  const previous = triggerOptionValues.get(instance) ?? {};
+  for (const [key, value] of Object.entries(previous)) {
+    if (!(key in options) && instance.options[key] === value) delete instance.options[key];
+  }
+  triggerOptionValues.set(instance, { ...options });
+  instance.updateOptions(options);
+  return instance;
+}
+
+export interface MediaItem {
+  src: string;
+  alt?: string;
+  caption?: string;
+}
+
+export interface MediaOptions extends ComponentOptions {
+  items?: MediaItem[];
+  index?: number;
+  loop?: boolean;
+  keyboard?: boolean;
+  /** Largest zoom factor (default 4). */
+  maxZoom?: number;
+}
+
+/**
+ * Full-screen media viewer (`.media-modal`): prev/next, swipe, arrow keys, Escape,
+ * zoom (buttons, +/-/0 keys, double click, ctrl/⌘ + wheel) and drag-to-pan while zoomed.
+ * Items come from the `items` option or the `data-media-items` JSON the component renders.
+ */
+export class MediaViewer extends Component {
+  static componentName = "media";
+
+  items: MediaItem[] = [];
+  index = 0;
+  zoom = 1;
+  panX = 0;
+  panY = 0;
+  /** Horizontal offset of the slide track while dragging / settling, in px. */
+  drag = 0;
+  isOpen = false;
+  previousFocus: HTMLElement | null = null;
+  loop!: boolean;
+  keyboard!: boolean;
+  maxZoom!: number;
+  track: HTMLElement | null = null;
+  settleTimer: ReturnType<typeof setTimeout> | null = null;
+  settleDone: (() => void) | null = null;
+  moved = false;
+
+  constructor(element: HTMLElement, options: MediaOptions = {}) {
+    super(element, options);
+    this.isOpen = element.classList.contains("media-modal-open");
+    this.buildTrack();
+    this.updateOptions(options);
+    if (this.isOpen) pushOverlay(this, true);
+
+    this.on(element, "click", (event: Event) => {
+      const target = event.target as Element;
+      if (target.closest("[data-media-close]")) return void this.hide();
+      if (target.closest("[data-media-prev]")) return void this.prev();
+      if (target.closest("[data-media-next]")) return void this.next();
+      if (target.closest("[data-media-zoom-in]")) return void this.setZoom(this.zoom * 1.5);
+      if (target.closest("[data-media-zoom-out]")) return void this.setZoom(this.zoom / 1.5);
+      if (target.closest("[data-media-zoom-reset]")) return void this.setZoom(1);
+      // A click on the empty stage around the image closes, like a backdrop.
+      if (target.matches(".media-modal-stage,.media-modal-track,.media-modal-figure") && !this.moved) this.hide();
+    });
+    this.on(element, "dblclick", (event: Event) => {
+      if ((event.target as Element).closest('[data-media-slot="current"] [data-media-image]')) {
+        this.setZoom(this.zoom > 1 ? 1 : 2.5);
+      }
+    });
+    this.on(
+      element,
+      "wheel",
+      (event: Event) => {
+        const wheel = event as WheelEvent;
+        if (!this.isOpen || !(wheel.ctrlKey || wheel.metaKey)) return;
+        wheel.preventDefault();
+        this.setZoom(this.zoom * (wheel.deltaY < 0 ? 1.15 : 1 / 1.15));
+      },
+      { passive: false }
+    );
+    this.on(document, "keydown", (event: Event) => this.onKeydown(event as KeyboardEvent));
+    this.bindPointer();
+  }
+
+  /**
+   * Wraps the figure in a `.media-modal-track` with a previous and a next slot, so dragging
+   * shows the neighbouring item and changing items slides instead of swapping in place.
+   */
+  buildTrack(): void {
+    const figure = this.element.querySelector<HTMLElement>(".media-modal-figure");
+    if (!figure || figure.closest(".media-modal-track")) {
+      this.track = figure?.closest<HTMLElement>(".media-modal-track") ?? null;
+      return;
+    }
+    const track = document.createElement("div");
+    track.className = "media-modal-track";
+    figure.before(track);
+    figure.setAttribute("data-media-slot", "current");
+    const clone = (slot: string) => {
+      const copy = figure.cloneNode(true) as HTMLElement;
+      copy.setAttribute("data-media-slot", slot);
+      copy.setAttribute("aria-hidden", "true");
+      copy.setAttribute("inert", "");
+      copy.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
+      return copy;
+    };
+    track.append(clone("prev"), figure, clone("next"));
+    this.track = track;
+  }
+
+  updateOptions(options: MediaOptions = {}): this {
+    super.updateOptions(options);
+    this.loop = getBooleanOption(this.options, this.element, "media", "loop", false);
+    this.keyboard = getBooleanOption(this.options, this.element, "media", "keyboard", true);
+    this.maxZoom = getNumberOption(this.options, this.element, "media", "maxZoom", 4);
+    if (Array.isArray(this.options.items)) {
+      this.items = this.options.items as MediaItem[];
+    } else {
+      try {
+        const parsed = JSON.parse(this.element.getAttribute("data-media-items") || "[]");
+        this.items = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        this.items = [];
+      }
+    }
+    const index = Number(this.options.index ?? this.element.getAttribute("data-media-index") ?? 0);
+    this.index = clamp(Number.isNaN(index) ? 0 : index, 0, Math.max(0, this.items.length - 1));
+    if (this.items.length) this.render();
+    return this;
+  }
+
+  /** Replaces the items (e.g. from a gallery) and optionally jumps to `index`. */
+  setItems(items: MediaItem[], index = 0): this {
+    this.items = items;
+    this.element.setAttribute("data-media-items", JSON.stringify(items));
+    return this.go(index);
+  }
+
+  show(index?: number): this {
+    if (index !== undefined) this.go(index);
+    if (this.isOpen) return this;
+    this.previousFocus = document.activeElement as HTMLElement | null;
+    this.isOpen = true;
+    this.element.classList.add("media-modal-open");
+    this.element.setAttribute("aria-hidden", "false");
+    pushOverlay(this, true);
+    this.element.focus({ preventScroll: true });
+    emit(this.element, "media:show", { index: this.index, item: this.items[this.index], instance: this });
+    return this;
+  }
+
+  hide(): this {
+    if (!this.isOpen) return this;
+    this.finishSettle();
+    this.isOpen = false;
+    this.setZoom(1);
+    this.element.classList.remove("media-modal-open");
+    this.element.setAttribute("aria-hidden", "true");
+    popOverlay(this, true);
+    this.previousFocus?.focus?.({ preventScroll: true });
+    emit(this.element, "media:hide", { instance: this });
+    return this;
+  }
+
+  toggle(): this {
+    return this.isOpen ? this.hide() : this.show();
+  }
+
+  /** Index of the item `step` away from the current one, or -1 when there is none. */
+  neighbour(step: number): number {
+    const total = this.items.length;
+    const target = this.index + step;
+    if (this.loop && total > 1) return ((target % total) + total) % total;
+    return target >= 0 && target < total ? target : -1;
+  }
+
+  /** Jumps straight to `index` (no slide). Used by Home/End, `show(index)` and `setItems`. */
+  go(index: number): this {
+    const total = this.items.length;
+    if (!total) return this;
+    this.finishSettle();
+    const next = this.loop ? ((index % total) + total) % total : clamp(index, 0, total - 1);
+    const changed = next !== this.index;
+    this.index = next;
+    this.setZoom(1);
+    this.setDrag(0);
+    this.render();
+    if (changed) emit(this.element, "media:change", { index: next, item: this.items[next], instance: this });
+    return this;
+  }
+
+  next(): this {
+    return this.slide(1);
+  }
+
+  prev(): this {
+    return this.slide(-1);
+  }
+
+  /** Slides the track to the neighbour in `step` direction, then makes it current. */
+  slide(step: 1 | -1): this {
+    this.finishSettle();
+    const target = this.neighbour(step);
+    if (target < 0) {
+      this.settle(0);
+      return this;
+    }
+    this.setZoom(1);
+    const width = this.track?.clientWidth || this.element.clientWidth || 1;
+    // LTR: next sits to the right, so the track moves left (negative); RTL mirrors it.
+    const offset = (this.isRtl() ? 1 : -1) * step * width;
+    this.settle(offset, () => {
+      this.index = target;
+      this.setDrag(0);
+      this.render();
+      emit(this.element, "media:change", { index: target, item: this.items[target], instance: this });
+    });
+    return this;
+  }
+
+  isRtl(): boolean {
+    return getComputedStyle(this.element).direction === "rtl";
+  }
+
+  setDrag(px: number): void {
+    this.drag = px;
+    this.element.style.setProperty("--aksara-media-drag", `${px}px`);
+  }
+
+  /** Animates the track to `px`, then runs `done` with transitions off. */
+  settle(px: number, done?: () => void): void {
+    const track = this.track;
+    const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!track || reduced || Math.abs(px - this.drag) < 1) {
+      this.setDrag(px);
+      done?.();
+      return;
+    }
+    this.element.classList.add("is-settling");
+    this.setDrag(px);
+    this.settleDone = () => {
+      this.element.classList.remove("is-settling");
+      this.settleDone = null;
+      done?.();
+    };
+    const onEnd = (event: TransitionEvent) => {
+      if (event.target === track && event.propertyName === "transform") this.finishSettle();
+    };
+    track.addEventListener("transitionend", onEnd as EventListener, { once: true });
+    this.settleTimer = setTimeout(() => this.finishSettle(), 420);
+  }
+
+  /** Completes a running slide immediately (a new gesture or command takes over). */
+  finishSettle(): void {
+    if (this.settleTimer) clearTimeout(this.settleTimer);
+    this.settleTimer = null;
+    const done = this.settleDone;
+    if (done) done();
+  }
+
+  setZoom(value: number): this {
+    this.zoom = clamp(Math.round(value * 100) / 100, 1, this.maxZoom);
+    if (this.zoom === 1) {
+      this.panX = 0;
+      this.panY = 0;
+    }
+    this.element.classList.toggle("is-zoomed", this.zoom > 1);
+    this.applyTransform();
+    return this;
+  }
+
+  applyTransform(): void {
+    this.element.style.setProperty("--aksara-media-zoom", String(this.zoom));
+    this.element.style.setProperty("--aksara-media-x", `${this.panX}px`);
+    this.element.style.setProperty("--aksara-media-y", `${this.panY}px`);
+  }
+
+  fillSlot(slot: string, item: MediaItem | undefined): void {
+    const figure = this.element.querySelector<HTMLElement>(`[data-media-slot="${slot}"]`);
+    if (!figure) return;
+    figure.classList.toggle("is-empty", !item);
+    const image = figure.querySelector<HTMLImageElement>("[data-media-image]");
+    if (image) {
+      if (item && image.getAttribute("src") !== item.src) image.src = item.src;
+      image.alt = item?.alt ?? "";
+      image.hidden = !item;
+    }
+    const caption = figure.querySelector<HTMLElement>("[data-media-caption]");
+    if (caption) {
+      caption.textContent = item?.caption ?? "";
+      caption.hidden = !item?.caption;
+    }
+  }
+
+  render(): void {
+    const item = this.items[this.index];
+    if (!item) return;
+    const el = this.element;
+    if (this.track) {
+      this.fillSlot("current", item);
+      const prev = this.neighbour(-1);
+      const next = this.neighbour(1);
+      this.fillSlot("prev", prev >= 0 ? this.items[prev] : undefined);
+      this.fillSlot("next", next >= 0 ? this.items[next] : undefined);
+    } else {
+      const image = el.querySelector<HTMLImageElement>("[data-media-image]");
+      if (image && image.getAttribute("src") !== item.src) image.src = item.src;
+      if (image) image.alt = item.alt ?? "";
+    }
+    const total = this.items.length;
+    el.querySelectorAll<HTMLElement>("[data-media-current]").forEach(
+      (node) => (node.textContent = String(this.index + 1))
+    );
+    el.querySelectorAll<HTMLElement>("[data-media-total]").forEach((node) => (node.textContent = String(total)));
+    el.querySelectorAll<HTMLButtonElement>("[data-media-prev]").forEach((button) => {
+      button.disabled = !this.loop && this.index === 0;
+      button.hidden = total < 2;
+    });
+    el.querySelectorAll<HTMLButtonElement>("[data-media-next]").forEach((button) => {
+      button.disabled = !this.loop && this.index === total - 1;
+      button.hidden = total < 2;
+    });
+    el.querySelectorAll<HTMLElement>(".media-modal-counter").forEach((node) => (node.hidden = total < 2));
+    el.setAttribute("data-media-index", String(this.index));
+  }
+
+  onKeydown(event: KeyboardEvent): void {
+    if (!this.isOpen || !this.keyboard || !isTopOverlay(this)) return;
+    const rtl = this.isRtl();
+    const actions: Record<string, () => void> = {
+      Escape: () => this.hide(),
+      ArrowLeft: () => (rtl ? this.next() : this.prev()),
+      ArrowRight: () => (rtl ? this.prev() : this.next()),
+      Home: () => this.go(0),
+      End: () => this.go(this.items.length - 1),
+      "+": () => this.setZoom(this.zoom * 1.5),
+      "=": () => this.setZoom(this.zoom * 1.5),
+      "-": () => this.setZoom(this.zoom / 1.5),
+      "0": () => this.setZoom(1)
+    };
+    const action = actions[event.key];
+    if (!action || (event.target as Element)?.closest?.("input,textarea,select,[contenteditable='true']")) return;
+    event.preventDefault();
+    action();
+  }
+
+  /**
+   * At 1×: the track follows the pointer (rubber-band at the ends) and on release slides to
+   * the neighbour when dragged past 20% of the width or flicked; otherwise it springs back.
+   * Zoomed: dragging pans the image.
+   */
+  bindPointer(): void {
+    const stage = this.element.querySelector<HTMLElement>("[data-media-stage]") || this.element;
+    let startX = 0;
+    let startY = 0;
+    let originX = 0;
+    let originY = 0;
+    let lastX = 0;
+    let lastT = 0;
+    let velocity = 0;
+    let active = false;
+    let horizontal: boolean | null = null;
+    this.on(stage, "pointerdown", (event: Event) => {
+      const pointer = event as PointerEvent;
+      if (pointer.button !== 0 || (pointer.target as Element).closest("button,a,.media-modal-sidebar")) return;
+      this.finishSettle();
+      active = true;
+      horizontal = null;
+      this.moved = false;
+      startX = lastX = pointer.clientX;
+      startY = pointer.clientY;
+      lastT = pointer.timeStamp;
+      velocity = 0;
+      originX = this.panX;
+      originY = this.panY;
+    });
+    this.on(window, "pointermove", (event: Event) => {
+      if (!active) return;
+      const pointer = event as PointerEvent;
+      const dx = pointer.clientX - startX;
+      const dy = pointer.clientY - startY;
+      if (!this.moved && Math.hypot(dx, dy) < 6) return;
+      this.moved = true;
+      const dt = Math.max(1, pointer.timeStamp - lastT);
+      velocity = (pointer.clientX - lastX) / dt;
+      lastX = pointer.clientX;
+      lastT = pointer.timeStamp;
+      if (this.zoom > 1) {
+        this.element.classList.add("is-panning");
+        this.panX = originX + dx;
+        this.panY = originY + dy;
+        this.applyTransform();
+        return;
+      }
+      if (horizontal === null) horizontal = Math.abs(dx) >= Math.abs(dy);
+      if (!horizontal || this.items.length < 2) return;
+      this.element.classList.add("is-swiping");
+      // Pulling towards a side with no item stretches with resistance.
+      const towardsNext = dx < 0 !== this.isRtl();
+      const blocked = this.neighbour(towardsNext ? 1 : -1) < 0;
+      this.setDrag(blocked ? dx * 0.3 : dx);
+    });
+    const end = () => {
+      if (!active) return;
+      active = false;
+      this.element.classList.remove("is-panning", "is-swiping");
+      if (this.zoom === 1 && horizontal && this.items.length > 1) {
+        const width = this.track?.clientWidth || this.element.clientWidth || 1;
+        const dx = this.drag;
+        const towardsNext = dx < 0 !== this.isRtl();
+        const flick = Math.abs(velocity) > 0.45 && Math.sign(velocity) === Math.sign(dx);
+        if (Math.abs(dx) > width * 0.2 || flick) {
+          if (towardsNext) this.next();
+          else this.prev();
+        } else {
+          this.settle(0);
+        }
+      }
+      // Let the click that ends a drag through without closing the viewer.
+      setTimeout(() => (this.moved = false), 0);
+    };
+    this.on(window, "pointerup", end);
+    this.on(window, "pointercancel", end);
+  }
+
+  destroy(): void {
+    this.finishSettle();
+    if (this.isOpen) popOverlay(this, true);
+    super.destroy();
+  }
+}
+
+/** Items of a `[data-media-gallery]` container: `[data-media-item]` children, else its images. */
+function galleryItems(gallery: Element): { nodes: HTMLElement[]; items: MediaItem[] } {
+  let nodes = Array.from(gallery.querySelectorAll<HTMLElement>("[data-media-item]"));
+  if (!nodes.length) nodes = Array.from(gallery.querySelectorAll<HTMLElement>("img"));
+  const items = nodes.map((node) => {
+    const img = node instanceof HTMLImageElement ? node : node.querySelector("img");
+    return {
+      src:
+        node.getAttribute("data-media-src") ||
+        node.getAttribute("href") ||
+        img?.getAttribute("data-media-src") ||
+        img?.currentSrc ||
+        img?.getAttribute("src") ||
+        "",
+      alt: node.getAttribute("data-media-alt") || img?.getAttribute("alt") || "",
+      caption: node.getAttribute("data-media-caption") || img?.getAttribute("data-media-caption") || ""
+    };
+  });
+  return { nodes, items };
+}
+
+/** Marks the picked option of a `.picker-modal`, emits `aksara:picker:select` and closes it. */
+function selectPickerOption(option: HTMLElement): void {
+  const modal = option.closest<HTMLElement>(".picker-modal");
+  if (!modal || option.matches(":disabled,[aria-disabled='true']")) return;
+  modal.querySelectorAll<HTMLElement>("[data-picker-value]").forEach((item) => {
+    const selected = item === option;
+    item.classList.toggle("is-selected", selected);
+    item.setAttribute("aria-selected", String(selected));
+  });
+  const value = option.getAttribute("data-picker-value") ?? "";
+  const label = option.querySelector(".picker-option-label")?.textContent?.trim() ?? option.textContent?.trim() ?? "";
+  modal.setAttribute("data-picker-selected", value);
+  emit(modal, "picker:select", { value, label, option });
+  if (modal.getAttribute("data-picker-close") !== "false") getInstance(modal, Modal).hide();
 }
 
 function readTriggerOptions(trigger: Element, component: string, names: string[]): Record<string, string> {
@@ -1780,6 +3363,8 @@ function dismissTarget(target: HTMLElement | null): void {
     getInstance(target, Toast).hide();
   } else if (target.classList.contains("dropdown") || target.matches("[data-dropdown]")) {
     getInstance(target, Dropdown).hide();
+  } else if (floatingTips.has(target)) {
+    floatingTips.get(target)!.hide();
   } else {
     target.remove();
   }
@@ -1799,25 +3384,621 @@ function resolveDismissTargets(trigger: Element): HTMLElement[] {
   return localTarget ? [localTarget] : [];
 }
 
+// ── Copy, toggle, segmented, stepper, OTP, steps ─────────────────────────────
+
+/** Writes text to the clipboard; falls back to a hidden textarea where the async API is missing (http, file://). */
+async function writeClipboard(text: string): Promise<boolean> {
+  if (!text || typeof document === "undefined") return false;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    /* fall through to the legacy path */
+  }
+  const area = document.createElement("textarea");
+  area.value = text;
+  area.setAttribute("readonly", "");
+  area.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none";
+  document.body.append(area);
+  area.select();
+  let ok: boolean;
+  try {
+    ok = document.execCommand("copy");
+  } catch {
+    ok = false;
+  }
+  area.remove();
+  return ok;
+}
+
+function textOf(el: Element | null): string {
+  if (!el) return "";
+  if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement)
+    return el.value;
+  return el.textContent?.trim() ?? "";
+}
+
+const copyTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
+/**
+ * `[data-clipboard]` triggers: `data-clipboard="#selector"` copies that element's value/text,
+ * `data-clipboard-text` copies a literal, otherwise the trigger's own text. The trigger gets
+ * `.is-copied` for `data-clipboard-reset` ms (2000); `data-clipboard-success` swaps its HTML.
+ */
+async function copyFromTrigger(trigger: HTMLElement): Promise<void> {
+  const target = trigger.getAttribute("data-clipboard");
+  let text = trigger.getAttribute("data-clipboard-text") ?? "";
+  if (!text && target) {
+    // `#id`, `.class` or `[attr]` is a selector; anything else is copied literally.
+    let el: Element | null = null;
+    if (/^[#.[]/.test(target)) {
+      try {
+        el = document.querySelector(target);
+      } catch {
+        el = null;
+      }
+    }
+    text = el ? textOf(el) : target;
+  }
+  // No source at all: the trigger's visible label (not the hidden "Copied" state).
+  if (!text) text = (trigger.querySelector(".copy-btn-idle") ?? trigger).textContent?.trim() ?? "";
+  const ok = await writeClipboard(text);
+  if (!ok) {
+    emit(trigger, "clipboard:error", { text });
+    return;
+  }
+  const reset = Number(trigger.getAttribute("data-clipboard-reset") ?? 2000);
+  const success = trigger.getAttribute("data-clipboard-success");
+  if (success) {
+    if (!trigger.hasAttribute("data-clipboard-original"))
+      trigger.setAttribute("data-clipboard-original", trigger.innerHTML);
+    trigger.innerHTML = success;
+  }
+  trigger.classList.add("is-copied");
+  const status = trigger.querySelector<HTMLElement>(".copy-btn-done");
+  if (status) status.setAttribute("role", "status");
+  const pending = copyTimers.get(trigger);
+  if (pending) clearTimeout(pending);
+  copyTimers.set(
+    trigger,
+    setTimeout(() => {
+      trigger.classList.remove("is-copied");
+      const original = trigger.getAttribute("data-clipboard-original");
+      if (original !== null) trigger.innerHTML = original;
+      copyTimers.delete(trigger);
+    }, reset)
+  );
+  emit(trigger, "clipboard:copy", { text });
+}
+
+/** `data-toggle="button"`: flips `aria-pressed` (and `.active`). */
+function toggleButton(button: HTMLElement): void {
+  const pressed = button.getAttribute("aria-pressed") !== "true";
+  button.setAttribute("aria-pressed", String(pressed));
+  button.classList.toggle("active", pressed);
+  emit(button, "toggle", { pressed });
+}
+
+/** Button-based `.segmented[data-segmented]`: one pressed item at a time. */
+function selectSegment(item: HTMLElement): void {
+  const group = item.closest<HTMLElement>(".segmented");
+  if (!group || item.matches(":disabled,[aria-disabled='true']")) return;
+  const items = Array.from(group.querySelectorAll<HTMLElement>(".segmented-item"));
+  items.forEach((other) => {
+    const on = other === item;
+    other.setAttribute("aria-pressed", String(on));
+    other.classList.toggle("active", on);
+  });
+  const value = item.getAttribute("data-value") ?? item.textContent?.trim() ?? "";
+  group.setAttribute("data-value", value);
+  emit(group, "segmented:change", { value, item, index: items.indexOf(item) });
+}
+
+function stepperInput(group: Element): HTMLInputElement | null {
+  return group.querySelector<HTMLInputElement>("input");
+}
+
+/** Disables − / + at the input's min / max. */
+function syncStepper(group: Element): void {
+  const input = stepperInput(group);
+  if (!input) return;
+  const value = Number(input.value);
+  const min = input.min === "" ? -Infinity : Number(input.min);
+  const max = input.max === "" ? Infinity : Number(input.max);
+  group
+    .querySelectorAll<HTMLButtonElement>("[data-stepper-down]")
+    .forEach((b) => (b.disabled = input.disabled || value <= min));
+  group
+    .querySelectorAll<HTMLButtonElement>("[data-stepper-up]")
+    .forEach((b) => (b.disabled = input.disabled || value >= max));
+}
+
+function stepNumber(group: Element, direction: 1 | -1): boolean {
+  const input = stepperInput(group);
+  if (!input || input.disabled || input.readOnly) return false;
+  const step = Number(input.step) || 1;
+  const min = input.min === "" ? -Infinity : Number(input.min);
+  const max = input.max === "" ? Infinity : Number(input.max);
+  const decimals = (String(step).split(".")[1] ?? "").length;
+  // An empty field starts from min (or 0) instead of stepping.
+  const current = Number(input.value);
+  const next =
+    input.value === "" || Number.isNaN(current)
+      ? clamp(Number.isFinite(min) ? min : 0, min, max)
+      : clamp(Number((current + direction * step).toFixed(decimals)), min, max);
+  if (input.value !== "" && next === current) return false;
+  input.value = String(next);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+  syncStepper(group);
+  return true;
+}
+
+let stepperRepeat: ReturnType<typeof setTimeout> | null = null;
+
+function stopStepperRepeat(): void {
+  if (stepperRepeat) clearTimeout(stepperRepeat);
+  stepperRepeat = null;
+}
+
+/** Press and hold − / + to keep stepping (after 400ms, then every 70ms). */
+function startStepperRepeat(button: HTMLElement): void {
+  const group = button.closest("[data-stepper]");
+  if (!group) return;
+  const direction = button.hasAttribute("data-stepper-up") ? 1 : -1;
+  stopStepperRepeat();
+  button.addEventListener("pointerleave", stopStepperRepeat, { once: true });
+  const tick = (delay: number) => {
+    stepperRepeat = setTimeout(() => {
+      if (!stepNumber(group, direction)) return stopStepperRepeat();
+      button.setAttribute("data-stepper-repeated", "");
+      tick(70);
+    }, delay);
+  };
+  tick(400);
+}
+
+function otpInputs(group: Element): HTMLInputElement[] {
+  return Array.from(group.querySelectorAll<HTMLInputElement>("input:not([type='hidden'])"));
+}
+
+/** Combined value into the hidden field / `data-value`; fires `otp:complete` when every box is filled. */
+function syncOtp(group: HTMLElement, notify = true): void {
+  const boxes = otpInputs(group);
+  const value = boxes.map((box) => box.value).join("");
+  group.setAttribute("data-value", value);
+  const hidden = group.querySelector<HTMLInputElement>("input[type='hidden']");
+  if (hidden) hidden.value = value;
+  // Initial sync keeps a server-rendered `.is-invalid`; editing clears it.
+  if (!notify) return;
+  group.classList.remove("is-invalid");
+  emit(group, "otp:change", { value });
+  if (boxes.length && boxes.every((box) => box.value !== "")) emit(group, "otp:complete", { value });
+}
+
+function otpPattern(group: Element): RegExp {
+  const source = group.getAttribute("data-otp-pattern") || "[0-9]";
+  try {
+    return new RegExp(`^${source}$`);
+  } catch {
+    return /^[0-9]$/;
+  }
+}
+
+function fillOtp(group: HTMLElement, from: HTMLInputElement, text: string): void {
+  const boxes = otpInputs(group);
+  const pattern = otpPattern(group);
+  const chars = Array.from(text).filter((char) => pattern.test(char));
+  let index = boxes.indexOf(from);
+  for (const char of chars) {
+    if (index >= boxes.length) break;
+    boxes[index].value = char;
+    index += 1;
+  }
+  boxes[Math.min(index, boxes.length - 1)]?.focus();
+  syncOtp(group);
+}
+
+function bindOtp(): void {
+  document.addEventListener("input", (event) => {
+    const box = event.target;
+    if (!(box instanceof HTMLInputElement)) return;
+    const group = box.closest<HTMLElement>("[data-otp]");
+    if (!group) return;
+    const value = box.value;
+    if (value.length > 1) {
+      // Autofill / IME delivered several characters into one box.
+      box.value = "";
+      fillOtp(group, box, value);
+      return;
+    }
+    if (value && !otpPattern(group).test(value)) {
+      box.value = "";
+      return;
+    }
+    if (value) {
+      const boxes = otpInputs(group);
+      boxes[boxes.indexOf(box) + 1]?.focus();
+      boxes[boxes.indexOf(box) + 1]?.select();
+    }
+    syncOtp(group);
+  });
+  document.addEventListener("keydown", (event) => {
+    const box = event.target;
+    if (!(box instanceof HTMLInputElement)) return;
+    const group = box.closest<HTMLElement>("[data-otp]");
+    if (!group) return;
+    const boxes = otpInputs(group);
+    const index = boxes.indexOf(box);
+    const rtl = getComputedStyle(group).direction === "rtl";
+    const prev = boxes[index - 1];
+    const next = boxes[index + 1];
+    if (event.key === "Backspace" && !box.value && prev) {
+      event.preventDefault();
+      prev.value = "";
+      prev.focus();
+      syncOtp(group);
+    } else if (event.key === (rtl ? "ArrowRight" : "ArrowLeft") && prev) {
+      event.preventDefault();
+      prev.focus();
+      prev.select();
+    } else if (event.key === (rtl ? "ArrowLeft" : "ArrowRight") && next) {
+      event.preventDefault();
+      next.focus();
+      next.select();
+    }
+  });
+  document.addEventListener("paste", (event) => {
+    const box = event.target;
+    if (!(box instanceof HTMLInputElement)) return;
+    const group = box.closest<HTMLElement>("[data-otp]");
+    const text = event.clipboardData?.getData("text") ?? "";
+    if (!group || !text) return;
+    event.preventDefault();
+    fillOtp(group, box, text.trim());
+  });
+  document.addEventListener("focusin", (event) => {
+    const box = event.target;
+    if (box instanceof HTMLInputElement && box.closest("[data-otp]")) box.select();
+  });
+}
+
+/**
+ * Moves a `.steps` list to `index`: earlier steps get `.is-complete`, that one `.is-active`
+ * and `aria-current="step"`. Panels matched by `data-steps-panels` follow along.
+ */
+function goToStep(steps: HTMLElement, index: number): number {
+  const items = Array.from(steps.querySelectorAll<HTMLElement>(":scope > .step"));
+  if (!items.length) return -1;
+  const target = clamp(Math.round(index), 0, items.length - 1);
+  const previous = items.findIndex((item) => item.classList.contains("is-active"));
+  items.forEach((item, i) => {
+    item.classList.toggle("is-complete", i < target);
+    item.classList.toggle("is-active", i === target);
+    if (i === target) item.setAttribute("aria-current", "step");
+    else item.removeAttribute("aria-current");
+  });
+  const panels = steps.getAttribute("data-steps-panels");
+  if (panels) {
+    document.querySelectorAll<HTMLElement>(panels).forEach((panel, i) => (panel.hidden = i !== target));
+  }
+  const id = steps.id ? `#${CSS.escape(steps.id)}` : null;
+  if (id) {
+    document
+      .querySelectorAll<HTMLButtonElement>(`[data-steps-prev="${id}"]`)
+      .forEach((b) => (b.disabled = target === 0));
+    document
+      .querySelectorAll<HTMLElement>(`[data-steps-next="${id}"]`)
+      .forEach((b) => b.toggleAttribute("data-steps-last", target === items.length - 1));
+  }
+  if (previous !== target) emit(steps, "steps:change", { index: target, previous, total: items.length });
+  return target;
+}
+
+function currentStep(steps: HTMLElement): number {
+  const items = Array.from(steps.querySelectorAll<HTMLElement>(":scope > .step"));
+  const active = items.findIndex((item) => item.classList.contains("is-active"));
+  return active >= 0 ? active : items.filter((item) => item.classList.contains("is-complete")).length;
+}
+
 // ── Delegated data API ─────────────────────────────────────────────────────────
 // One document-level listener per event type: works for content rendered after
 // init() and never accumulates per-element listeners across SPA re-renders.
 let delegatedDataApiBound = false;
 
+const collapseTimers = new WeakMap<HTMLElement, ReturnType<typeof setTimeout>>();
+
+function isCollapseOpen(panel: HTMLElement): boolean {
+  return panel.classList.contains("collapse-show") || panel.classList.contains("show");
+}
+
+/**
+ * Opens or closes a `.collapse` panel with a height (or, for `.collapse-horizontal`, width)
+ * transition. Reversing mid-animation continues from the current size. Panels inside
+ * `data-collapse-parent="#group"` close their open siblings (accordion behaviour).
+ */
 function setCollapse(panel: HTMLElement, open: boolean, trigger: HTMLElement | null): void {
-  panel.classList.toggle("collapse-show", open);
-  panel.classList.toggle("show", open);
-  const id = panel.id ? `#${panel.id}` : null;
-  document.querySelectorAll<HTMLElement>("[data-collapse],[data-collapse-target]").forEach((item) => {
-    const selector = item.getAttribute("data-collapse-target") || item.getAttribute("data-collapse");
-    if (item === trigger || (id && selector === id)) item.setAttribute("aria-expanded", String(open));
-  });
+  if (open) {
+    const parent = panel.getAttribute("data-collapse-parent");
+    if (parent) {
+      document.querySelectorAll<HTMLElement>(`[data-collapse-parent="${CSS.escape(parent)}"]`).forEach((other) => {
+        if (other !== panel && isCollapseOpen(other)) setCollapse(other, false, null);
+      });
+    }
+  }
+
+  const pending = collapseTimers.get(panel);
+  const animating = pending !== undefined;
+  if (pending) clearTimeout(pending);
+  collapseTimers.delete(panel);
+  if (!animating && isCollapseOpen(panel) === open) {
+    syncCollapseTriggers(panel, open, trigger);
+    return;
+  }
+
+  const horizontal = panel.classList.contains("collapse-horizontal");
+  const size = horizontal ? "width" : "height";
+  const reduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const duration = Number(panel.getAttribute("data-collapse-duration") ?? 300);
+  const current = isCollapseOpen(panel) ? panel.getBoundingClientRect()[size] : 0;
+  const finish = () => {
+    panel.classList.remove("collapsing");
+    panel.style.removeProperty(size);
+    if (!open) {
+      panel.classList.remove("collapse-show", "show");
+    }
+    collapseTimers.delete(panel);
+    emit(panel, open ? "collapse:shown" : "collapse:hidden", { trigger });
+  };
+
+  panel.classList.add("collapse-show", "show");
+  if (reduced || duration <= 0 || typeof panel.animate !== "function") {
+    finish();
+  } else {
+    const target = open ? (horizontal ? panel.scrollWidth : panel.scrollHeight) : 0;
+    panel.style.setProperty(size, `${current}px`);
+    panel.classList.add("collapsing");
+    void panel.offsetWidth;
+    panel.style.setProperty("--aksara-collapse-duration", `${duration}ms`);
+    panel.style.setProperty(size, `${target}px`);
+    collapseTimers.set(panel, setTimeout(finish, duration));
+  }
+  syncCollapseTriggers(panel, open, trigger);
   emit(panel, open ? "collapse:show" : "collapse:hide", { trigger });
 }
 
+function syncCollapseTriggers(panel: HTMLElement, open: boolean, trigger: HTMLElement | null): void {
+  const id = panel.id ? `#${panel.id}` : null;
+  document.querySelectorAll<HTMLElement>("[data-collapse],[data-collapse-target]").forEach((item) => {
+    const selector = item.getAttribute("data-collapse-target") || item.getAttribute("data-collapse");
+    if (item === trigger || (id && selector === id)) {
+      item.setAttribute("aria-expanded", String(open));
+      item.classList.toggle("collapsed", !open);
+    }
+  });
+}
+
+/** Programmatic handle for a `.collapse` panel: `Aksara.collapse("#more").toggle()`. */
+export class Collapse extends Component {
+  static componentName = "collapse";
+
+  get isOpen(): boolean {
+    return isCollapseOpen(this.element);
+  }
+
+  show(): this {
+    setCollapse(this.element, true, null);
+    return this;
+  }
+
+  hide(): this {
+    setCollapse(this.element, false, null);
+    return this;
+  }
+
+  toggle(): this {
+    setCollapse(this.element, !this.isOpen, null);
+    return this;
+  }
+}
+
+/** `--aksara-range-progress` drives the filled part of a `.form-range` track. */
+function syncRange(input: HTMLInputElement): void {
+  const min = Number(input.min || 0);
+  const max = Number(input.max || 100);
+  const percent = max > min ? ((Number(input.value) - min) / (max - min)) * 100 : 0;
+  input.style.setProperty("--aksara-range-progress", `${clamp(percent, 0, 100)}%`);
+  const output = input.getAttribute("data-range-output");
+  if (output) {
+    const suffix = input.getAttribute("data-range-suffix") ?? "";
+    document.querySelectorAll<HTMLElement>(output).forEach((node) => {
+      node.textContent = `${input.value}${suffix}`;
+    });
+  }
+}
+
+/** `data-counter="#target"` writes "12 / 160" (with `maxlength`) into the target. */
+function syncCounter(field: HTMLInputElement | HTMLTextAreaElement): void {
+  const selector = field.getAttribute("data-counter");
+  if (!selector) return;
+  const max = field.maxLength > 0 ? field.maxLength : 0;
+  const length = field.value.length;
+  document.querySelectorAll<HTMLElement>(selector).forEach((node) => {
+    node.textContent = max ? `${length} / ${max}` : String(length);
+    node.classList.toggle("is-limit", max > 0 && length >= max * 0.9);
+  });
+}
+
+function syncDropzone(input: HTMLInputElement): void {
+  const zone = input.closest<HTMLElement>(".form-dropzone");
+  if (!zone) return;
+  const names = Array.from(input.files ?? []).map((file) => file.name);
+  zone.classList.toggle("has-files", names.length > 0);
+  zone.querySelectorAll<HTMLElement>(".form-dropzone-files").forEach((node) => {
+    node.textContent = names.length > 2 ? `${names.length} files selected` : names.join(", ");
+  });
+}
+
+type ValidatableField = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+
+function isValidatable(element: Element): element is ValidatableField {
+  if (element instanceof HTMLInputElement) {
+    return !["submit", "button", "reset", "hidden", "image"].includes(element.type) && element.willValidate;
+  }
+  return (element instanceof HTMLSelectElement || element instanceof HTMLTextAreaElement) && element.willValidate;
+}
+
+/** Where a field's message goes: after its wrapper (icon field, group, floating label, check label). */
+function feedbackAnchor(field: ValidatableField): Element {
+  const tom = (field as unknown as { tomselect?: { wrapper?: HTMLElement } }).tomselect?.wrapper;
+  const wrapper = field.closest(
+    ".form-icon,.input-group,.form-floating,.form-check,.form-radio,.form-switch,.form-check-card"
+  );
+  return wrapper ?? tom ?? field;
+}
+
+/**
+ * Applies `is-invalid` (and `is-valid` with `data-validate="all"`) from the browser's
+ * constraint validation and writes the message into an auto-created `.form-error`.
+ * `data-error="..."` on the field overrides the browser message.
+ */
+function validateField(field: ValidatableField, showValid: boolean): boolean {
+  const valid = field.checkValidity();
+  const targets: Element[] = [field];
+  const tom = (field as unknown as { tomselect?: { wrapper?: HTMLElement } }).tomselect?.wrapper;
+  if (tom) targets.push(tom);
+  targets.forEach((target) => {
+    target.classList.toggle("is-invalid", !valid);
+    target.classList.toggle("is-valid", valid && showValid);
+  });
+  field.setAttribute("aria-invalid", String(!valid));
+  // Radios share one message per group: only the last radio of the group owns it.
+  if (field instanceof HTMLInputElement && field.type === "radio" && field.form && field.name) {
+    const group = Array.from(
+      field.form.querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${CSS.escape(field.name)}"]`)
+    );
+    if (group[group.length - 1] !== field) return valid;
+  }
+  const anchor = feedbackAnchor(field);
+  let message = anchor.nextElementSibling;
+  if (!(message instanceof HTMLElement && message.hasAttribute("data-validate-message"))) {
+    if (valid) return valid;
+    message = document.createElement("span");
+    message.className = "form-error";
+    message.setAttribute("data-validate-message", "");
+    if (field.id) message.id = `${field.id}-error`;
+    anchor.after(message);
+  }
+  const node = message as HTMLElement;
+  node.hidden = valid;
+  node.textContent = valid ? "" : field.getAttribute("data-error") || field.validationMessage;
+  if (node.id && !valid) field.setAttribute("aria-describedby", node.id);
+  return valid;
+}
+
+function validateForm(form: HTMLFormElement): boolean {
+  const showValid = form.getAttribute("data-validate") === "all";
+  const fields = Array.from(form.elements).filter(isValidatable);
+  const results = fields.map((field) => validateField(field, showValid));
+  form.classList.add("was-validated");
+  const firstInvalid = fields[results.indexOf(false)];
+  const valid = !firstInvalid;
+  emit(form, valid ? "form:valid" : "form:invalid", {
+    form,
+    fields: valid ? [] : fields.filter((_, i) => !results[i])
+  });
+  if (firstInvalid) {
+    const tom = (firstInvalid as unknown as { tomselect?: { focus(): void } }).tomselect;
+    if (tom) tom.focus();
+    else firstInvalid.focus();
+  }
+  return valid;
+}
+
+// ── Selectable tables: `<table data-table-select>` ──────────────────────────────
+const TABLE_SELECTABLE = "table[data-table-select]";
+const lastTableToggle = new WeakMap<HTMLTableElement, number>();
+
+function tableRowBoxes(table: HTMLTableElement): HTMLInputElement[] {
+  const explicit = Array.from(table.querySelectorAll<HTMLInputElement>("tbody input[data-table-select-row]"));
+  return explicit.length
+    ? explicit
+    : Array.from(table.querySelectorAll<HTMLInputElement>("tbody input[type='checkbox']"));
+}
+
+function tableAllBoxes(table: HTMLTableElement): HTMLInputElement[] {
+  const explicit = Array.from(table.querySelectorAll<HTMLInputElement>("input[data-table-select-all]"));
+  return explicit.length
+    ? explicit
+    : Array.from(table.querySelectorAll<HTMLInputElement>("thead input[type='checkbox']"));
+}
+
+/** Rows whose checkbox is checked. */
+function selectedTableRows(table: HTMLTableElement): HTMLTableRowElement[] {
+  return tableRowBoxes(table)
+    .filter((box) => box.checked)
+    .map((box) => box.closest("tr"))
+    .filter((row): row is HTMLTableRowElement => Boolean(row));
+}
+
+/**
+ * Mirrors the row checkboxes onto the table: `table-active` + `aria-selected` on rows, the
+ * select-all box (checked / indeterminate), `[data-table-count="#id"]` and `[data-table-bulk="#id"]`.
+ */
+function syncTableSelection(table: HTMLTableElement, notify = false): void {
+  const boxes = tableRowBoxes(table);
+  const checked = boxes.filter((box) => box.checked);
+  boxes.forEach((box) => {
+    const row = box.closest("tr");
+    row?.classList.toggle("table-active", box.checked);
+    row?.setAttribute("aria-selected", String(box.checked));
+  });
+  tableAllBoxes(table).forEach((all) => {
+    all.checked = boxes.length > 0 && checked.length === boxes.length;
+    all.indeterminate = checked.length > 0 && checked.length < boxes.length;
+  });
+  if (table.id) {
+    document.querySelectorAll<HTMLElement>(`[data-table-count="#${CSS.escape(table.id)}"]`).forEach((node) => {
+      node.textContent = String(checked.length);
+    });
+    document.querySelectorAll<HTMLElement>(`[data-table-bulk="#${CSS.escape(table.id)}"]`).forEach((node) => {
+      node.hidden = checked.length === 0;
+    });
+  }
+  if (notify) {
+    emit(table, "table:select", { rows: selectedTableRows(table), count: checked.length, total: boxes.length });
+  }
+}
+
+function initFormHelpers(root: ParentNode = document): void {
+  root.querySelectorAll?.<HTMLElement>("[data-stepper]").forEach(syncStepper);
+  root.querySelectorAll?.<HTMLElement>("[data-otp]").forEach((group) => syncOtp(group, false));
+  root.querySelectorAll?.<HTMLElement>(".steps[data-steps]").forEach((steps) => goToStep(steps, currentStep(steps)));
+  root.querySelectorAll?.<HTMLTableElement>(TABLE_SELECTABLE).forEach((table) => syncTableSelection(table));
+  root.querySelectorAll?.<HTMLInputElement>("input.form-range,input[data-range-output]").forEach(syncRange);
+  root.querySelectorAll?.<HTMLInputElement | HTMLTextAreaElement>("[data-counter]").forEach(syncCounter);
+  // `indeterminate` has no HTML attribute; `data-indeterminate` sets it on load.
+  root.querySelectorAll?.<HTMLInputElement>('input[type="checkbox"][data-indeterminate]').forEach((box) => {
+    box.indeterminate = box.getAttribute("data-indeterminate") !== "false";
+  });
+}
+
+/** `.form-control` textareas grow with their content unless `data-autogrow="false"`. */
+const AUTOGROW_TEXTAREA = 'textarea.form-control:not([data-autogrow="false"]),textarea[data-role="autogrow"]';
+/** Height the user dragged a textarea to: autogrow never shrinks it below that. */
+const manualTextareaHeight = new WeakMap<HTMLTextAreaElement, number>();
+
 function autogrowTextarea(textarea: HTMLTextAreaElement): void {
+  if (!textarea.isConnected || textarea.offsetParent === null) return;
+  // scrollHeight excludes the borders; add them back so no scrollbar flashes (border-box).
+  const borders = textarea.offsetHeight - textarea.clientHeight;
   textarea.style.height = "auto";
-  textarea.style.height = `${textarea.scrollHeight}px`;
+  const content = textarea.scrollHeight + borders;
+  const height = Math.max(content, manualTextareaHeight.get(textarea) ?? 0);
+  textarea.style.height = `${height}px`;
+  textarea.dataset.autogrowHeight = String(height);
 }
 
 function bindDelegatedDataApi(): void {
@@ -1835,8 +4016,125 @@ function bindDelegatedDataApi(): void {
       const panel = selector ? document.querySelector<HTMLElement>(selector) : null;
       if (panel) {
         event.preventDefault();
-        setCollapse(panel, !panel.classList.contains("collapse-show"), collapseTrigger);
+        setCollapse(panel, !isCollapseOpen(panel), collapseTrigger);
       }
+      return;
+    }
+
+    const mediaTrigger = target.closest<HTMLElement>("[data-media-open]");
+    if (mediaTrigger) {
+      const viewer = document.querySelector<HTMLElement>(mediaTrigger.getAttribute("data-media-open") || "");
+      if (viewer) {
+        event.preventDefault();
+        const instance = getInstance(viewer, MediaViewer);
+        const src = mediaTrigger.getAttribute("data-media-src");
+        // A trigger inside a `[data-media-items]` source (e.g. a MediaGrid) browses that list.
+        const source = mediaTrigger.closest<HTMLElement>("[data-media-items]");
+        if (source && source !== viewer) {
+          try {
+            instance.setItems(JSON.parse(source.getAttribute("data-media-items") || "[]"));
+          } catch {
+            /* keep the viewer's own items */
+          }
+        } else if (src) {
+          instance.setItems([
+            {
+              src,
+              alt: mediaTrigger.getAttribute("data-media-alt") ?? "",
+              caption: mediaTrigger.getAttribute("data-media-caption") ?? ""
+            }
+          ]);
+        }
+        instance.show(Number(mediaTrigger.getAttribute("data-media-index") ?? instance.index));
+      }
+      return;
+    }
+
+    const gallery = target.closest<HTMLElement>("[data-media-gallery]");
+    if (gallery) {
+      const { nodes, items } = galleryItems(gallery);
+      const node = nodes.find((item) => item === target || item.contains(target));
+      const viewer = document.querySelector<HTMLElement>(gallery.getAttribute("data-media-gallery") || "");
+      if (node && viewer) {
+        event.preventDefault();
+        getInstance(viewer, MediaViewer).setItems(items, nodes.indexOf(node)).show();
+        return;
+      }
+    }
+
+    const copyTrigger = target.closest<HTMLElement>("[data-clipboard]");
+    if (copyTrigger) {
+      event.preventDefault();
+      void copyFromTrigger(copyTrigger);
+      return;
+    }
+
+    const toggle = target.closest<HTMLElement>('[data-toggle="button"]');
+    if (toggle && !toggle.matches(":disabled")) {
+      toggleButton(toggle);
+      return;
+    }
+
+    const segment = target.closest<HTMLElement>(".segmented[data-segmented] > .segmented-item");
+    if (segment) {
+      selectSegment(segment);
+      return;
+    }
+
+    const stepperButton = target.closest<HTMLElement>(
+      "[data-stepper] [data-stepper-up],[data-stepper] [data-stepper-down]"
+    );
+    if (stepperButton) {
+      event.preventDefault();
+      // A press-and-hold already stepped; its trailing click must not add one more.
+      if (stepperButton.hasAttribute("data-stepper-repeated")) {
+        stepperButton.removeAttribute("data-stepper-repeated");
+        return;
+      }
+      const group = stepperButton.closest("[data-stepper]");
+      if (group) stepNumber(group, stepperButton.hasAttribute("data-stepper-up") ? 1 : -1);
+      return;
+    }
+
+    const stepsNav = target.closest<HTMLElement>("[data-steps-next],[data-steps-prev],[data-steps-go]");
+    if (stepsNav) {
+      const selector =
+        stepsNav.getAttribute("data-steps-next") ||
+        stepsNav.getAttribute("data-steps-prev") ||
+        stepsNav.getAttribute("data-steps-go");
+      const steps = selector ? document.querySelector<HTMLElement>(selector) : null;
+      if (steps) {
+        event.preventDefault();
+        const now = currentStep(steps);
+        const total = steps.querySelectorAll(":scope > .step").length;
+        const isNext = stepsNav.hasAttribute("data-steps-next");
+        // "Next" on the last step finishes the flow instead of moving.
+        if (isNext && now >= total - 1) {
+          emit(steps, "steps:finish", { index: now, total });
+          return;
+        }
+        const index = clamp(
+          stepsNav.hasAttribute("data-steps-go")
+            ? Number(stepsNav.getAttribute("data-steps-index") ?? 0)
+            : now + (isNext ? 1 : -1),
+          0,
+          total - 1
+        );
+        // Cancelable: a listener can call preventDefault() (e.g. failed validation) to stay put.
+        const go = new CustomEvent("aksara:steps:before", {
+          bubbles: true,
+          cancelable: true,
+          detail: { from: now, to: index }
+        });
+        if (steps.dispatchEvent(go)) goToStep(steps, index);
+      }
+      return;
+    }
+
+    const pickerOption = target.closest<HTMLElement>(".picker-modal [data-picker-value]");
+    if (pickerOption) {
+      event.preventDefault();
+      selectPickerOption(pickerOption);
       return;
     }
 
@@ -1851,46 +4149,352 @@ function bindDelegatedDataApi(): void {
       return;
     }
 
+    // Thumbnails/indicators outside a carousel: `<div data-carousel-for="#id">[data-carousel-to]</div>`.
+    const externalSlide = target.closest<HTMLElement>("[data-carousel-for] [data-carousel-to]");
+    if (externalSlide && !externalSlide.closest(".carousel")) {
+      const host = externalSlide.closest<HTMLElement>("[data-carousel-for]");
+      const carouselElement = host
+        ? document.querySelector<HTMLElement>(host.getAttribute("data-carousel-for") || "")
+        : null;
+      const instance = carouselElement
+        ? (registry.get("carousel")?.get(carouselElement) as Carousel | undefined)
+        : undefined;
+      if (instance) {
+        event.preventDefault();
+        instance.show(Number(externalSlide.getAttribute("data-carousel-to")));
+      }
+      return;
+    }
+
+    // `data-sheet="#id"` opens a bottom sheet (optionally on a sub-panel: data-sheet-panel="#p").
+    const sheetTrigger = target.closest<HTMLElement>("[data-sheet]");
+    if (sheetTrigger && !sheetTrigger.closest(".sheet")) {
+      const sheetElement = document.querySelector<HTMLElement>(sheetTrigger.getAttribute("data-sheet") || "");
+      if (sheetElement?.classList.contains("sheet")) {
+        event.preventDefault();
+        const sheet = getInstance(sheetElement, BottomSheet);
+        const panel = sheetTrigger.getAttribute("data-sheet-panel");
+        if (sheet.isOpen && !panel) sheet.hide();
+        else sheet.show(panel || undefined);
+        sheetTrigger.setAttribute("aria-expanded", String(sheet.isOpen));
+      }
+      return;
+    }
+
+    // Selectable tables: shift-click selects a range; `data-table-select="row"` makes the row the target.
+    const selectTable = target.closest<HTMLTableElement>(TABLE_SELECTABLE);
+    if (selectTable && target.closest("tbody")) {
+      const boxes = tableRowBoxes(selectTable);
+      let box = target instanceof HTMLInputElement && boxes.includes(target) ? target : null;
+      const interactive = target.closest(
+        "a,button,input,select,textarea,label,[data-dropdown],[contenteditable='true']"
+      );
+      if (!box && !interactive && selectTable.getAttribute("data-table-select") === "row") {
+        box = boxes.find((candidate) => candidate.closest("tr") === target.closest("tr")) ?? null;
+        if (box && !box.disabled) box.checked = !box.checked;
+        else box = null;
+      }
+      if (box) {
+        const index = boxes.indexOf(box);
+        const last = lastTableToggle.get(selectTable);
+        if ((event as MouseEvent).shiftKey && last !== undefined && last !== index) {
+          const [from, to] = index > last ? [last, index] : [index, last];
+          boxes.slice(from, to + 1).forEach((item) => {
+            if (!item.disabled) item.checked = box!.checked;
+          });
+        }
+        lastTableToggle.set(selectTable, index);
+        syncTableSelection(selectTable, true);
+      }
+    }
+
+    // UserPill menu: the trigger toggles its `[data-user-menu]`; any other click closes open ones.
+    const userTrigger = target.closest<HTMLElement>("[data-user-menu-trigger]");
+    document.querySelectorAll<HTMLElement>("[data-user-menu]:not(.d-none)").forEach((menu) => {
+      if (!menu.parentElement?.contains(userTrigger) && !menu.contains(target)) {
+        menu.classList.add("d-none");
+        menu.parentElement?.querySelector("[data-user-menu-trigger]")?.setAttribute("aria-expanded", "false");
+      }
+    });
+    if (userTrigger) {
+      const menu = userTrigger.parentElement?.querySelector<HTMLElement>("[data-user-menu]");
+      if (menu) {
+        const open = menu.classList.toggle("d-none") === false;
+        userTrigger.setAttribute("aria-expanded", String(open));
+        return;
+      }
+    }
+
+    const passwordToggle = target.closest<HTMLElement>("[data-password-toggle]");
+    if (passwordToggle) {
+      event.preventDefault();
+      const selector = passwordToggle.getAttribute("data-password-toggle");
+      const field =
+        (selector ? document.querySelector<HTMLInputElement>(selector) : null) ??
+        passwordToggle.closest(".form-icon,.input-group")?.querySelector<HTMLInputElement>("input") ??
+        null;
+      if (!field) return;
+      const reveal = field.type === "password";
+      field.type = reveal ? "text" : "password";
+      passwordToggle.setAttribute("aria-pressed", String(reveal));
+      passwordToggle.setAttribute("aria-label", reveal ? "Hide password" : "Show password");
+      const icon =
+        passwordToggle.querySelector(".mdi") ?? (passwordToggle.classList.contains("mdi") ? passwordToggle : null);
+      if (icon) {
+        icon.classList.toggle("mdi-eye-outline", !reveal);
+        icon.classList.toggle("mdi-eye-off-outline", reveal);
+      }
+      return;
+    }
+
+    const clearTrigger = target.closest<HTMLElement>("[data-clear]");
+    if (clearTrigger) {
+      const selector = clearTrigger.getAttribute("data-clear");
+      const field =
+        (selector ? document.querySelector<HTMLInputElement>(selector) : null) ??
+        clearTrigger.closest(".form-icon,.input-group")?.querySelector<HTMLInputElement>("input,textarea") ??
+        null;
+      if (!field) return;
+      event.preventDefault();
+      field.value = "";
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+      field.focus();
+      return;
+    }
+
     const spyLink = target.closest<HTMLAnchorElement>("[data-scrollspy-link]");
     if (spyLink) {
-      const container = document.querySelector<HTMLElement>(spyLink.getAttribute("data-scrollspy-container") || "");
-      const section = container?.querySelector<HTMLElement>(spyLink.getAttribute("href") || "");
-      if (container && section) {
+      const container = scrollspyContainer(spyLink);
+      const section = scrollspySection(spyLink, container);
+      if (section) {
         event.preventDefault();
-        container.scrollTo({ top: section.offsetTop - container.offsetTop, behavior: "smooth" });
+        const top = scrollspySectionTop(section, container) - (container ? 0 : scrollspyOffset(spyLink, null) - 16);
+        (container ?? window).scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+        setScrollspyActive(scrollspyLinksFor(container), spyLink);
       }
     }
   });
 
-  document.addEventListener("input", (event) => {
-    const field = event.target;
-    if (field instanceof HTMLTextAreaElement && field.matches('[data-role="autogrow"]')) autogrowTextarea(field);
+  document.addEventListener("keydown", (event) => {
+    // Enter / Space activate non-button media triggers (MediaGrid cells with role="button").
+    const key = event.target instanceof HTMLElement ? event.target : null;
+    if ((event.key === "Enter" || event.key === " ") && key?.matches("[data-media-open]:not(button):not(a)")) {
+      event.preventDefault();
+      key.click();
+      return;
+    }
+    if (event.key !== "Escape") return;
+    document.querySelectorAll<HTMLElement>("[data-user-menu]:not(.d-none)").forEach((menu) => {
+      menu.classList.add("d-none");
+      menu.parentElement?.querySelector<HTMLElement>("[data-user-menu-trigger]")?.focus();
+    });
   });
 
-  // Scrollspy: highlight the link of the section nearest the container's top edge.
+  document.addEventListener("pointerdown", (event) => {
+    const button =
+      event.target instanceof Element
+        ? event.target.closest<HTMLElement>("[data-stepper] [data-stepper-up],[data-stepper] [data-stepper-down]")
+        : null;
+    if (button && (event as PointerEvent).button === 0) startStepperRepeat(button);
+  });
+  document.addEventListener("pointerup", stopStepperRepeat);
+  document.addEventListener("pointerup", (event) => {
+    const field = event.target;
+    if (!(field instanceof HTMLTextAreaElement) || !field.matches(AUTOGROW_TEXTAREA)) return;
+    const height = field.offsetHeight;
+    // Changed by the resize handle (not by autogrow): keep it as the new minimum.
+    if (field.dataset.autogrowHeight && Math.abs(height - Number(field.dataset.autogrowHeight)) > 1) {
+      manualTextareaHeight.set(field, height);
+      field.dataset.autogrowHeight = String(height);
+    }
+  });
+  document.addEventListener("pointercancel", stopStepperRepeat);
+  window.addEventListener("blur", stopStepperRepeat);
+  bindOtp();
+
+  document.addEventListener("input", (event) => {
+    const field = event.target;
+    if (field instanceof HTMLInputElement && field.closest("[data-stepper]"))
+      syncStepper(field.closest("[data-stepper]")!);
+    if (field instanceof HTMLTextAreaElement && field.matches(AUTOGROW_TEXTAREA)) autogrowTextarea(field);
+    if (field instanceof HTMLInputElement && field.type === "range") syncRange(field);
+    if (
+      (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
+      field.hasAttribute("data-counter")
+    ) {
+      syncCounter(field);
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    const field = event.target;
+    if (field instanceof HTMLInputElement && field.type === "file") syncDropzone(field);
+    // Typed values outside min/max snap back when the field is committed.
+    const stepper = field instanceof HTMLInputElement ? field.closest("[data-stepper]") : null;
+    if (stepper && field instanceof HTMLInputElement && field.value !== "") {
+      const value = Number(field.value);
+      const min = field.min === "" ? -Infinity : Number(field.min);
+      const max = field.max === "" ? Infinity : Number(field.max);
+      if (!Number.isNaN(value) && (value < min || value > max)) field.value = String(clamp(value, min, max));
+      syncStepper(stepper);
+    }
+    const table = field instanceof HTMLInputElement ? field.closest<HTMLTableElement>(TABLE_SELECTABLE) : null;
+    if (table && field instanceof HTMLInputElement && tableAllBoxes(table).includes(field)) {
+      tableRowBoxes(table).forEach((box) => {
+        if (!box.disabled) box.checked = field.checked;
+      });
+      lastTableToggle.delete(table);
+      syncTableSelection(table, true);
+    }
+  });
+
+  // `<form data-validate novalidate>`: validate on submit, then live on every edit.
+  document.addEventListener(
+    "submit",
+    (event) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.hasAttribute("data-validate")) return;
+      if (!validateForm(form)) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    },
+    true
+  );
+  for (const type of ["input", "change"]) {
+    document.addEventListener(type, (event) => {
+      const field = event.target instanceof Element ? event.target : null;
+      const form = field?.closest<HTMLFormElement>("form[data-validate].was-validated");
+      if (!field || !form || !isValidatable(field)) return;
+      if (field instanceof HTMLInputElement && field.type === "radio" && field.name) {
+        form
+          .querySelectorAll<HTMLInputElement>(`input[type="radio"][name="${CSS.escape(field.name)}"]`)
+          .forEach((radio) => validateField(radio, form.getAttribute("data-validate") === "all"));
+        return;
+      }
+      validateField(field, form.getAttribute("data-validate") === "all");
+    });
+  }
+  document.addEventListener("reset", (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.hasAttribute("data-validate")) return;
+    form.classList.remove("was-validated");
+    form.querySelectorAll(".is-invalid,.is-valid").forEach((node) => node.classList.remove("is-invalid", "is-valid"));
+    form.querySelectorAll<HTMLElement>("[data-validate-message]").forEach((node) => node.remove());
+  });
+
+  // Dropzones highlight while a file is dragged over them.
+  for (const type of ["dragenter", "dragover", "dragleave", "drop"]) {
+    document.addEventListener(type, (event) => {
+      const zone = event.target instanceof Element ? event.target.closest<HTMLElement>(".form-dropzone") : null;
+      if (!zone) return;
+      const leaving = type === "dragleave" && !zone.contains((event as DragEvent).relatedTarget as Node | null);
+      zone.classList.toggle(
+        "is-dragover",
+        type === "dragenter" || type === "dragover" || (!leaving && type === "dragleave")
+      );
+      if (type === "drop") zone.classList.remove("is-dragover");
+    });
+  }
+
+  // Scrollspy: one listener for every container (and the page), throttled to a frame.
+  let spyScheduled = false;
+  const pending = new Set<HTMLElement | null>();
   document.addEventListener(
     "scroll",
     (event) => {
-      const container = event.target instanceof HTMLElement ? event.target : null;
-      if (!container?.id) return;
-      const links = document.querySelectorAll<HTMLAnchorElement>(
-        `[data-scrollspy-link][data-scrollspy-container="#${container.id}"]`
-      );
-      if (!links.length) return;
-      let active: HTMLAnchorElement | null = null;
-      for (const link of Array.from(links)) {
-        const section = container.querySelector<HTMLElement>(link.getAttribute("href") || "");
-        if (section && section.offsetTop - container.offsetTop <= container.scrollTop + 8) active = link;
-      }
-      active = active ?? links[0];
-      links.forEach((link) => {
-        link.classList.toggle("active", link === active);
-        if (link === active) link.setAttribute("aria-current", "true");
-        else link.removeAttribute("aria-current");
+      const target = event.target;
+      pending.add(target instanceof HTMLElement ? target : null);
+      if (spyScheduled) return;
+      // Flag first: some environments run the frame callback synchronously.
+      spyScheduled = true;
+      requestAnimationFrame(() => {
+        spyScheduled = false;
+        const containers = Array.from(pending);
+        pending.clear();
+        containers.forEach((container) => updateScrollspy(container));
       });
     },
     true
   );
+  window.addEventListener("resize", () => initScrollspy());
+}
+
+/** The scroll container of a link: `data-scrollspy-container`, or the page when omitted. */
+function scrollspyContainer(link: Element): HTMLElement | null {
+  const selector = link.getAttribute("data-scrollspy-container");
+  if (!selector || selector === "window" || selector === "body" || selector === "html") return null;
+  return document.querySelector<HTMLElement>(selector);
+}
+
+function scrollspySection(link: Element, container: HTMLElement | null): HTMLElement | null {
+  const href = link.getAttribute("href") || "";
+  if (!href.startsWith("#") || href.length < 2) return null;
+  try {
+    return (container ?? document).querySelector<HTMLElement>(href);
+  } catch {
+    return null;
+  }
+}
+
+/** Activation line below the top edge: `data-scrollspy-offset` on the link or its nav. */
+function scrollspyOffset(link: Element | undefined, container: HTMLElement | null): number {
+  const raw = link?.closest("[data-scrollspy-offset]")?.getAttribute("data-scrollspy-offset");
+  if (raw != null && !Number.isNaN(Number(raw))) return Number(raw);
+  return container ? Math.min(80, container.clientHeight * 0.25) : 96;
+}
+
+/** A section's top in the container's scroll coordinates (independent of offsetParent). */
+function scrollspySectionTop(section: HTMLElement, container: HTMLElement | null): number {
+  const top = section.getBoundingClientRect().top;
+  return container ? top - container.getBoundingClientRect().top + container.scrollTop : top + window.scrollY;
+}
+
+function scrollspyLinksFor(container: HTMLElement | null): HTMLAnchorElement[] {
+  return Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-scrollspy-link]")).filter(
+    (link) => scrollspyContainer(link) === container
+  );
+}
+
+function setScrollspyActive(links: HTMLAnchorElement[], active: HTMLAnchorElement | null): void {
+  links.forEach((link) => {
+    const isActive = link === active;
+    const changed = link.classList.contains("active") !== isActive;
+    link.classList.toggle("active", isActive);
+    if (isActive) link.setAttribute("aria-current", "true");
+    else link.removeAttribute("aria-current");
+    if (changed && isActive)
+      emit(link, "scrollspy:change", { link, section: scrollspySection(link, scrollspyContainer(link)) });
+  });
+}
+
+/** Highlights the last section whose top passed the activation line; the last one at the bottom. */
+function updateScrollspy(container: HTMLElement | null): void {
+  const links = scrollspyLinksFor(container);
+  if (!links.length) return;
+  const scrollTop = container ? container.scrollTop : window.scrollY;
+  const viewport = container ? container.clientHeight : window.innerHeight;
+  const scrollHeight = container ? container.scrollHeight : document.documentElement.scrollHeight;
+  const offset = scrollspyOffset(links[0], container);
+  const tracked = links.filter((link) => scrollspySection(link, container));
+  if (!tracked.length) return;
+  let active: HTMLAnchorElement = tracked[0];
+  if (scrollHeight - viewport > 1 && scrollTop >= scrollHeight - viewport - 2) {
+    active = tracked[tracked.length - 1];
+  } else {
+    for (const link of tracked) {
+      const section = scrollspySection(link, container)!;
+      if (scrollspySectionTop(section, container) - offset <= scrollTop) active = link;
+    }
+  }
+  setScrollspyActive(links, active);
+}
+
+/** Syncs every scrollspy (containers and the page) with the current scroll position. */
+function initScrollspy(root: ParentNode = document): void {
+  const containers = new Set<HTMLElement | null>();
+  root.querySelectorAll?.("[data-scrollspy-link]").forEach((link) => containers.add(scrollspyContainer(link)));
+  containers.forEach((container) => updateScrollspy(container));
 }
 
 function bindDataApi(): void {
@@ -1933,7 +4537,7 @@ function bindDataApi(): void {
             "scrollLock",
             "draggable"
           ]);
-          getInstance(target, Modal, options).show();
+          applyTriggerOptions(getInstance(target, Modal), options).show();
         }
       }
     });
@@ -1962,7 +4566,7 @@ function bindDataApi(): void {
         const target = document.querySelector<HTMLElement>(targetSelector);
         if (target) {
           const options = readTriggerOptions(trigger, "offcanvas", ["backdrop", "keyboard", "focus", "scrollLock"]);
-          getInstance(target, Offcanvas, options).show();
+          applyTriggerOptions(getInstance(target, Offcanvas), options).show();
         }
       }
     });
@@ -1978,7 +4582,7 @@ function bindDataApi(): void {
         const target = document.querySelector<HTMLElement>(targetSelector);
         if (target) {
           const options = readTriggerOptions(trigger, "toast", ["delay", "autohide"]);
-          getInstance(target, Toast, options).show();
+          applyTriggerOptions(getInstance(target, Toast), options).show();
         }
       }
     });
@@ -2018,6 +4622,15 @@ export interface AksaraNamespace {
   Toast: typeof Toast;
   Carousel: typeof Carousel;
   Offcanvas: typeof Offcanvas;
+  Select: typeof Select;
+  BottomSheet: typeof BottomSheet;
+  Collapse: typeof Collapse;
+  collapse(target?: TargetElements, options?: ComponentOptions): Collapse;
+  MediaViewer: typeof MediaViewer;
+  /** Full-screen media viewer for a `.media-modal` (see `MediaPreviewModal`). */
+  media(target?: TargetElements, options?: MediaOptions): MediaViewer;
+  /** Builds an option picker, resolves with the picked value (or null when cancelled). */
+  pick(options: PickOptions): Promise<string | null>;
   modal(
     target?: TargetElements | (ModalOptions & { target?: TargetElements; selector?: TargetElements }),
     options?: ModalOptions
@@ -2054,6 +4667,23 @@ export interface AksaraNamespace {
     target?: TargetElements | (OffcanvasOptions & { target?: TargetElements; selector?: TargetElements }),
     options?: OffcanvasOptions
   ): Offcanvas;
+  select(
+    target?: TargetElements | (SelectOptions & { target?: TargetElements; selector?: TargetElements }),
+    options?: SelectOptions
+  ): Select;
+  sheet(
+    target?: TargetElements | (SheetOptions & { target?: TargetElements; selector?: TargetElements }),
+    options?: SheetOptions
+  ): BottomSheet;
+  /** Registers Tom Select when it is imported rather than loaded as a global script. */
+  useTomSelect(constructor: TomSelectConstructor): AksaraNamespace;
+  /** Selected rows of a `data-table-select` table. Pass `rows` to set the selection. */
+  tableSelection(
+    table: HTMLTableElement | string,
+    rows?: Array<HTMLTableRowElement | number> | "all" | "none"
+  ): HTMLTableRowElement[];
+  /** Runs `data-validate` style validation on a form; returns true when every field is valid. */
+  validate(form: HTMLFormElement | string): boolean;
   setTheme(theme: "light" | "dark" | "system"): "light" | "dark" | "system";
   getTheme(): "light" | "dark" | "system";
   initTheme(): "light" | "dark" | "system";
@@ -2061,6 +4691,8 @@ export interface AksaraNamespace {
   alert(options: AlertModalOptions): Promise<void>;
   notify(message: string, options?: ToastNotifyOptions): void;
   clipboard(target: string | HTMLElement, text?: string): Promise<boolean>;
+  /** Current step of a `.steps` list, or moves it to `index` (earlier steps complete). */
+  steps(target: string | HTMLElement, index?: number): number;
   init(root?: ParentNode | Document | HTMLElement): AksaraNamespace;
   destroy(): AksaraNamespace;
 }
@@ -2327,8 +4959,6 @@ function resolveColorOpacity(utility: string): string | null {
 export function resolveArbitraryDeclarations(utility: string): string | null {
   let prop: string;
   let val: string;
-  let isNegative = false;
-
   const bracketMatch = utility.match(/^\[([a-zA-Z0-9_-]+):(.+)\]$/);
   if (bracketMatch) {
     prop = bracketMatch[1];
@@ -2337,19 +4967,12 @@ export function resolveArbitraryDeclarations(utility: string): string | null {
     }
     val = bracketMatch[2];
   } else {
-    const match = utility.match(/^(-)?([a-zA-Z0-9_-]+)-\[(.+)\]$/);
-    if (!match) return null;
-    isNegative = Boolean(match[1]);
-    prop = match[2];
+    // No `-` prefix for negatives (`-mt-[4px]`): write the value instead, `mt-[-4px]`.
+    // A leading hyphen is only accepted as a vendor prefix (`-webkit-line-clamp-[3]`).
+    const match = utility.match(/^(-(?:webkit|moz|ms|o)-)?([a-zA-Z0-9_-]+)-\[(.+)\]$/i);
+    if (!match || (utility.startsWith("-") && !match[1])) return null;
+    prop = match[1] ? `${match[1]}${match[2]}` : match[2].replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
     val = match[3];
-
-    // If leading hyphen was part of a vendor prefix (-webkit-, -moz-, -ms-, -o-), treat it as part of prop
-    if (isNegative && /^(webkit|moz|ms|o)-/i.test(prop)) {
-      prop = `-${prop}`;
-      isNegative = false;
-    } else {
-      prop = prop.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-    }
   }
 
   // Convert unescaped underscores to spaces (e.g. shadow-[0_4px_6px_rgba(...)])
@@ -2358,14 +4981,13 @@ export function resolveArbitraryDeclarations(utility: string): string | null {
     .replace(/\\_/g, "_")
     .trim();
 
-  if (isNegative && !val.startsWith("-")) {
-    val = `-${val}`;
-  }
-
   // A value must stay a single declaration value: `w-[1px;position:fixed]` or
   // `bg-[red;}body{...]` would otherwise inject extra declarations or rules.
   if (!val || /[;{}]/.test(val) || /[;{}]/.test(prop)) return null;
 
+  // `[property:value]` is a raw CSS declaration: the property is never remapped
+  // (`[border:1px_solid_red]` must stay `border`, not the `border-*` width utility).
+  if (bracketMatch) return `${prop}:${val}`;
   const resolver = runtimeArbitraryPropertyMap[prop];
   return resolver ? resolver(val) : `${prop}:${val}`;
 }
@@ -2815,6 +5437,99 @@ function scheduleIconStylesheetCheck(): void {
  * Each dialog is destroyed and removed on its own, so opening a second dialog right
  * after the first one closes is never wiped by the first one's cleanup.
  */
+export interface PickOption {
+  value: string;
+  label: string;
+  /** MDI icon name (`mdi-fire` or `fire`). */
+  icon?: string;
+  description?: string;
+  badge?: string;
+  /** Badge color (soft), default `secondary`. */
+  badgeVariant?: string;
+  /** Extra classes for the icon circle (e.g. `text-danger`). */
+  iconClass?: string;
+  disabled?: boolean;
+}
+
+export interface PickOptions {
+  title: string;
+  subtitle?: string;
+  icon?: string;
+  options: PickOption[];
+  value?: string;
+  cancelLabel?: string;
+}
+
+const PICK_BADGE_VARIANTS = [
+  "primary",
+  "secondary",
+  "tertiary",
+  "success",
+  "danger",
+  "warning",
+  "info",
+  "dark",
+  "light"
+];
+
+function mdiName(icon: string): string {
+  const name = icon.replace(/^mdi\s+/, "").trim();
+  return name.startsWith("mdi-") ? name : `mdi-${name}`;
+}
+
+/** Transient `.picker-modal` (same markup as the `OptionPickerModal` component). */
+function pickOption(options: PickOptions): Promise<string | null> {
+  if (typeof document === "undefined") return Promise.resolve(null);
+  const items = options.options
+    .map((item) => {
+      const selected =
+        options.value !== undefined && String(options.value).toLowerCase() === String(item.value).toLowerCase();
+      // Same palette list as the OptionPickerModal component; anything else falls back to secondary.
+      const badgeVariant = PICK_BADGE_VARIANTS.includes(item.badgeVariant ?? "") ? item.badgeVariant : "secondary";
+      return `<button type="button" role="option" class="picker-option${selected ? " is-selected" : ""}" aria-selected="${selected}" data-picker-value="${escapeHtmlStr(item.value)}"${item.disabled ? " disabled" : ""}>
+          <span class="picker-option-icon${item.iconClass ? ` ${escapeHtmlStr(item.iconClass)}` : ""}" aria-hidden="true"><span class="mdi ${escapeHtmlStr(mdiName(item.icon || "mdi-circle-medium"))}"></span></span>
+          <span class="picker-option-text"><span class="picker-option-label">${escapeHtmlStr(item.label)}</span>${item.description ? `<span class="picker-option-desc">${escapeHtmlStr(item.description)}</span>` : ""}</span>
+          ${item.badge ? `<span class="badge badge-soft-${escapeHtmlStr(badgeVariant ?? "secondary")} rounded-pill">${escapeHtmlStr(item.badge)}</span>` : ""}
+          <span class="picker-option-check mdi mdi-check" aria-hidden="true"></span>
+        </button>`;
+    })
+    .join("");
+  const dialog = mountTransientDialog(`
+    <div class="modal picker-modal" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-pick-title" data-modal-draggable="false">
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="picker-heading">
+              <span class="picker-option-icon" aria-hidden="true"><span class="mdi ${escapeHtmlStr(mdiName(options.icon || "mdi-format-list-bulleted"))}"></span></span>
+              <div class="picker-heading-text">
+                <h5 id="aksara-pick-title" class="modal-title m-0">${escapeHtmlStr(options.title)}</h5>
+                ${options.subtitle ? `<div class="picker-subtitle">${escapeHtmlStr(options.subtitle)}</div>` : ""}
+              </div>
+            </div>
+            <button class="modal-close btn-close" type="button" data-modal-close aria-label="Close"></button>
+          </div>
+          <div class="modal-body"><div class="picker-list" role="listbox" aria-labelledby="aksara-pick-title">${items}</div></div>
+          <div class="modal-footer"><button class="btn btn-plain btn-sm" type="button" data-modal-close>${escapeHtmlStr(options.cancelLabel ?? "Cancel")}</button></div>
+        </div>
+      </div>
+    </div>
+  `);
+  if (!dialog) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value: string | null) => {
+      if (settled) return;
+      settled = true;
+      dialog.close();
+      resolve(value);
+    };
+    dialog.element.addEventListener("aksara:picker:select", (event) =>
+      finish(String((event as CustomEvent).detail.value))
+    );
+    dialog.element.addEventListener("aksara:modal:hide", () => finish(null), { once: true });
+  });
+}
+
 function mountTransientDialog(markup: string): { element: HTMLElement; close: () => void } | null {
   let host = document.getElementById("aksara-dialog-host");
   if (!host) {
@@ -2868,51 +5583,6 @@ function applyTheme(theme: "light" | "dark" | "system"): void {
   }
 }
 
-function setupClipboard(root: ParentNode = document): void {
-  if (typeof document === "undefined") return;
-  root.querySelectorAll<HTMLElement>("[data-clipboard]").forEach((trigger) => {
-    if (trigger.dataset.aksaraClipboardBound) return;
-    trigger.dataset.aksaraClipboardBound = "true";
-    trigger.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const targetSelector = trigger.getAttribute("data-clipboard");
-      let textToCopy = "";
-      if (targetSelector && targetSelector.startsWith("#")) {
-        const targetEl = document.querySelector(targetSelector);
-        if (targetEl) {
-          textToCopy = (targetEl as HTMLInputElement).value ?? targetEl.textContent ?? "";
-        }
-      } else if (targetSelector) {
-        textToCopy = targetSelector;
-      } else {
-        textToCopy = trigger.getAttribute("data-clipboard-text") || trigger.textContent || "";
-      }
-
-      if (navigator.clipboard && textToCopy) {
-        try {
-          await navigator.clipboard.writeText(textToCopy);
-          const originalText = trigger.getAttribute("data-clipboard-original") || trigger.innerHTML;
-          const successText = trigger.getAttribute("data-clipboard-success");
-          if (successText) {
-            if (!trigger.hasAttribute("data-clipboard-original")) {
-              trigger.setAttribute("data-clipboard-original", originalText);
-            }
-            trigger.innerHTML = successText;
-            setTimeout(() => {
-              trigger.innerHTML = originalText;
-            }, 2000);
-          }
-          trigger.classList.add("is-copied");
-          setTimeout(() => trigger.classList.remove("is-copied"), 2000);
-          emit(trigger, "clipboard:copy", { text: textToCopy });
-        } catch {
-          // ignore error
-        }
-      }
-    });
-  });
-}
-
 export const Aksara: AksaraNamespace = {
   Modal,
   Tooltip,
@@ -2923,6 +5593,10 @@ export const Aksara: AksaraNamespace = {
   Toast,
   Carousel,
   Offcanvas,
+  Select,
+  BottomSheet,
+  Collapse,
+  MediaViewer,
   modal: (target, options) => {
     const args = resolveArgs(target, options, ".modal");
     return createAll(args.target, Modal, args.options);
@@ -2955,9 +5629,51 @@ export const Aksara: AksaraNamespace = {
     const args = resolveArgs(target, options, ".carousel");
     return createAll(args.target, Carousel, args.options);
   },
+  select: (target, options) => {
+    const args = resolveArgs(target, options, ENHANCED_SELECT_SELECTOR);
+    return createAll(args.target, Select, args.options);
+  },
+  sheet: (target, options) => {
+    const args = resolveArgs(target, options, ".sheet");
+    return createAll(args.target, BottomSheet, args.options);
+  },
+  useTomSelect(constructor: TomSelectConstructor) {
+    useTomSelect(constructor);
+    return this;
+  },
+  tableSelection(table: HTMLTableElement | string, rows?: Array<HTMLTableRowElement | number> | "all" | "none") {
+    const element = typeof table === "string" ? document.querySelector<HTMLTableElement>(table) : table;
+    if (!element) return [];
+    if (rows !== undefined) {
+      const boxes = tableRowBoxes(element);
+      boxes.forEach((box, index) => {
+        if (box.disabled) return;
+        const row = box.closest("tr");
+        box.checked =
+          rows === "all" ? true : rows === "none" ? false : rows.some((item) => item === index || item === row);
+      });
+      syncTableSelection(element, true);
+    }
+    return selectedTableRows(element);
+  },
+  validate(form: HTMLFormElement | string) {
+    const element = typeof form === "string" ? document.querySelector<HTMLFormElement>(form) : form;
+    return element ? validateForm(element) : false;
+  },
   offcanvas: (target, options) => {
     const args = resolveArgs(target, options, ".offcanvas");
     return createAll(args.target, Offcanvas, args.options);
+  },
+  collapse: (target, options) => {
+    const args = resolveArgs(target, options, ".collapse");
+    return createAll(args.target, Collapse, args.options);
+  },
+  media: (target, options) => {
+    const args = resolveArgs(target, options, ".media-modal");
+    return createAll(args.target, MediaViewer, args.options);
+  },
+  pick(options: PickOptions): Promise<string | null> {
+    return pickOption(options);
   },
   setTheme(theme: "light" | "dark" | "system") {
     currentTheme = theme;
@@ -3008,23 +5724,16 @@ export const Aksara: AksaraNamespace = {
     const icon = options.icon ?? (tone === "danger" ? "mdi-alert-circle-outline" : "mdi-alert-outline");
 
     const dialog = mountTransientDialog(`
-      <div class="modal fade modal-sm" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-confirm-title">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content overflow-hidden border-0 shadow-lg">
-            <div class="modal-body text-center p-4">
-              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} text-4xl d-block mb-2" aria-hidden="true"></i>
-              <h5 id="aksara-confirm-title" class="text-xl fw-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
-              <p class="text-subtle mb-0">${escapeHtmlStr(options.message)}</p>
-            </div>
-            <div class="modal-footer p-0 overflow-hidden m-0 w-100 gap-0 d-flex border-top">
-              <button class="btn btn-ghost text-body rounded-0 py-3 m-0 text-center w-[50%]" type="button" data-aksara-confirm-cancel>
-                ${escapeHtmlStr(cancelLabel)}
-              </button>
-              <button class="btn btn-ghost border-start text-${escapeHtmlStr(tone)} rounded-0 py-3 m-0 text-center w-[50%]" type="button" data-aksara-confirm-accept>
-                <i class="mdi mdi-check me-1" aria-hidden="true"></i>
-                ${escapeHtmlStr(confirmLabel)}
-              </button>
-            </div>
+      <div class="modal modal-alert" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="aksara-confirm-title" aria-describedby="aksara-confirm-message" data-modal-draggable="false">
+        <div class="modal-dialog">
+          <div class="modal-alert-body">
+            <span class="modal-alert-icon text-${escapeHtmlStr(tone)}" aria-hidden="true"><i class="mdi ${escapeHtmlStr(icon)}"></i></span>
+            <h5 id="aksara-confirm-title" class="modal-alert-title">${escapeHtmlStr(options.title)}</h5>
+            <p id="aksara-confirm-message" class="modal-alert-message">${escapeHtmlStr(options.message)}</p>
+          </div>
+          <div class="modal-alert-actions">
+            <button class="modal-alert-action" type="button" data-aksara-confirm-cancel>${escapeHtmlStr(cancelLabel)}</button>
+            <button class="modal-alert-action modal-alert-action-${escapeHtmlStr(tone)}" type="button" data-aksara-confirm-accept>${escapeHtmlStr(confirmLabel)}</button>
           </div>
         </div>
       </div>
@@ -3064,19 +5773,15 @@ export const Aksara: AksaraNamespace = {
           : "mdi-information-outline");
 
     const dialog = mountTransientDialog(`
-      <div class="modal fade modal-sm" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="aksara-alert-title">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content overflow-hidden border-0 shadow-lg">
-            <div class="modal-body text-center p-4">
-              <i class="mdi ${escapeHtmlStr(icon)} text-${escapeHtmlStr(tone)} text-4xl d-block mb-2" aria-hidden="true"></i>
-              <h5 id="aksara-alert-title" class="text-xl fw-bold mb-2 text-body">${escapeHtmlStr(options.title)}</h5>
-              <p class="text-subtle mb-0">${escapeHtmlStr(options.message)}</p>
-            </div>
-            <div class="modal-footer p-0 overflow-hidden m-0 w-100 gap-0 d-flex border-top">
-              <button class="btn btn-ghost text-body rounded-0 py-3 m-0 text-center w-100" type="button" data-aksara-alert-dismiss>
-                ${escapeHtmlStr(buttonLabel)}
-              </button>
-            </div>
+      <div class="modal modal-alert" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="aksara-alert-title" aria-describedby="aksara-alert-message" data-modal-draggable="false">
+        <div class="modal-dialog">
+          <div class="modal-alert-body">
+            <span class="modal-alert-icon text-${escapeHtmlStr(tone)}" aria-hidden="true"><i class="mdi ${escapeHtmlStr(icon)}"></i></span>
+            <h5 id="aksara-alert-title" class="modal-alert-title">${escapeHtmlStr(options.title)}</h5>
+            <p id="aksara-alert-message" class="modal-alert-message">${escapeHtmlStr(options.message)}</p>
+          </div>
+          <div class="modal-alert-actions">
+            <button class="modal-alert-action modal-alert-action-${escapeHtmlStr(tone)}" type="button" data-aksara-alert-dismiss>${escapeHtmlStr(buttonLabel)}</button>
           </div>
         </div>
       </div>
@@ -3112,7 +5817,7 @@ export const Aksara: AksaraNamespace = {
     const toast = document.createElement("div");
     toast.className = "aksara-toast-pill";
     const iconClass = options.icon ?? "mdi-information-outline";
-    toast.innerHTML = `<i class="mdi ${escapeHtmlStr(iconClass)} text-primary" style="font-size: 1.15rem; line-height: 1;"></i><span>${escapeHtmlStr(message)}</span>`;
+    toast.innerHTML = `<i class="mdi ${escapeHtmlStr(iconClass)} text-${escapeHtmlStr(options.variant ?? "primary")}" style="font-size: 1.15rem; line-height: 1;"></i><span>${escapeHtmlStr(message)}</span>`;
     container.appendChild(toast);
 
     const duration = options.duration ?? 2500;
@@ -3124,27 +5829,23 @@ export const Aksara: AksaraNamespace = {
   },
 
   async clipboard(target: string | HTMLElement, text?: string): Promise<boolean> {
-    if (typeof navigator === "undefined" || !navigator.clipboard) return false;
+    if (typeof document === "undefined") return false;
     let textToCopy = text ?? "";
-    if (!textToCopy && typeof document !== "undefined") {
+    if (!textToCopy) {
       const el = typeof target === "string" ? document.querySelector(target) : target;
-      if (el) {
-        textToCopy = (el as HTMLInputElement).value ?? el.textContent ?? "";
-      }
+      textToCopy = textOf(el);
     }
-    if (!textToCopy) return false;
-    try {
-      await navigator.clipboard.writeText(textToCopy);
-      return true;
-    } catch {
-      return false;
-    }
+    return writeClipboard(textToCopy);
+  },
+  steps(target: string | HTMLElement, index?: number): number {
+    const el = typeof target === "string" ? document.querySelector<HTMLElement>(target) : target;
+    if (!el) return -1;
+    return index === undefined ? currentStep(el) : goToStep(el, index);
   },
   init(root: ParentNode = document) {
     if (root === document) {
       this.initTheme();
     }
-    setupClipboard(root);
     scanArbitraryDom(root);
     setupArbitraryObserver();
     scheduleIconStylesheetCheck();
@@ -3166,10 +5867,15 @@ export const Aksara: AksaraNamespace = {
     createAll(root.querySelectorAll<HTMLElement>(".toast"), Toast);
     createAll(root.querySelectorAll<HTMLElement>(".carousel"), Carousel);
     createAll(root.querySelectorAll<HTMLElement>(".modal"), Modal);
+    createAll(root.querySelectorAll<HTMLElement>(".media-modal"), MediaViewer);
     createAll(root.querySelectorAll<HTMLElement>(".offcanvas"), Offcanvas);
+    createAll(root.querySelectorAll<HTMLElement>(ENHANCED_SELECT_SELECTOR), Select);
+    createAll(root.querySelectorAll<HTMLElement>(".sheet"), BottomSheet);
     bindDataApi();
     bindDelegatedDataApi();
-    root.querySelectorAll?.<HTMLTextAreaElement>('textarea[data-role="autogrow"]').forEach(autogrowTextarea);
+    root.querySelectorAll?.<HTMLTextAreaElement>(AUTOGROW_TEXTAREA).forEach(autogrowTextarea);
+    initFormHelpers(root);
+    initScrollspy(root);
     emit(document.documentElement, "init", { root });
     return this;
   },

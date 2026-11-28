@@ -8,7 +8,7 @@ Use utility classes to compose bespoke, highly interactive layouts directly in y
 
 ::html
 <div class="docs-preview py-5 flex justify-center">
-  <article class="w-full p-4 bg-body border border-subtle rounded-[16px] shadow-md hover:border-primary/50 transition duration-[300ms]" style="max-width:520px;">
+  <article class="w-full p-4 bg-body border border-subtle rounded-[16px] hover:border-primary/50 transition duration-[300ms] max-w-[520px]">
     <div class="hstack justify-between items-center mb-4">
       <span class="badge badge-soft-primary hstack gap-2 text-xs px-3 py-1 rounded-full fw-bold">
         <span class="mdi mdi-cube-outline"></span> Utility-first
@@ -28,8 +28,7 @@ Use utility classes to compose bespoke, highly interactive layouts directly in y
 
 ```html
 <article
-  class="w-full p-4 bg-body border border-subtle rounded-[16px] shadow-md hover:border-primary/50 transition duration-[300ms]"
-  style="max-width:520px;"
+  class="w-full p-4 bg-body border border-subtle rounded-[16px] hover:border-primary/50 transition duration-[300ms] max-w-[520px]"
 >
   <div class="hstack justify-between items-center mb-4">
     <span class="badge badge-soft-primary hstack gap-2 text-xs px-3 py-1 rounded-full fw-bold">
@@ -87,9 +86,9 @@ theme ➔ breakpoint ➔ state ➔ utility
   <table class="table table-bordered table-striped">
     <thead>
       <tr>
-        <th style="width: 20%;">Type</th>
-        <th style="width: 40%;">Valid Composition</th>
-        <th style="width: 40%;">Invalid Composition</th>
+        <th class="w-[20%]">Type</th>
+        <th class="w-[40%]">Valid Composition</th>
+        <th class="w-[40%]">Invalid Composition</th>
       </tr>
     </thead>
     <tbody>

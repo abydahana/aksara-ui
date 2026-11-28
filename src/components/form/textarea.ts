@@ -13,7 +13,11 @@ export interface TextareaProps {
   isInvalid?: boolean;
   isValid?: boolean;
   className?: string;
+  /** Grow with the content (default `true`); `false` keeps the fixed `rows` height and scrolls. */
   autoGrow?: boolean;
+  /** Selector of an element that shows the character count (`data-counter`). */
+  counter?: string;
+  maxLength?: number;
   attributes?: Record<string, unknown>;
 }
 
@@ -31,21 +35,15 @@ export function Textarea(props: TextareaProps = {}): string {
     isInvalid = false,
     isValid = false,
     className = "",
-    autoGrow = false,
+    autoGrow = true,
+    counter,
+    maxLength,
     attributes
   } = props;
 
-  const isAutoGrow = autoGrow || rows === 1;
   const sizeClass = size ? `form-control-${normalizeSize(size)}` : "";
 
-  const classes = classNames(
-    "form-control",
-    sizeClass,
-    isAutoGrow && "form-control-autogrow",
-    isInvalid && "is-invalid",
-    isValid && "is-valid",
-    className
-  );
+  const classes = classNames("form-control", sizeClass, isInvalid && "is-invalid", isValid && "is-valid", className);
 
   const baseAttrs = toAttributes({
     name,
@@ -55,7 +53,10 @@ export function Textarea(props: TextareaProps = {}): string {
     disabled,
     readonly: readOnly,
     required,
-    ...(isAutoGrow ? { "data-role": "autogrow" } : {}),
+    maxlength: maxLength,
+    "data-counter": counter,
+    // Textareas autogrow by default; opting out is explicit.
+    "data-autogrow": autoGrow ? undefined : "false",
     ...attributes
   });
 

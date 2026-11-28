@@ -1,11 +1,10 @@
 /** Static utilities: spacing, sizing, colors, borders, layout, typography, effects. */
 import { colors } from "../palette";
-import { add, addWithAlias, addRaw, escapeClass, colorValue, px, negative, bootstrapSpacers } from "./core";
+import { add, addWithAlias, addRaw, escapeClass, colorValue, px, bootstrapSpacers } from "./core";
 
 export function addSpacing(): void {
   for (const [key, value] of Object.entries(bootstrapSpacers)) {
     const n = Number(key);
-    const inverse = negative(value);
 
     add(`m-${n}`, `margin:${value}`);
     add(`mt-${n}`, `margin-block-start:${value}`);
@@ -26,15 +25,6 @@ export function addSpacing(): void {
     add(`gap-y-${n}`, `row-gap:${value}`);
     add(`col-gap-${n}`, `column-gap:${value}`);
     add(`gap-x-${n}`, `column-gap:${value}`);
-    if (n > 0) {
-      add(`-m-${n}`, `margin:${inverse}`);
-      add(`-mt-${n}`, `margin-block-start:${inverse}`);
-      add(`-mb-${n}`, `margin-block-end:${inverse}`);
-      add(`-ms-${n}`, `margin-inline-start:${inverse}`);
-      add(`-me-${n}`, `margin-inline-end:${inverse}`);
-      add(`-mx-${n}`, `margin-inline:${inverse}`);
-      add(`-my-${n}`, `margin-block:${inverse}`);
-    }
   }
   add("m-auto", "margin:auto");
   add("mt-auto", "margin-block-start:auto");
@@ -119,6 +109,8 @@ export function addBorders(): void {
   add("border-y", "border-block:var(--aksara-border-width,1px) solid var(--aksara-border)");
   // Numeric utilities follow the 0..5 scale; other values use arbitrary classes (`border-[6px]`).
   for (let n = 0; n <= 5; n += 1) add(`border-${n}`, `border-width:${px(n)};border-style:solid`);
+  // Border style, after the shorthands and widths so `border-2 border-dashed` is dashed.
+  for (const style of ["solid", "dashed", "dotted", "double", "none"]) add(`border-${style}`, `border-style:${style}`);
   // `radius-*` is an alias of `rounded-*`: one rule, two selectors.
   // Radius is semantic (`rounded-xs` ... `rounded-3xl`); `rounded-0` removes it. Other values: `rounded-[12px]`.
   addWithAlias("rounded-0", "radius-0", "border-radius:0");
@@ -211,7 +203,6 @@ export function addDisplayAndPosition(): void {
   }).forEach(([name, declarations]) => add(name, declarations));
   for (const [key, value] of Object.entries(bootstrapSpacers)) {
     const n = Number(key);
-    const inverse = negative(value);
     add(`top-${n}`, `inset-block-start:${value}`);
     add(`bottom-${n}`, `inset-block-end:${value}`);
     add(`start-${n}`, `inset-inline-start:${value}`);
@@ -225,21 +216,6 @@ export function addDisplayAndPosition(): void {
     add(`inset-inline-end-${n}`, `inset-inline-end:${value}`);
     add(`inset-block-${n}`, `inset-block:${value}`);
     add(`inset-inline-${n}`, `inset-inline:${value}`);
-    if (n > 0) {
-      add(`-top-${n}`, `inset-block-start:${inverse}`);
-      add(`-bottom-${n}`, `inset-block-end:${inverse}`);
-      add(`-start-${n}`, `inset-inline-start:${inverse}`);
-      add(`-end-${n}`, `inset-inline-end:${inverse}`);
-      add(`-inset-${n}`, `inset:${inverse}`);
-      add(`-inset-x-${n}`, `inset-inline:${inverse}`);
-      add(`-inset-y-${n}`, `inset-block:${inverse}`);
-      add(`-inset-block-start-${n}`, `inset-block-start:${inverse}`);
-      add(`-inset-block-end-${n}`, `inset-block-end:${inverse}`);
-      add(`-inset-inline-start-${n}`, `inset-inline-start:${inverse}`);
-      add(`-inset-inline-end-${n}`, `inset-inline-end:${inverse}`);
-      add(`-inset-block-${n}`, `inset-block:${inverse}`);
-      add(`-inset-inline-${n}`, `inset-inline:${inverse}`);
-    }
   }
   // z-index has no static scale: always explicit, e.g. `z-[1]`, `z-[1050]`.
   add("z-auto", "z-index:auto");
@@ -271,6 +247,22 @@ export function addFlexGrid(): void {
     "items-center": "align-items:center",
     "items-end": "align-items:flex-end",
     "items-stretch": "align-items:stretch",
+    "items-baseline": "align-items:baseline",
+    "self-auto": "align-self:auto",
+    "self-start": "align-self:flex-start",
+    "self-center": "align-self:center",
+    "self-end": "align-self:flex-end",
+    "self-stretch": "align-self:stretch",
+    "self-baseline": "align-self:baseline",
+    "align-self-auto": "align-self:auto",
+    "align-self-start": "align-self:flex-start",
+    "align-self-center": "align-self:center",
+    "align-self-end": "align-self:flex-end",
+    "align-self-stretch": "align-self:stretch",
+    "align-self-baseline": "align-self:baseline",
+    "order-first": "order:-9999",
+    "order-last": "order:9999",
+    "order-0": "order:0",
     "align-items-start": "align-items:flex-start",
     "align-items-center": "align-items:center",
     "align-items-end": "align-items:flex-end",
@@ -303,8 +295,11 @@ export function addFlexGrid(): void {
   add("container-fluid", "width:100%;margin-inline:auto;padding-inline:var(--aksara-container-padding,1rem)");
   add(
     "row",
-    "--aksara-gutter-x:1rem;--aksara-gutter-y:0;display:flex;flex-wrap:wrap;margin-top:calc(-1*var(--aksara-gutter-y,0));margin-inline:calc(var(--aksara-gutter-x,1rem)/-2)"
+    "display:flex;flex-wrap:wrap;margin-top:calc(-1*var(--aksara-gutter-y,0));margin-inline:calc(var(--aksara-gutter-x,1rem)/-2)"
   );
+  // Default gutters at zero specificity, so `gap-*` (and `g-*`) on the row always win,
+  // whatever order the rules are emitted in.
+  addRaw(":where(.row)", "--aksara-gutter-x:1rem;--aksara-gutter-y:0");
   add("col", "flex:1 0 0%");
   add("col-auto", "flex:0 0 auto;width:auto");
   addRaw(".row-cols-auto > *", "flex:0 0 auto;width:auto");
@@ -418,7 +413,7 @@ export function addTypography(): void {
 export function addMotionEffectsLayout(): void {
   Object.entries({
     transition:
-      "transition-property:color,background-color,border-color,opacity,box-shadow,transform;transition-duration:150ms;transition-timing-function:ease-in-out",
+      "transition-property:color,background-color,border-color,opacity,box-shadow,transform;transition-duration:var(--aksara-duration,150ms);transition-timing-function:var(--aksara-ease,ease-in-out)",
     "transition-fast": "transition-property:all;transition-duration:100ms;transition-timing-function:ease-in-out",
     "transition-slow": "transition-property:all;transition-duration:300ms;transition-timing-function:ease-in-out",
     "ease-linear": "transition-timing-function:linear",

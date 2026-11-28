@@ -1,4 +1,4 @@
-import { classNames, escapeHtml, safeCssLength, safeUrl, toAttributes, normalizeSize } from "../utils";
+import { classNames, escapeHtml, iconClasses, safeCssLength, safeUrl, toAttributes, normalizeSize } from "../utils";
 
 export type AvatarSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
 export type AvatarShape = "circle" | "rounded" | "square";
@@ -8,12 +8,14 @@ export interface AvatarProps {
   src?: string;
   alt?: string;
   initials?: string;
+  /** Fallback icon classes when there is no `src` or `initials`. Defaults to `"mdi-account"`. */
+  icon?: string;
   size?: AvatarSize;
   width?: string | number;
   height?: string | number;
   shape?: AvatarShape;
   status?: AvatarStatus | boolean;
-  variant?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "dark" | "light";
+  variant?: "primary" | "secondary" | "tertiary" | "success" | "danger" | "warning" | "info" | "dark" | "light";
   /**
    * Apply the tinted variant background/text (`bg-{variant}/15 text-{variant}`) when there
    * is no image. Defaults to `true`; set `false` to style the fallback yourself.
@@ -30,6 +32,7 @@ export function Avatar(props: AvatarProps = {}): string {
     src,
     alt = "Avatar",
     initials,
+    icon = "mdi-account",
     size,
     width,
     height,
@@ -84,7 +87,7 @@ export function Avatar(props: AvatarProps = {}): string {
     contentHtml = `<span class="avatar-initials uppercase text-center leading-none">${escapeHtml(initials)}</span>`;
   } else {
     // Default fallback icon
-    contentHtml = `<span class="avatar-fallback mdi mdi-account opacity-[.75]"></span>`;
+    contentHtml = `<span class="${classNames("avatar-fallback", iconClasses(icon), "opacity-[.75]")}"></span>`;
   }
 
   let statusHtml = "";

@@ -5,6 +5,10 @@ export interface MediaGridItem {
   alt?: string;
   caption?: string;
   dataIndex?: number;
+  /** Extra classes on this cell (e.g. `"rounded-0"`). */
+  className?: string;
+  /** Custom overlay content (raw HTML) inside a `.media-grid-overlay` on this cell. Replaces the `+N` counter. */
+  overlayHtml?: string;
   attributes?: Record<string, unknown>;
 }
 
@@ -19,6 +23,13 @@ export interface MediaGridProps {
    */
   onItemClickAttribute?: string;
   itemClickDataId?: string;
+  /**
+   * Selector of a `MediaPreviewModal` (e.g. `"#viewer"`): clicking a cell opens it at that
+   * item, with every item (also the ones hidden behind "+N") available to browse.
+   */
+  viewer?: string;
+  /** Extra classes on every cell (e.g. `"rounded-0"` for a seamless block). */
+  itemClassName?: string;
   className?: string;
   attributes?: Record<string, unknown>;
 }
@@ -31,6 +42,8 @@ export function MediaGrid(props: MediaGridProps): string {
     rounded = true,
     onItemClickAttribute,
     itemClickDataId,
+    itemClassName = "",
+    viewer,
     className = "",
     attributes
   } = props;
@@ -57,6 +70,13 @@ export function MediaGrid(props: MediaGridProps): string {
 
   const baseAttrs = toAttributes({
     ...(itemClickDataId ? { "data-media-id": itemClickDataId } : {}),
+    ...(viewer
+      ? {
+          "data-media-items": JSON.stringify(
+            items.map((item) => ({ src: safeUrl(item.src), alt: item.alt ?? "", caption: item.caption ?? "" }))
+          )
+        }
+      : {}),
     ...attributes
   });
 
@@ -66,8 +86,10 @@ export function MediaGrid(props: MediaGridProps): string {
       const cellClasses = classNames(
         "media-grid-item",
         `media-grid-item-${idx + 1}`,
-        isLast && "has-overlay",
-        "position-relative overflow-hidden cursor-pointer"
+        (isLast || item.overlayHtml !== undefined) && "has-overlay",
+        "position-relative overflow-hidden cursor-pointer",
+        itemClassName,
+        item.className
       );
 
       const itemAttrs = toAttributes({
@@ -75,16 +97,23 @@ export function MediaGrid(props: MediaGridProps): string {
           ? { [onItemClickAttribute]: itemClickDataId }
           : {}),
         "data-media-index": item.dataIndex ?? idx,
+        "data-media-open": viewer,
+        role: viewer ? "button" : undefined,
+        tabindex: viewer ? "0" : undefined,
+        "aria-label": viewer ? `Open ${item.alt || `image ${idx + 1}`}` : undefined,
         ...item.attributes
       });
 
-      const overlayHtml = isLast
-        ? `
+      const overlayHtml =
+        item.overlayHtml !== undefined
+          ? `<div class="media-grid-overlay position-absolute inset-0 d-flex align-items-center justify-content-center">${item.overlayHtml}</div>`
+          : isLast
+            ? `
           <div class="media-grid-overlay position-absolute inset-0 d-flex align-items-center justify-content-center">
             <span class="media-grid-overlay-text fw-bold text-light text-2xl">+${extraCount}</span>
           </div>
         `.trim()
-        : "";
+            : "";
 
       return `
         <div class="${cellClasses}"${itemAttrs}>
